@@ -55,3 +55,4 @@
 - Đặt tên file rõ nghĩa, thể hiện được nội dung của file 
 - Mỗi file không quá 400 dòng
 - Dùng useCallback, useMemo để tối ưu 
+- Cần sửa bất kì gì chung cho toàn bộ trang web thì nói lại t 
