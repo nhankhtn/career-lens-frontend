@@ -1,7 +1,7 @@
 import { Stack } from "@mui/material";
 
 const CareerDetailContent = () => {
-  return <Stack>Career Detial</Stack>;
+  return <Stack>Career Detail</Stack>;
 };
 
 export default CareerDetailContent;

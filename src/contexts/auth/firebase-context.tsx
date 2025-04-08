@@ -179,7 +179,12 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
   const [fbInitialized, setFbInitialized] = useState(false);
   const { showSnackbarError } = useAppSnackbar();
 
-  const isDashboard = pathname.startsWith("/dashboard");
+  const isDashboard =
+    pathname.includes("/dashboard") ||
+    pathname.includes("/forum") ||
+    pathname.includes("/careers") ||
+    pathname.includes("/profle") ||
+    pathname.includes("/roadmap");
 
   const getToken = useCallback(
     async (user: FirebaseUser): Promise<User> => {
@@ -259,7 +264,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
         try {
           await _signOut();
           if (isDashboard) {
-            router.push(paths.auth.login);
+            // router.push(paths.auth.login);
             showSnackbarError("Vui lòng đăng nhập lại.");
           }
         } catch (error) {
@@ -269,7 +274,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     }, 2000);
 
     return () => clearInterval(intervalId);
-  }, [_signOut, isDashboard, router, showSnackbarError]);
+  }, [_signOut, isDashboard, showSnackbarError]);
 
   useEffect(() => {
     const cleanup = checkTokenInterval();
@@ -289,10 +294,10 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
       return user;
     } catch (error) {
       await _signOut();
-      await router.push(paths.auth.login);
+      // await router.push(paths.auth.login);
       throw new Error("Vui lòng đăng nhập lại");
     }
-  }, [_signOut, router]);
+  }, [_signOut]);
 
   /**
    * Initialize auth state on app load
@@ -546,7 +551,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
         if (returnTo) {
           url.searchParams.set("returnTo", returnTo);
         }
-        router.push(url.toString());
+        // router.push(url.toString());
       };
       const timeout = setTimeout(forceSignOut, 1500);
       return () => {
