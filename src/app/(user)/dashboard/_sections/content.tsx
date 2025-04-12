@@ -10,7 +10,7 @@ import ExperienceLevelChart from "./experience-level-chart"
 import InDemandSkills from "./in-demand-skills"
 
 
-import DashboardFilters from "@/components/dashboard-filters"
+import DashboardFilters from "@/app/(user)/dashboard/_components/filter-time-region"
 import { neutral } from "@/theme/colors"
 import RowStack from "@/components/row-stack"
 

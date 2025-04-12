@@ -11,7 +11,7 @@ import {
     Select,
     MenuItem,
 } from "@mui/material"
-import RowStack from "./row-stack"
+import RowStack from "../../../../components/row-stack"
 
 interface DashboardFiltersProps {
     onFilterChange: (filters: {

@@ -14,15 +14,14 @@ export default function RecruitmentHeatmap() {
 
   const weeks = useMemo(() => ["1st week", "2nd week", "3rd week", "4th week"], [])
 
-  // Function to get color based on value
   const getColorIntensity = (value: number) => {
     if (value < 2000) return neutral[200]
     if (value < 10000) return blue.light
     return blue.dark
   }
 
-  const renderLegend = useMemo(() => {
-    return (
+  return (
+    <Stack>
       <RowStack justifyContent="flex-end" gap={2} mb={2}>
         <RowStack>
           <Box sx={{ width: 12, height: 12, borderRadius: "50%", bgcolor: neutral[200], mr: 0.5 }} />
@@ -37,24 +36,16 @@ export default function RecruitmentHeatmap() {
           <Typography variant="caption">10,000+</Typography>
         </RowStack>
       </RowStack>
-    )
-  }, [])
 
-  return (
-    <Stack>
-      {renderLegend}
       <Box sx={{ display: "grid", gridTemplateColumns: "auto repeat(12, 1fr)", gap: 1 }}>
-        {/* Empty cell for top-left corner */}
         <Box></Box>
 
-        {/* Month headers */}
         {months.map((month) => (
           <Typography key={month} variant="caption" align="center" sx={{ fontWeight: "medium" }}>
             {month}
           </Typography>
         ))}
 
-        {/* Week rows with data cells */}
         {weeks.map((week, weekIndex) => (
           <>
             <Typography
