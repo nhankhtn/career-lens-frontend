@@ -277,8 +277,8 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
   }, [_signOut, isDashboard, showSnackbarError]);
 
   useEffect(() => {
-    const cleanup = checkTokenInterval();
-    return () => cleanup();
+    // const cleanup = checkTokenInterval();
+    // return () => cleanup();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

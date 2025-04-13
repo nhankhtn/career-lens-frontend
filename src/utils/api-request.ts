@@ -17,6 +17,14 @@ export const getFormData = (data: { [name: string]: any }): FormData => {
   return formData;
 };
 
+export const removeUndefinedKeys = <T extends Record<string, any>>(
+  obj: T
+): Partial<T> =>
+  Object.entries(obj).reduce((acc, [key, value]) => {
+    if (value !== undefined) acc[key as keyof T] = value;
+    return acc;
+  }, {} as Partial<T>);
+
 const getRequestHeaders = async (
   method: string,
   isFormData?: boolean
