@@ -3,26 +3,24 @@
 import {
   Box,
   Button,
-  Divider,
-  Stack,
   TextField,
   Typography,
   Link as MuiLink,
-  IconButton,
   InputAdornment,
+  IconButton,
 } from '@mui/material';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 
-const AuthRegisterContent = () => {
+const AuthResetPasswordContent = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   return (
     <Box display="flex" minHeight="100vh">
-      {/* Bên trái - Form Đăng ký */}
+      {/* Bên trái - Form Đặt lại mật khẩu */}
       <Box
         flex={1}
         px={6}
@@ -35,86 +33,17 @@ const AuthRegisterContent = () => {
       >
         <Image src="/logo.png" alt="Logo CareerLens" width={140} height={40} />
 
-        <Typography variant="h5" fontWeight="bold" mt={4}>
-          Tạo tài khoản mới
+        <Typography variant="h5" fontWeight="bold" mt={4} textAlign="center">
+          Tạo mật khẩu mới
         </Typography>
 
         <Typography variant="body2" mt={1} textAlign="center" color="text.secondary">
-          Bằng cách đăng ký, bạn đồng ý với{' '}
-          <MuiLink href="#" underline="hover">
-            Điều khoản
-          </MuiLink>{' '}
-          và{' '}
-          <MuiLink href="#" underline="hover">
-            Chính sách quyền riêng tư
-          </MuiLink>{' '}
-          của chúng tôi.
+          Nhập mật khẩu mới cho tài khoản của bạn
         </Typography>
 
-        <Stack spacing={1.5} mt={4} width="100%" maxWidth={320}>
-          <Button
-            variant="outlined"
-            startIcon={<Image src="/google-icon.svg" alt="Google" width={20} height={20} />}
-            sx={{
-              backgroundColor: '#FFECEC',
-              color: '#c72b32',
-              borderColor: '#f5c2c7',
-              textTransform: 'none',
-              borderRadius: '12px',
-              fontWeight: 500,
-            }}
-          >
-            Đăng ký bằng Google
-          </Button>
-
-          <Button
-            variant="outlined"
-            startIcon={<Image src="/facebook-icon.svg" alt="Facebook" width={20} height={20} />}
-            sx={{
-              backgroundColor: '#EEF2FF',
-              color: '#3b5998',
-              borderColor: '#c7d2fe',
-              textTransform: 'none',
-              borderRadius: '12px',
-              fontWeight: 500,
-            }}
-          >
-            Đăng ký bằng Facebook
-          </Button>
-        </Stack>
-
-        <Box mt={4} width="100%" maxWidth={320}>
-          <Divider>
-            <Typography variant="caption" color="text.secondary">
-              HOẶC ĐĂNG KÝ BẰNG EMAIL
-            </Typography>
-          </Divider>
-        </Box>
-
-        <Box mt={3} width="100%" maxWidth={320}>
+        <Box mt={5} width="100%" maxWidth={320}>
           <Typography variant="body2" fontWeight="bold" mb={1}>
-            Tên người dùng
-          </Typography>
-          <TextField
-            placeholder="Nhập tên người dùng"
-            fullWidth
-            variant="outlined"
-            sx={{ borderRadius: '12px', mb: 2 }}
-          />
-
-          <Typography variant="body2" fontWeight="bold" mb={1}>
-            Email
-          </Typography>
-          <TextField
-            type="email"
-            placeholder="example.email@gmail.com"
-            fullWidth
-            variant="outlined"
-            sx={{ borderRadius: '12px', mb: 2 }}
-          />
-
-          <Typography variant="body2" fontWeight="bold" mb={1}>
-            Mật khẩu
+            Mật khẩu mới
           </Typography>
           <TextField
             type={showPassword ? 'text' : 'password'}
@@ -168,12 +97,12 @@ const AuthRegisterContent = () => {
               },
             }}
           >
-            Đăng ký
+            Đặt lại mật khẩu
           </Button>
         </Box>
 
         <Typography variant="body2" mt={3}>
-          Đã có tài khoản?{' '}
+          Quay về{' '}
           <MuiLink component={Link} href="/auth/login" underline="hover">
             Đăng nhập
           </MuiLink>
@@ -190,15 +119,21 @@ const AuthRegisterContent = () => {
         flexDirection="column"
       >
         <Typography variant="h5" fontWeight="bold" mb={1}>
-          Chào mừng đến với CareerLens
+          Bảo mật là ưu tiên hàng đầu
         </Typography>
         <Typography variant="body2" mb={3} color="text.secondary">
-          Hãy bắt đầu hành trình nghề nghiệp của bạn 👋🏼
+          Hãy chắc chắn rằng bạn chọn một mật khẩu mạnh và dễ nhớ 💡
         </Typography>
-        <Image src="/welcome-illustration.png" alt="Minh họa đăng ký" width={300} height={300} />
+        <Image
+          src="/login-illustration.png"
+          alt="Reset Password Illustration"
+          width={300}
+          height={300}
+          suppressHydrationWarning
+        />
       </Box>
     </Box>
   );
 };
 
-export default AuthRegisterContent;
+export default AuthResetPasswordContent;

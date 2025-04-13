@@ -1,5 +1,5 @@
 import AuthRegisterContent from "./_sections/content";
 
-export default function Page() {
+export default function RegisterPage() {
   return <AuthRegisterContent />;
 }
