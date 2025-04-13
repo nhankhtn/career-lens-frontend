@@ -19,7 +19,14 @@ import RowStack from "@/components/row-stack";
 import { blue, error, success } from "@/theme/colors";
 
 // Đăng ký các thành phần cần thiết của Chart.js
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 interface TopCompaniesProps {
   filters: { fromDate: string; toDate: string; region: string };
@@ -28,79 +35,84 @@ interface TopCompaniesProps {
 export default function TopCompanies({ filters }: TopCompaniesProps) {
   const filteredData = useMemo(() => {
     return topCompaniesData; // Giả lập: dùng toàn bộ data không lọc
-  }, [filters]);
+  }, []);
 
-  const chartData: ChartData<"bar"> = useMemo(() => ({
-    labels: filteredData.map((item) => item.company),
-    datasets: [
-      {
-        label: "Số bài đăng trong 1 tháng",
-        data: filteredData.map((item) => item.junior),
-        backgroundColor: blue.main,
-      },
-      {
-        label: "Lương trung bình",
-        data: filteredData.map((item) => item.middle),
-        backgroundColor: error.main,
-      },
-      {
-        label: "Lương tối đa",
-        data: filteredData.map((item) => item.senior),
-        backgroundColor: success.main,
-      },
-    ],
-  }), [filteredData]);
+  const chartData: ChartData<"bar"> = useMemo(
+    () => ({
+      labels: filteredData.map((item) => item.company),
+      datasets: [
+        {
+          label: "Số bài đăng trong 1 tháng",
+          data: filteredData.map((item) => item.junior),
+          backgroundColor: blue.main,
+        },
+        {
+          label: "Lương trung bình",
+          data: filteredData.map((item) => item.middle),
+          backgroundColor: error.main,
+        },
+        {
+          label: "Lương tối đa",
+          data: filteredData.map((item) => item.senior),
+          backgroundColor: success.main,
+        },
+      ],
+    }),
+    [filteredData]
+  );
 
-  const chartOptions = useMemo(() => ({
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: "top" as const,
-        align: "end" as const,
-        labels: {
-          boxWidth: 12,
-          usePointStyle: true,
-          pointStyle: "circle" as const,
+  const chartOptions = useMemo(
+    () => ({
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: "top" as const,
+          align: "end" as const,
+          labels: {
+            boxWidth: 12,
+            usePointStyle: true,
+            pointStyle: "circle" as const,
+          },
+        },
+        tooltip: {
+          mode: "index" as const,
+          intersect: false,
         },
       },
-      tooltip: {
-        mode: "index" as const,
-        intersect: false,
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        grid: {
-          drawBorder: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: {
+            drawBorder: false,
+          },
+          ticks: {
+            precision: 0,
+          },
         },
-        ticks: {
-          precision: 0,
-        },
-      },
-      x: {
-        grid: {
-          display: false,
-          drawBorder: false,
+        x: {
+          grid: {
+            display: false,
+            drawBorder: false,
+          },
         },
       },
-    },
-  }), []);
-  
+    }),
+    []
+  );
 
   return (
     <Stack>
-      <RowStack justifyContent="space-between" mb={2}>
-        <Typography variant="h6" fontWeight="medium">
+      <RowStack justifyContent='space-between' mb={2}>
+        <Typography variant='h6' fontWeight='medium'>
           Top 5 công ty trong ngành IT
         </Typography>
-        <Link href="#" underline="hover" color="primary" sx={{ fontSize: 14 }}>
+        <Link href='#' underline='hover' color='primary' sx={{ fontSize: 14 }}>
           Tất cả
         </Link>
       </RowStack>
       <Box sx={{ height: 300 }}>
-      <Bar data={chartData} options={chartOptions as ChartOptions<"bar">} />
+        <Bar data={chartData} options={chartOptions as ChartOptions<"bar">} />
       </Box>
     </Stack>
   );

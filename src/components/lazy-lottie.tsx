@@ -2,7 +2,7 @@ import { Suspense, useCallback, useEffect, useState, type FC } from "react";
 import dynamic from "next/dynamic";
 import { Skeleton } from "@mui/material";
 import { LottieProps, Options } from "react-lottie";
-// @ts-expect-error:  react-lottie doesn't have default export typings
+
 const LazyLottieComponent = dynamic(() => import("react-lottie"), {
   ssr: false,
 });
