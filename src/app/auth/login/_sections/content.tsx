@@ -16,7 +16,9 @@ const AuthLoginContent = () => {
 
   return (
     <Stack m={5}>
-      <Button onClick={handleClick}>Login</Button>
+      <Button onClick={handleClick} variant='contained'>
+        Login
+      </Button>
     </Stack>
   );
 };

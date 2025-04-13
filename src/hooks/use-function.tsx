@@ -1,4 +1,5 @@
 "strict";
+"use client";
 /**
  * 16/09/2024
  * UPDATE: add option disableResetOnCall
