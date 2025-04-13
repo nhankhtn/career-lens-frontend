@@ -14,4 +14,16 @@ export const paths = {
   },
   forum: "/forum",
   roadmap: "/roadmap",
+
+  admin: {
+    dashboard: "/admin/dashboard",
+    company: "/admin/company",
+    career: "/admin/career",
+    user: "/admin/user",
+    roadmap: {
+      index: "/admin/roadmap",
+      detail: "/admin/roadmap/[roadmapId]",
+      create: "/admin/roadmap/create",
+    },
+  },
 };
