@@ -38,6 +38,7 @@ const getRequestHeaders = async (
   if (!isFormData) {
     headers.append("Content-Type", "application/json");
   }
+  headers.append("ngrok-skip-browser-warning", "true");
   return headers;
 };
 

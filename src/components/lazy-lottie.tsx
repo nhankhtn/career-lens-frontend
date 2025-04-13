@@ -2,7 +2,6 @@ import { Suspense, useCallback, useEffect, useState, type FC } from "react";
 import dynamic from "next/dynamic";
 import { Skeleton } from "@mui/material";
 import { LottieProps, Options } from "react-lottie";
-
 const LazyLottieComponent = dynamic(() => import("react-lottie"), {
   ssr: false,
 });
