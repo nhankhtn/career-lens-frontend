@@ -6,20 +6,20 @@ import {
   TextField,
   Typography,
   Link as MuiLink,
+  Stack,
 } from '@mui/material';
 import Image from 'next/image';
 import Link from 'next/link';
+import { paths } from '@/paths';
 
 const AuthForgotPasswordContent = () => {
   return (
     <Box display="flex" minHeight="100vh">
       {/* Bên trái: Form */}
-      <Box
+      <Stack
         flex={1}
         px={6}
         py={8}
-        display="flex"
-        flexDirection="column"
         alignItems="center"
         justifyContent="center"
         bgcolor="white"
@@ -30,7 +30,12 @@ const AuthForgotPasswordContent = () => {
           Quên mật khẩu?
         </Typography>
 
-        <Typography variant="body2" mt={1} color="text.secondary" textAlign="center">
+        <Typography
+          variant="body2"
+          mt={1}
+          color="text.secondary"
+          textAlign="center"
+        >
           Vui lòng nhập email để nhận liên kết khôi phục mật khẩu
         </Typography>
 
@@ -67,11 +72,11 @@ const AuthForgotPasswordContent = () => {
 
         <Typography variant="body2" mt={3}>
           Nhớ lại mật khẩu rồi?{' '}
-          <MuiLink component={Link} href="/auth/login" underline="hover" color="primary">
+          <MuiLink component={Link} href={paths.auth.login} underline="hover" color="primary">
             Đăng nhập
           </MuiLink>
         </Typography>
-      </Box>
+      </Stack>
 
       {/* Bên phải: Hình minh hoạ */}
       <Box
@@ -87,7 +92,7 @@ const AuthForgotPasswordContent = () => {
           Khôi phục tài khoản
         </Typography>
         <Typography variant="body2" mb={3} color="text.secondary">
-          Chúng tôi sẽ gửi cho bạn một liên kết để đặt lại mật khẩu 👀
+          Chúng tôi vừa gửi một liên kết để bạn đặt lại mật khẩu 👀
         </Typography>
         <img
           src="/login-illustration.png"

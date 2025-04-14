@@ -15,6 +15,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { paths } from '@/paths';
 
 const AuthRegisterContent = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -23,35 +24,30 @@ const AuthRegisterContent = () => {
   return (
     <Box display="flex" minHeight="100vh">
       {/* Bên trái - Form Đăng ký */}
-      <Box
+      <Stack
         flex={1}
         px={6}
         py={8}
-        display="flex"
-        flexDirection="column"
         alignItems="center"
         justifyContent="center"
         bgcolor="white"
+        spacing={3}
       >
         <Image src="/logo.png" alt="Logo CareerLens" width={140} height={40} />
 
-        <Typography variant="h5" fontWeight="bold" mt={4}>
-          Tạo tài khoản mới
-        </Typography>
+        <Box textAlign="center">
+          <Typography variant="h5" fontWeight="bold">
+            Tạo tài khoản mới
+          </Typography>
+          <Typography variant="body2" mt={1} color="text.secondary">
+            Bằng cách đăng ký, bạn đồng ý với{' '}
+            <MuiLink href="#" underline="hover">Điều khoản</MuiLink>{' '}
+            và{' '}
+            <MuiLink href="#" underline="hover">Chính sách quyền riêng tư</MuiLink>.
+          </Typography>
+        </Box>
 
-        <Typography variant="body2" mt={1} textAlign="center" color="text.secondary">
-          Bằng cách đăng ký, bạn đồng ý với{' '}
-          <MuiLink href="#" underline="hover">
-            Điều khoản
-          </MuiLink>{' '}
-          và{' '}
-          <MuiLink href="#" underline="hover">
-            Chính sách quyền riêng tư
-          </MuiLink>{' '}
-          của chúng tôi.
-        </Typography>
-
-        <Stack spacing={1.5} mt={4} width="100%" maxWidth={320}>
+        <Stack spacing={1.5} width="100%" maxWidth={320}>
           <Button
             variant="outlined"
             startIcon={<Image src="/google-icon.svg" alt="Google" width={20} height={20} />}
@@ -62,6 +58,9 @@ const AuthRegisterContent = () => {
               textTransform: 'none',
               borderRadius: '12px',
               fontWeight: 500,
+              '&:hover': {
+                backgroundColor: '#fddede',
+              },
             }}
           >
             Đăng ký bằng Google
@@ -77,51 +76,65 @@ const AuthRegisterContent = () => {
               textTransform: 'none',
               borderRadius: '12px',
               fontWeight: 500,
+              '&:hover': {
+                backgroundColor: '#e0e7ff',
+              },
             }}
           >
             Đăng ký bằng Facebook
           </Button>
         </Stack>
 
-        <Box mt={4} width="100%" maxWidth={320}>
-          <Divider>
+        <Box width="100%" maxWidth={320}>
+          <Divider sx={{ my: 3 }}>
             <Typography variant="caption" color="text.secondary">
               HOẶC ĐĂNG KÝ BẰNG EMAIL
             </Typography>
           </Divider>
         </Box>
 
-        <Box mt={3} width="100%" maxWidth={320}>
-          <Typography variant="body2" fontWeight="bold" mb={1}>
-            Tên người dùng
-          </Typography>
-          <TextField
-            placeholder="Nhập tên người dùng"
-            fullWidth
-            variant="outlined"
-            sx={{ borderRadius: '12px', mb: 2 }}
-          />
+        <Stack spacing={2} width="100%" maxWidth={320}>
+          {[
+            { label: 'Tên người dùng', placeholder: 'Nhập tên người dùng', type: 'text' },
+            { label: 'Email', placeholder: 'example.email@gmail.com', type: 'email' },
+          ].map(({ label, placeholder, type }) => (
+            <TextField
+              key={label}
+              label={label}
+              placeholder={placeholder}
+              type={type}
+              fullWidth
+              variant="outlined"
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: '12px',
+                  backgroundColor: '#F9FAFB',
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#6366F1',
+                    boxShadow: '0 0 0 2px rgba(99, 102, 241, 0.2)',
+                  },
+                },
+              }}
+            />
+          ))}
 
-          <Typography variant="body2" fontWeight="bold" mb={1}>
-            Email
-          </Typography>
+          {/* Mật khẩu */}
           <TextField
-            type="email"
-            placeholder="example.email@gmail.com"
-            fullWidth
-            variant="outlined"
-            sx={{ borderRadius: '12px', mb: 2 }}
-          />
-
-          <Typography variant="body2" fontWeight="bold" mb={1}>
-            Mật khẩu
-          </Typography>
-          <TextField
+            label="Mật khẩu"
             type={showPassword ? 'text' : 'password'}
             placeholder="Ít nhất 8 ký tự"
             fullWidth
             variant="outlined"
-            sx={{ borderRadius: '12px', mb: 2 }}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '12px',
+                backgroundColor: '#F9FAFB',
+                '&.Mui-focused fieldset': {
+                  borderColor: '#6366F1',
+                  boxShadow: '0 0 0 2px rgba(99, 102, 241, 0.2)',
+                },
+              },
+            }}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
@@ -133,15 +146,23 @@ const AuthRegisterContent = () => {
             }}
           />
 
-          <Typography variant="body2" fontWeight="bold" mb={1}>
-            Xác nhận mật khẩu
-          </Typography>
+          {/* Xác nhận mật khẩu */}
           <TextField
+            label="Xác nhận mật khẩu"
             type={showConfirmPassword ? 'text' : 'password'}
             placeholder="Nhập lại mật khẩu"
             fullWidth
             variant="outlined"
-            sx={{ borderRadius: '12px' }}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '12px',
+                backgroundColor: '#F9FAFB',
+                '&.Mui-focused fieldset': {
+                  borderColor: '#6366F1',
+                  boxShadow: '0 0 0 2px rgba(99, 102, 241, 0.2)',
+                },
+              },
+            }}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
@@ -157,7 +178,6 @@ const AuthRegisterContent = () => {
             variant="contained"
             fullWidth
             sx={{
-              mt: 3,
               py: 1.5,
               borderRadius: '12px',
               textTransform: 'none',
@@ -170,33 +190,38 @@ const AuthRegisterContent = () => {
           >
             Đăng ký
           </Button>
-        </Box>
+        </Stack>
 
         <Typography variant="body2" mt={3}>
           Đã có tài khoản?{' '}
-          <MuiLink component={Link} href="/auth/login" underline="hover">
+          <MuiLink component={Link} href={paths.auth.login} underline="hover">
             Đăng nhập
           </MuiLink>
         </Typography>
-      </Box>
+      </Stack>
 
       {/* Bên phải - Minh họa */}
-      <Box
+      <Stack
         flex={1}
         bgcolor="#F9FAFB"
-        display="flex"
-        justifyContent="center"
         alignItems="center"
-        flexDirection="column"
+        justifyContent="center"
+        spacing={2}
       >
-        <Typography variant="h5" fontWeight="bold" mb={1}>
+        <Typography variant="h5" fontWeight="bold">
           Chào mừng đến với CareerLens
         </Typography>
-        <Typography variant="body2" mb={3} color="text.secondary">
+        <Typography variant="body2" color="text.secondary">
           Hãy bắt đầu hành trình nghề nghiệp của bạn 👋🏼
         </Typography>
-        <Image src="/welcome-illustration.png" alt="Minh họa đăng ký" width={300} height={300} />
-      </Box>
+        <Image
+          src="/welcome-illustration.png"
+          alt="Minh họa đăng ký"
+          width={300}
+          height={300}
+          suppressHydrationWarning
+        />
+      </Stack>
     </Box>
   );
 };

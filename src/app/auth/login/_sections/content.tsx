@@ -3,23 +3,23 @@
 import {
   Box,
   Button,
+  Stack,
   TextField,
   Typography,
   Link as MuiLink,
 } from '@mui/material';
 import Image from 'next/image';
 import Link from 'next/link';
+import { paths } from '@/paths';
 
 const AuthLoginContent = () => {
   return (
     <Box display="flex" minHeight="100vh">
       {/* Bên trái - Form đăng nhập */}
-      <Box
+      <Stack
         flex={1}
         px={6}
         py={8}
-        display="flex"
-        flexDirection="column"
         alignItems="center"
         justifyContent="center"
         bgcolor="white"
@@ -30,7 +30,12 @@ const AuthLoginContent = () => {
           Chào mừng bạn quay lại
         </Typography>
 
-        <Typography variant="body2" mt={1} color="text.secondary" textAlign="center">
+        <Typography
+          variant="body2"
+          mt={1}
+          color="text.secondary"
+          textAlign="center"
+        >
           Vui lòng nhập thông tin để đăng nhập vào tài khoản của bạn.
         </Typography>
 
@@ -59,7 +64,12 @@ const AuthLoginContent = () => {
           />
 
           <Box textAlign="right" mt={1}>
-            <MuiLink component={Link} href="/auth/forgot-password" underline="hover" color="primary">
+            <MuiLink
+              component={Link}
+              href={paths.auth.forgotPassword}
+              underline="hover"
+              color="primary"
+            >
               Quên mật khẩu?
             </MuiLink>
           </Box>
@@ -86,11 +96,16 @@ const AuthLoginContent = () => {
         {/* Chuyển sang đăng ký */}
         <Typography variant="body2" mt={3}>
           Chưa có tài khoản?{' '}
-          <MuiLink component={Link} href="/auth/register" underline="hover" color="primary">
+          <MuiLink
+            component={Link}
+            href={paths.auth.register}
+            underline="hover"
+            color="primary"
+          >
             Đăng ký ngay
           </MuiLink>
         </Typography>
-      </Box>
+      </Stack>
 
       {/* Bên phải - Hình minh hoạ */}
       <Box
