@@ -24,9 +24,7 @@ const EditCoursesForm = ({ onClose, initialCourses, onSubmit }: EditCoursesFormP
             onSubmit(result);
             onClose();
         },
-        onError: (error) => {
-            console.error("Lỗi khi cập nhật lộ trình:", error);
-        },
+
     });
 
     const handleCourseChange = (index: number, field: keyof typeof initialCourses[0], value: string) => {

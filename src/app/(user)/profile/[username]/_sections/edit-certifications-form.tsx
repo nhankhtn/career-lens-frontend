@@ -32,9 +32,6 @@ const EditCertificationsForm = ({
             onSubmit(payload);
             onClose();
         },
-        onError: (error: any) => {
-            console.error("Lỗi khi cập nhật chứng chỉ:", error);
-        },
     });
 
     const handleCertChange = (index: number, field: keyof Certification, value: string) => {

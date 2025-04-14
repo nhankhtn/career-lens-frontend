@@ -27,9 +27,7 @@ const EditIntroductionForm = ({ onClose, initialValue, onSubmit }: EditIntroduct
             onSubmit(result); // Cập nhật dữ liệu trong component cha
             onClose(); // Đóng form
         },
-        onError: (error) => {
-            console.error("Lỗi khi cập nhật giới thiệu:", error);
-        },
+     
     });
 
     const handleSubmit = () => {

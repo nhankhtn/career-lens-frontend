@@ -23,9 +23,6 @@ const EditSkillsForm = ({ onClose, initialSkills, onSubmit }: EditSkillsFormProp
             onSubmit(payload);
             onClose();
         },
-        onError: (error) => {
-            console.error("Lỗi khi cập nhật kỹ năng:", error);
-        },
     });
 
     const handleSkillChange = (index: number, field: "skill" | "duration", value: string) => {

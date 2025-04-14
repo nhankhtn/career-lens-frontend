@@ -8,7 +8,7 @@ export default function ProfileSidebar() {
             <CardContent sx={{ p: 5}}>
                 <Box
                     sx={{
-                        bgcolor: "#f5f5f5",
+                        bgcolor: "primary.secondary",
                         p: 2,
                         display: "flex",
                         flexDirection: "column",
