@@ -1,5 +1,5 @@
 import AuthForgotPasswordContent from "./_sections/content";
 
-export default function Page() {
+export default function ForgotPasswordPage() {
   return <AuthForgotPasswordContent />;
 }

@@ -1,5 +1,5 @@
-import AuthLoginContent from "./_sections/content";
+import AuthRegisterContent from "./_sections/content";
 
-export default function Page() {
-  return <AuthLoginContent />;
+export default function RegisterPage() {
+  return <AuthRegisterContent />;
 }
