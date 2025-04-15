@@ -21,6 +21,9 @@ export const metadata: Metadata = {
   title: "Career Lens",
   description:
     "Nền tảng hỗ trợ định hướng nghề nghiệp và cá nhân hoá lộ trình học tập",
+  icons: {
+    icon: "/images/logo.png",
+  },
 };
 
 export default function RootLayout({
@@ -30,7 +33,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='vi'>
-      <body suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body
+        suppressHydrationWarning
+        className={`${geistSans.variable} ${geistMono.variable}`}
+      >
         <AppRouterCacheProvider options={{ key: "css" }}>
           <CssBaseline />
           <SnackbarProvider>
