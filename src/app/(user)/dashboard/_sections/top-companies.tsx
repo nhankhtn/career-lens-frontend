@@ -28,7 +28,7 @@ interface TopCompaniesProps {
 export default function TopCompanies({ filters }: TopCompaniesProps) {
   const filteredData = useMemo(() => {
     return topCompaniesData; // Giả lập: dùng toàn bộ data không lọc
-  }, [filters]);
+  }, []);
 
   const chartData: ChartData<"bar"> = useMemo(() => ({
     labels: filteredData.map((item) => item.company),

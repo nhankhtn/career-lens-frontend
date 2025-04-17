@@ -53,8 +53,9 @@ export default function RoadmapDetailContent() {
             <TopicTree topics={roadmapData.children} />
           ) : (
             <Typography variant="body1" color="text.secondary">
-              This roadmap doesn't have any topics yet.
+              This roadmap doesn&apos;t have any topics yet.
             </Typography>
+
           )}
         </Box>
       </Container>
