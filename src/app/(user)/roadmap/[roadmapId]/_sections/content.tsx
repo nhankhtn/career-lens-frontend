@@ -1,29 +1,18 @@
 "use client"
 
-import type React from "react"
-
 import { useParams } from "next/navigation"
-import { Container, Typography, Box, Button, Tabs, Tab, Divider } from "@mui/material"
+import { Container, Typography, Box, Button, Divider } from "@mui/material"
 import ArrowBackIcon from "@mui/icons-material/ArrowBack"
 import Link from "next/link"
-import { useState } from "react"
 import { getRoadmapData } from "../../_data/roadmap-details"
 import RoadmapHeader from "../_components/roadmap-header"
-import RoadmapFAQ from "../_components/roadmap-faq"
 import RoadmapActions from "../_components/roadmap-actions"
-import TopicsList from "../_components/topics-list"
-import ProjectsList from "../_components/projects-list"
+import TopicTree from "../_components/topic-tree"
 
 export default function RoadmapDetailContent() {
   const params = useParams()
   const roadmapId = params.roadmapId as string
   const roadmapData = getRoadmapData(roadmapId)
-
-  const [tabValue, setTabValue] = useState(0)
-
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    setTabValue(newValue)
-  }
 
   if (!roadmapData) {
     return (
@@ -37,12 +26,12 @@ export default function RoadmapDetailContent() {
   }
 
   return (
-    <Box sx={{ bgcolor: "#f8fafc", minHeight: "100vh", pt: 2 }}>
+    <Box sx={{ bgcolor: "background.default", minHeight: "100vh", pt: 2 }}>
 
       <Container maxWidth="lg">
         {/* Breadcrumb and Actions */}
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 4 }}>
-          <Button component={Link} href="/roadmap" startIcon={<ArrowBackIcon />} sx={{ color: "#64748b" }}>
+          <Button component={Link} href="/roadmap" startIcon={<ArrowBackIcon />} sx={{ color: "text.secondary" }}>
             All Roadmaps
           </Button>
 
@@ -52,44 +41,21 @@ export default function RoadmapDetailContent() {
         {/* Title and Description */}
         <RoadmapHeader title={roadmapData.title} description={roadmapData.description} />
 
-        {/* Tabs */}
-        <Box sx={{ mb: 4 }}>
-          <Tabs
-            value={tabValue}
-            onChange={handleTabChange}
-            sx={{
-              "& .MuiTabs-indicator": {
-                backgroundColor: "#000",
-              },
-              "& .Mui-selected": {
-                color: "#000 !important",
-                fontWeight: "bold",
-              },
-              "& .MuiTab-root": {
-                color: "#64748b",
-                textTransform: "none",
-                fontSize: "1rem",
-                fontWeight: "medium",
-                px: 3,
-              },
-            }}
-          >
-            <Tab label="Roadmap" />
-            <Tab label="Projects" />
-          </Tabs>
-          <Divider />
-        </Box>
+        <Divider sx={{ my: 4 }} />
 
-        {/* Tab Content */}
-        <Box sx={{ mb: 4 }}>
-          {tabValue === 0 && (
-            <Box>
-              <RoadmapFAQ title={roadmapData.title} faq={roadmapData.faq} />
-              <TopicsList topics={roadmapData.topicsWithResources} />
-            </Box>
+        {/* Roadmap Content */}
+        <Box sx={{ mb: 6 }}>
+          <Typography variant="h5" sx={{ mb: 4, fontWeight: "bold" }}>
+            Learning Path
+          </Typography>
+
+          {roadmapData.children && roadmapData.children.length > 0 ? (
+            <TopicTree topics={roadmapData.children} />
+          ) : (
+            <Typography variant="body1" color="text.secondary">
+              This roadmap doesn't have any topics yet.
+            </Typography>
           )}
-
-          {tabValue === 1 && <ProjectsList title={roadmapData.title} projects={roadmapData.projects} />}
         </Box>
       </Container>
     </Box>

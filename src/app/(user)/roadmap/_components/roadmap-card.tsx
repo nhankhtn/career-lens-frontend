@@ -1,67 +1,56 @@
-import { Card, CardContent, Typography, Box, IconButton, Chip } from "@mui/material"
+import { Card, CardContent, Typography, Box, IconButton } from "@mui/material"
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder"
 import Link from "next/link"
 
 interface RoadmapCardProps {
+  id: string
   title: string
-  href: string
-  isNew?: boolean
+  description: string
 }
 
-export default function RoadmapCard({ title, href, isNew }: RoadmapCardProps) {
+export default function RoadmapCard({ id, title, description }: RoadmapCardProps) {
   return (
     <Card
       sx={{
         height: "100%",
-        bgcolor: "white",
+        bgcolor: "background.paper",
         transition: "all 0.2s",
         "&:hover": {
-          bgcolor: "#f1f5f9",
+          bgcolor: "background.default",
+          transform: "translateY(-4px)",
         },
         borderRadius: 2,
-        boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+        boxShadow: 1,
       }}
     >
-      <CardContent sx={{ p: 2 }}>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-          <Box>
-            <Typography variant="subtitle1" component="h3" sx={{ fontWeight: 500, color: "#1e293b" }}>
-              <Link href={href} style={{ textDecoration: "none", color: "inherit" }}>
-                {title}
-              </Link>
-            </Typography>
-            {isNew && (
-              <Chip
-                size="small"
-                label={
-                  <Box sx={{ display: "flex", alignItems: "center" }}>
-                    <Box
-                      sx={{
-                        width: 8,
-                        height: 8,
-                        borderRadius: "50%",
-                        bgcolor: "#a855f7",
-                        mr: 0.5,
-                      }}
-                    />
-                    New
-                  </Box>
-                }
-                sx={{
-                  mt: 0.5,
-                  bgcolor: "#f3e8ff",
-                  color: "#9333ea",
-                  height: 20,
-                  "& .MuiChip-label": {
-                    px: 1,
-                  },
-                }}
-              />
-            )}
-          </Box>
-          <IconButton size="small" sx={{ color: "#64748b" }}>
+      <CardContent sx={{ p: 3 }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 2 }}>
+          <Typography variant="h6" component="h3" sx={{ fontWeight: 600, color: "text.primary" }}>
+            <Link href={`/roadmap/${id}`} style={{ textDecoration: "none", color: "inherit" }}>
+              {title}
+            </Link>
+          </Typography>
+          <IconButton size="small" sx={{ color: "text.secondary" }}>
             <BookmarkBorderIcon fontSize="small" />
           </IconButton>
+        </Box>
+
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          {description}
+        </Typography>
+
+        <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+          <Link
+            href={`/roadmap/${id}`}
+            style={{
+              textDecoration: "none",
+              color: "primary.main",
+              fontSize: "0.875rem",
+              fontWeight: 500,
+            }}
+          >
+            View Roadmap →
+          </Link>
         </Box>
       </CardContent>
     </Card>

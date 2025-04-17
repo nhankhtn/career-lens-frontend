@@ -1,472 +1,698 @@
 export interface Resource {
-    id: string
-    title: string
-    platform: string
-    url: string
-    free: boolean
-    duration?: string
+  id: string
+  title: string
+  type: "course" | "article" | "video" | "book" | "project" | "interview" | "resource" | "other"
+  url: string
+  platform?: string
+  free?: boolean
+  duration?: string
+}
+
+export interface Topic {
+  id: string
+  title: string
+  level: number
+  description: string
+  priority: number
+  resources: Resource[]
+  order: number
+  parent_id: string | null
+  children?: Topic[] // For building the hierarchy
+}
+
+export type TopicWithResources = Topic
+
+// Mock database of topics
+const topicsData: Topic[] = [
+  // Frontend Roadmap (Level 1)
+  {
+    id: "frontend",
+    title: "Frontend Developer",
+    level: 1,
+    description: "Step by step guide to becoming a modern frontend developer in 2025",
+    priority: 1,
+    resources: [],
+    order: 1,
+    parent_id: null,
+  },
+  // HTML (Level 2 - child of Frontend)
+  {
+    id: "html",
+    title: "HTML",
+    level: 2,
+    description: "Learn the basics of HTML, the markup language used to structure web content.",
+    priority: 1,
+    resources: [
+      {
+        id: "html-1",
+        title: "HTML Crash Course For Absolute Beginners",
+        type: "video",
+        url: "https://www.youtube.com/watch?v=UB1O30fR-EE",
+        platform: "YouTube",
+        free: true,
+        duration: "1 hour",
+      },
+      {
+        id: "html-2",
+        title: "HTML5 and CSS Fundamentals",
+        type: "course",
+        url: "https://www.edx.org/course/html5-and-css-fundamentals",
+        platform: "edX",
+        free: true,
+        duration: "6 weeks",
+      },
+    ],
+    order: 1,
+    parent_id: "frontend",
+  },
+  // HTML Basics (Level 3 - child of HTML)
+  {
+    id: "html-basics",
+    title: "HTML Basics",
+    level: 3,
+    description: "Learn the fundamental HTML elements and structure.",
+    priority: 1,
+    resources: [
+      {
+        id: "html-basics-1",
+        title: "HTML Elements Reference",
+        type: "resource",
+        url: "https://developer.mozilla.org/en-US/docs/Web/HTML/Element",
+        platform: "MDN",
+        free: true,
+      },
+    ],
+    order: 1,
+    parent_id: "html",
+  },
+  // HTML Forms (Level 3 - child of HTML)
+  {
+    id: "html-forms",
+    title: "HTML Forms",
+    level: 3,
+    description: "Learn how to create interactive forms in HTML.",
+    priority: 2,
+    resources: [
+      {
+        id: "html-forms-1",
+        title: "HTML Forms Tutorial",
+        type: "article",
+        url: "https://www.w3schools.com/html/html_forms.asp",
+        platform: "W3Schools",
+        free: true,
+      },
+    ],
+    order: 2,
+    parent_id: "html",
+  },
+  // CSS (Level 2 - child of Frontend)
+  {
+    id: "css",
+    title: "CSS",
+    level: 2,
+    description: "Learn CSS to style and layout web pages with responsive design principles.",
+    priority: 2,
+    resources: [
+      {
+        id: "css-1",
+        title: "CSS Crash Course For Absolute Beginners",
+        type: "video",
+        url: "https://www.youtube.com/watch?v=yfoY53QXEnI",
+        platform: "YouTube",
+        free: true,
+        duration: "1.5 hours",
+      },
+    ],
+    order: 2,
+    parent_id: "frontend",
+  },
+  // CSS Selectors (Level 3 - child of CSS)
+  {
+    id: "css-selectors",
+    title: "CSS Selectors",
+    level: 3,
+    description: "Learn how to select HTML elements to apply styles.",
+    priority: 1,
+    resources: [
+      {
+        id: "css-selectors-1",
+        title: "CSS Selectors Reference",
+        type: "resource",
+        url: "https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors",
+        platform: "MDN",
+        free: true,
+      },
+    ],
+    order: 1,
+    parent_id: "css",
+  },
+  // JavaScript (Level 2 - child of Frontend)
+  {
+    id: "javascript",
+    title: "JavaScript",
+    level: 2,
+    description: "Learn the fundamentals of JavaScript, the programming language of the web.",
+    priority: 3,
+    resources: [
+      {
+        id: "js-1",
+        title: "JavaScript Crash Course For Beginners",
+        type: "video",
+        url: "https://www.youtube.com/watch?v=hdI2bqOjy3c",
+        platform: "YouTube",
+        free: true,
+        duration: "1.5 hours",
+      },
+    ],
+    order: 3,
+    parent_id: "frontend",
+  },
+  // Backend Roadmap (Level 1)
+  {
+    id: "backend",
+    title: "Backend Developer",
+    level: 1,
+    description: "Step by step guide to becoming a modern backend developer in 2025",
+    priority: 2,
+    resources: [],
+    order: 2,
+    parent_id: null,
+  },
+  // Node.js (Level 2 - child of Backend)
+  {
+    id: "nodejs",
+    title: "Node.js",
+    level: 2,
+    description: "Learn server-side JavaScript with Node.js.",
+    priority: 1,
+    resources: [
+      {
+        id: "nodejs-1",
+        title: "Node.js Crash Course",
+        type: "video",
+        url: "https://www.youtube.com/watch?v=fBNz5xF-Kx4",
+        platform: "YouTube",
+        free: true,
+        duration: "1.5 hours",
+      },
+    ],
+    order: 1,
+    parent_id: "backend",
+  },
+  // Databases (Level 2 - child of Backend)
+  {
+    id: "databases",
+    title: "Databases",
+    level: 2,
+    description: "Learn about different types of databases and how to use them.",
+    priority: 2,
+    resources: [
+      {
+        id: "db-1",
+        title: "SQL Tutorial",
+        type: "article",
+        url: "https://www.w3schools.com/sql/",
+        platform: "W3Schools",
+        free: true,
+      },
+    ],
+    order: 2,
+    parent_id: "backend",
+  },
+  // DevOps Roadmap (Level 1)
+  {
+    id: "devops",
+    title: "DevOps Engineer",
+    level: 1,
+    description: "Step by step guide to becoming a DevOps engineer in 2025",
+    priority: 3,
+    resources: [],
+    order: 3,
+    parent_id: null,
+  },
+  // Docker (Level 2 - child of DevOps)
+  {
+    id: "docker",
+    title: "Docker",
+    level: 2,
+    description: "Learn containerization with Docker.",
+    priority: 1,
+    resources: [
+      {
+        id: "docker-1",
+        title: "Docker Crash Course",
+        type: "video",
+        url: "https://www.youtube.com/watch?v=pTFZFxd4hOI",
+        platform: "YouTube",
+        free: true,
+        duration: "1 hour",
+      },
+    ],
+    order: 1,
+    parent_id: "devops",
+  },
+  // Level 4 topics
+  // HTML Semantic Elements (Level 4 - child of HTML Basics)
+  {
+    id: "html-semantic",
+    title: "HTML Semantic Elements",
+    level: 4,
+    description:
+      "Learn about semantic HTML elements that clearly describe their meaning to both the browser and developer.",
+    priority: 1,
+    resources: [
+      {
+        id: "html-semantic-1",
+        title: "HTML Semantic Elements Guide",
+        type: "article",
+        url: "https://www.w3schools.com/html/html5_semantic_elements.asp",
+        platform: "W3Schools",
+        free: true,
+      },
+      {
+        id: "html-semantic-2",
+        title: "Why You Should Use Semantic HTML",
+        type: "video",
+        url: "https://www.youtube.com/watch?v=kGW8Al_cga4",
+        platform: "YouTube",
+        free: true,
+        duration: "12 minutes",
+      },
+    ],
+    order: 1,
+    parent_id: "html-basics",
+  },
+
+  // HTML Tables (Level 4 - child of HTML Basics)
+  {
+    id: "html-tables",
+    title: "HTML Tables",
+    level: 4,
+    description: "Learn how to create and style tables in HTML for displaying tabular data.",
+    priority: 2,
+    resources: [
+      {
+        id: "html-tables-1",
+        title: "HTML Table Basics",
+        type: "article",
+        url: "https://developer.mozilla.org/en-US/docs/Learn/HTML/Tables/Basics",
+        platform: "MDN",
+        free: true,
+      },
+      {
+        id: "html-tables-2",
+        title: "Advanced HTML Tables",
+        type: "course",
+        url: "https://www.linkedin.com/learning/html-tables",
+        platform: "LinkedIn Learning",
+        free: false,
+        duration: "1.5 hours",
+      },
+    ],
+    order: 2,
+    parent_id: "html-basics",
+  },
+
+  // Form Validation (Level 4 - child of HTML Forms)
+  {
+    id: "form-validation",
+    title: "Form Validation",
+    level: 4,
+    description: "Learn how to validate form inputs using HTML5 attributes and JavaScript.",
+    priority: 1,
+    resources: [
+      {
+        id: "form-validation-1",
+        title: "Client-side form validation",
+        type: "article",
+        url: "https://developer.mozilla.org/en-US/docs/Learn/Forms/Form_validation",
+        platform: "MDN",
+        free: true,
+      },
+      {
+        id: "form-validation-2",
+        title: "HTML Form Validation Examples",
+        type: "video",
+        url: "https://www.youtube.com/watch?v=In0nB0ABaUk",
+        platform: "YouTube",
+        free: true,
+        duration: "28 minutes",
+      },
+    ],
+    order: 1,
+    parent_id: "html-forms",
+  },
+
+  // Form Accessibility (Level 4 - child of HTML Forms)
+  {
+    id: "form-accessibility",
+    title: "Form Accessibility",
+    level: 4,
+    description: "Learn how to make your forms accessible to all users, including those with disabilities.",
+    priority: 2,
+    resources: [
+      {
+        id: "form-accessibility-1",
+        title: "Web Forms Accessibility",
+        type: "article",
+        url: "https://webaim.org/techniques/forms/",
+        platform: "WebAIM",
+        free: true,
+      },
+      {
+        id: "form-accessibility-2",
+        title: "Creating Accessible Forms",
+        type: "course",
+        url: "https://www.udemy.com/course/web-accessibility-creating-accessible-forms/",
+        platform: "Udemy",
+        free: false,
+        duration: "2 hours",
+      },
+    ],
+    order: 2,
+    parent_id: "html-forms",
+  },
+
+  // CSS Box Model (Level 4 - child of CSS Selectors)
+  {
+    id: "css-box-model",
+    title: "CSS Box Model",
+    level: 4,
+    description: "Learn about the CSS box model and how it affects layout and spacing.",
+    priority: 1,
+    resources: [
+      {
+        id: "css-box-model-1",
+        title: "The CSS Box Model",
+        type: "article",
+        url: "https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Box_Model/Introduction_to_the_CSS_box_model",
+        platform: "MDN",
+        free: true,
+      },
+      {
+        id: "css-box-model-2",
+        title: "CSS Box Model Explained",
+        type: "video",
+        url: "https://www.youtube.com/watch?v=rIO5326FgPE",
+        platform: "YouTube",
+        free: true,
+        duration: "15 minutes",
+      },
+    ],
+    order: 1,
+    parent_id: "css-selectors",
+  },
+
+  // CSS Flexbox (Level 4 - child of CSS Selectors)
+  {
+    id: "css-flexbox",
+    title: "CSS Flexbox",
+    level: 4,
+    description: "Learn how to use CSS Flexbox for creating flexible layouts.",
+    priority: 2,
+    resources: [
+      {
+        id: "css-flexbox-1",
+        title: "A Complete Guide to Flexbox",
+        type: "article",
+        url: "https://css-tricks.com/snippets/css/a-guide-to-flexbox/",
+        platform: "CSS-Tricks",
+        free: true,
+      },
+      {
+        id: "css-flexbox-2",
+        title: "Flexbox in 20 Minutes",
+        type: "video",
+        url: "https://www.youtube.com/watch?v=JJSoEo8JSnc",
+        platform: "YouTube",
+        free: true,
+        duration: "20 minutes",
+      },
+      {
+        id: "css-flexbox-3",
+        title: "Flexbox Froggy",
+        type: "resource",
+        url: "https://flexboxfroggy.com/",
+        platform: "Flexbox Froggy",
+        free: true,
+      },
+    ],
+    order: 2,
+    parent_id: "css-selectors",
+  },
+
+  // Level 5 topics - Adding these to test the infinite nesting capability
+
+  // Header Elements (Level 5 - child of HTML Semantic)
+  {
+    id: "header-elements",
+    title: "Header Elements",
+    level: 5,
+    description: "Learn about semantic header elements like header, nav, and h1-h6.",
+    priority: 1,
+    resources: [
+      {
+        id: "header-elements-1",
+        title: "Semantic HTML: Header and Footer",
+        type: "article",
+        url: "https://www.semrush.com/blog/semantic-html5-guide/#header-and-footer-elements",
+        platform: "Semrush Blog",
+        free: true,
+      },
+      {
+        id: "header-elements-2",
+        title: "HTML5 Semantic Elements: Header",
+        type: "video",
+        url: "https://www.youtube.com/watch?v=QVX0X3UaDMM",
+        platform: "YouTube",
+        free: true,
+        duration: "8 minutes",
+      },
+    ],
+    order: 1,
+    parent_id: "html-semantic",
+  },
+
+  // Content Sectioning (Level 5 - child of HTML Semantic)
+  {
+    id: "content-sectioning",
+    title: "Content Sectioning",
+    level: 5,
+    description: "Learn about semantic elements for content sectioning like article, section, and aside.",
+    priority: 2,
+    resources: [
+      {
+        id: "content-sectioning-1",
+        title: "Content Sectioning in HTML5",
+        type: "article",
+        url: "https://developer.mozilla.org/en-US/docs/Web/HTML/Element#content_sectioning",
+        platform: "MDN",
+        free: true,
+      },
+      {
+        id: "content-sectioning-2",
+        title: "HTML5 Semantic Elements: Article vs Section",
+        type: "video",
+        url: "https://www.youtube.com/watch?v=o3A1WGLvXiE",
+        platform: "YouTube",
+        free: true,
+        duration: "10 minutes",
+      },
+    ],
+    order: 2,
+    parent_id: "html-semantic",
+  },
+
+  // HTML5 Validation (Level 5 - child of Form Validation)
+  {
+    id: "html5-validation",
+    title: "HTML5 Built-in Validation",
+    level: 5,
+    description: "Learn about HTML5 built-in form validation attributes like required, pattern, and min/max.",
+    priority: 1,
+    resources: [
+      {
+        id: "html5-validation-1",
+        title: "HTML5 Form Validation",
+        type: "article",
+        url: "https://developer.mozilla.org/en-US/docs/Learn/Forms/Form_validation#using_built-in_form_validation",
+        platform: "MDN",
+        free: true,
+      },
+      {
+        id: "html5-validation-2",
+        title: "HTML5 Form Validation Attributes",
+        type: "video",
+        url: "https://www.youtube.com/watch?v=NDNoj8slu_w",
+        platform: "YouTube",
+        free: true,
+        duration: "15 minutes",
+      },
+    ],
+    order: 1,
+    parent_id: "form-validation",
+  },
+
+  // JavaScript Validation (Level 5 - child of Form Validation)
+  {
+    id: "js-validation",
+    title: "JavaScript Form Validation",
+    level: 5,
+    description: "Learn how to validate forms using JavaScript for more complex validation requirements.",
+    priority: 2,
+    resources: [
+      {
+        id: "js-validation-1",
+        title: "JavaScript Form Validation",
+        type: "article",
+        url: "https://www.w3schools.com/js/js_validation.asp",
+        platform: "W3Schools",
+        free: true,
+      },
+      {
+        id: "js-validation-2",
+        title: "Form Validation with JavaScript",
+        type: "course",
+        url: "https://www.udemy.com/course/form-validation-with-javascript/",
+        platform: "Udemy",
+        free: false,
+        duration: "2.5 hours",
+      },
+    ],
+    order: 2,
+    parent_id: "form-validation",
+  },
+
+  // Flexbox Container (Level 5 - child of CSS Flexbox)
+  {
+    id: "flexbox-container",
+    title: "Flexbox Container Properties",
+    level: 5,
+    description: "Learn about flexbox container properties like flex-direction, justify-content, and align-items.",
+    priority: 1,
+    resources: [
+      {
+        id: "flexbox-container-1",
+        title: "Flexbox Container Properties",
+        type: "article",
+        url: "https://css-tricks.com/snippets/css/a-guide-to-flexbox/#aa-properties-for-the-parent-flex-container",
+        platform: "CSS-Tricks",
+        free: true,
+      },
+      {
+        id: "flexbox-container-2",
+        title: "Flexbox Container Deep Dive",
+        type: "video",
+        url: "https://www.youtube.com/watch?v=K74l26pE4YA",
+        platform: "YouTube",
+        free: true,
+        duration: "18 minutes",
+      },
+    ],
+    order: 1,
+    parent_id: "css-flexbox",
+  },
+
+  // Flexbox Items (Level 5 - child of CSS Flexbox)
+  {
+    id: "flexbox-items",
+    title: "Flexbox Item Properties",
+    level: 5,
+    description: "Learn about flexbox item properties like flex-grow, flex-shrink, and align-self.",
+    priority: 2,
+    resources: [
+      {
+        id: "flexbox-items-1",
+        title: "Flexbox Item Properties",
+        type: "article",
+        url: "https://css-tricks.com/snippets/css/a-guide-to-flexbox/#aa-properties-for-the-children-flex-items",
+        platform: "CSS-Tricks",
+        free: true,
+      },
+      {
+        id: "flexbox-items-2",
+        title: "Mastering Flex Items",
+        type: "video",
+        url: "https://www.youtube.com/watch?v=4Oi5xpjoCRk",
+        platform: "YouTube",
+        free: true,
+        duration: "22 minutes",
+      },
+    ],
+    order: 2,
+    parent_id: "css-flexbox",
+  },
+]
+
+// Function to build the topic hierarchy
+function buildTopicHierarchy(topics: Topic[]): Topic[] {
+  const topLevelTopics: Topic[] = []
+  const topicMap: Record<string, Topic> = {}
+
+  // First pass: create a map of all topics by ID
+  topics.forEach((topic) => {
+    topicMap[topic.id] = { ...topic, children: [] }
+  })
+
+  // Second pass: build the hierarchy
+  topics.forEach((topic) => {
+    if (topic.parent_id === null) {
+      // This is a top-level topic
+      topLevelTopics.push(topicMap[topic.id])
+    } else if (topicMap[topic.parent_id]) {
+      // This is a child topic, add it to its parent's children
+      topicMap[topic.parent_id].children = topicMap[topic.parent_id].children || []
+      topicMap[topic.parent_id].children!.push(topicMap[topic.id])
+    }
+  })
+
+  return topLevelTopics
+}
+
+// Get all top-level roadmaps (level 1 topics)
+export function getAllRoadmaps(): Topic[] {
+  return topicsData.filter((topic) => topic.level === 1)
+}
+
+// Get a specific roadmap with its full hierarchy
+export function getRoadmapData(id: string): Topic | undefined {
+  const allTopics = [...topicsData]
+  const roadmap = allTopics.find((topic) => topic.id === id)
+
+  if (!roadmap) {
+    return undefined
   }
-  
-  export interface TopicWithResources {
-    title: string
-    description: string
-    resources: Resource[]
-  }
-  
-  interface RoadmapDetail {
-    id: string
-    title: string
-    description: string
-    faq: string
-    topics: string[]
-    topicsWithResources: TopicWithResources[]
-    projects: string[]
-  }
-  
-  const frontendTopicsWithResources: TopicWithResources[] = [
-    {
-      title: "Internet Basics (DNS, HTTP, Browsers)",
-      description: "Learn how the internet works, including DNS, HTTP protocols, and browser rendering.",
-      resources: [
-        {
-          id: "internet-1",
-          title: "How Does the Internet Work?",
-          platform: "YouTube",
-          url: "https://www.youtube.com/watch?v=x3c1ih2NJEg",
-          free: true,
-          duration: "12 min",
-        },
-        {
-          id: "internet-2",
-          title: "Introduction to Networking",
-          platform: "Coursera",
-          url: "https://www.coursera.org/learn/computer-networking",
-          free: false,
-          duration: "4 weeks",
-        },
-        {
-          id: "internet-3",
-          title: "HTTP and Web Servers",
-          platform: "Udacity",
-          url: "https://www.udacity.com/course/http-web-servers--ud303",
-          free: true,
-          duration: "2 weeks",
-        },
-      ],
-    },
-    {
-      title: "HTML Fundamentals",
-      description: "Learn the basics of HTML, the markup language used to structure web content.",
-      resources: [
-        {
-          id: "html-1",
-          title: "HTML Crash Course For Absolute Beginners",
-          platform: "YouTube",
-          url: "https://www.youtube.com/watch?v=UB1O30fR-EE",
-          free: true,
-          duration: "1 hour",
-        },
-        {
-          id: "html-2",
-          title: "HTML5 and CSS Fundamentals",
-          platform: "edX",
-          url: "https://www.edx.org/course/html5-and-css-fundamentals",
-          free: true,
-          duration: "6 weeks",
-        },
-        {
-          id: "html-3",
-          title: "HTML & CSS - Certification Course for Beginners",
-          platform: "Udemy",
-          url: "https://www.udemy.com/course/html-css-certification-course-for-beginners/",
-          free: false,
-          duration: "4 hours",
-        },
-      ],
-    },
-    {
-      title: "CSS Fundamentals",
-      description: "Learn CSS to style and layout web pages with responsive design principles.",
-      resources: [
-        {
-          id: "css-1",
-          title: "CSS Crash Course For Absolute Beginners",
-          platform: "YouTube",
-          url: "https://www.youtube.com/watch?v=yfoY53QXEnI",
-          free: true,
-          duration: "1.5 hours",
-        },
-        {
-          id: "css-2",
-          title: "CSS - The Complete Guide 2023",
-          platform: "Udemy",
-          url: "https://www.udemy.com/course/css-the-complete-guide-incl-flexbox-grid-sass/",
-          free: false,
-          duration: "22 hours",
-        },
-        {
-          id: "css-3",
-          title: "Learn CSS",
-          platform: "web.dev",
-          url: "https://web.dev/learn/css/",
-          free: true,
-          duration: "Self-paced",
-        },
-      ],
-    },
-    {
-      title: "JavaScript Basics",
-      description: "Learn the fundamentals of JavaScript, the programming language of the web.",
-      resources: [
-        {
-          id: "js-1",
-          title: "JavaScript Crash Course For Beginners",
-          platform: "YouTube",
-          url: "https://www.youtube.com/watch?v=hdI2bqOjy3c",
-          free: true,
-          duration: "1.5 hours",
-        },
-        {
-          id: "js-2",
-          title: "The Complete JavaScript Course 2023",
-          platform: "Udemy",
-          url: "https://www.udemy.com/course/the-complete-javascript-course/",
-          free: false,
-          duration: "69 hours",
-        },
-        {
-          id: "js-3",
-          title: "JavaScript: Understanding the Weird Parts",
-          platform: "Udemy",
-          url: "https://www.udemy.com/course/understand-javascript/",
-          free: false,
-          duration: "11.5 hours",
-        },
-      ],
-    },
-    {
-      title: "Version Control Systems (Git)",
-      description: "Learn Git for version control and collaboration in software development.",
-      resources: [
-        {
-          id: "git-1",
-          title: "Git & GitHub Crash Course For Beginners",
-          platform: "YouTube",
-          url: "https://www.youtube.com/watch?v=SWYqp7iY_Tc",
-          free: true,
-          duration: "30 min",
-        },
-        {
-          id: "git-2",
-          title: "Version Control with Git",
-          platform: "Coursera",
-          url: "https://www.coursera.org/learn/version-control-with-git",
-          free: false,
-          duration: "4 weeks",
-        },
-        {
-          id: "git-3",
-          title: "Git Complete: The definitive, step-by-step guide",
-          platform: "Udemy",
-          url: "https://www.udemy.com/course/git-complete/",
-          free: false,
-          duration: "6 hours",
-        },
-      ],
-    },
-    {
-      title: "Package Managers (npm, yarn)",
-      description: "Learn about package managers to manage dependencies in your projects.",
-      resources: [
-        {
-          id: "npm-1",
-          title: "NPM Crash Course",
-          platform: "YouTube",
-          url: "https://www.youtube.com/watch?v=jHDhaSSKmB0",
-          free: true,
-          duration: "30 min",
-        },
-        {
-          id: "npm-2",
-          title: "Yarn Package Manager Crash Course",
-          platform: "YouTube",
-          url: "https://www.youtube.com/watch?v=g9_6KmiBISk",
-          free: true,
-          duration: "20 min",
-        },
-        {
-          id: "npm-3",
-          title: "Node.js, Express, MongoDB & More: The Complete Bootcamp",
-          platform: "Udemy",
-          url: "https://www.udemy.com/course/nodejs-express-mongodb-bootcamp/",
-          free: false,
-          duration: "42 hours",
-        },
-      ],
-    },
-    {
-      title: "CSS Frameworks (Bootstrap, Tailwind CSS)",
-      description: "Learn popular CSS frameworks to speed up your development process.",
-      resources: [
-        {
-          id: "cssfw-1",
-          title: "Bootstrap 5 Crash Course",
-          platform: "YouTube",
-          url: "https://www.youtube.com/watch?v=4sosXZsdy-s",
-          free: true,
-          duration: "1.5 hours",
-        },
-        {
-          id: "cssfw-2",
-          title: "Tailwind CSS Crash Course",
-          platform: "YouTube",
-          url: "https://www.youtube.com/watch?v=UBOj6rqRUME",
-          free: true,
-          duration: "1 hour",
-        },
-        {
-          id: "cssfw-3",
-          title: "Tailwind CSS From Scratch",
-          platform: "Udemy",
-          url: "https://www.udemy.com/course/tailwind-from-scratch/",
-          free: false,
-          duration: "12 hours",
-        },
-      ],
-    },
-    {
-      title: "CSS Preprocessors (Sass, Less)",
-      description: "Learn CSS preprocessors to enhance your CSS with variables, nesting, and more.",
-      resources: [
-        {
-          id: "sass-1",
-          title: "Sass Tutorial for Beginners",
-          platform: "YouTube",
-          url: "https://www.youtube.com/watch?v=_a5j7KoflTs",
-          free: true,
-          duration: "1 hour",
-        },
-        {
-          id: "sass-2",
-          title: "Advanced CSS and Sass",
-          platform: "Udemy",
-          url: "https://www.udemy.com/course/advanced-css-and-sass/",
-          free: false,
-          duration: "28 hours",
-        },
-        {
-          id: "sass-3",
-          title: "Less CSS Preprocessor Tutorial",
-          platform: "YouTube",
-          url: "https://www.youtube.com/watch?v=YD91G8DdUsw",
-          free: true,
-          duration: "30 min",
-        },
-      ],
-    },
-    {
-      title: "JavaScript Frameworks (React, Vue, Angular)",
-      description: "Learn popular JavaScript frameworks for building modern web applications.",
-      resources: [
-        {
-          id: "react-1",
-          title: "React JS Crash Course",
-          platform: "YouTube",
-          url: "https://www.youtube.com/watch?v=w7ejDZ8SWv8",
-          free: true,
-          duration: "1.5 hours",
-        },
-        {
-          id: "vue-1",
-          title: "Vue.js Crash Course",
-          platform: "YouTube",
-          url: "https://www.youtube.com/watch?v=qZXt1Aom3Cs",
-          free: true,
-          duration: "2 hours",
-        },
-        {
-          id: "angular-1",
-          title: "Angular Crash Course",
-          platform: "YouTube",
-          url: "https://www.youtube.com/watch?v=3dHNOWTI7H8",
-          free: true,
-          duration: "2 hours",
-        },
-        {
-          id: "react-2",
-          title: "React - The Complete Guide",
-          platform: "Udemy",
-          url: "https://www.udemy.com/course/react-the-complete-guide-incl-redux/",
-          free: false,
-          duration: "48 hours",
-        },
-      ],
-    },
-    {
-      title: "State Management",
-      description: "Learn state management solutions for complex applications.",
-      resources: [
-        {
-          id: "redux-1",
-          title: "Redux Toolkit Crash Course",
-          platform: "YouTube",
-          url: "https://www.youtube.com/watch?v=bbkBuqC1rU4",
-          free: true,
-          duration: "1 hour",
-        },
-        {
-          id: "context-1",
-          title: "React Context & Hooks Tutorial",
-          platform: "YouTube",
-          url: "https://www.youtube.com/watch?v=6RhOzQciVwI",
-          free: true,
-          duration: "30 min",
-        },
-        {
-          id: "zustand-1",
-          title: "Zustand Tutorial - React State Management",
-          platform: "YouTube",
-          url: "https://www.youtube.com/watch?v=KCr-UNsM3VQ",
-          free: true,
-          duration: "20 min",
-        },
-      ],
-    },
-  ]
-  
-  // Add more topics with resources as needed...
-  
-  const roadmapDetails: Record<string, RoadmapDetail> = {
-    frontend: {
-      id: "frontend",
-      title: "Frontend Developer",
-      description: "Step by step guide to becoming a modern frontend developer in 2025",
-      faq: "A Frontend Developer is responsible for developing the user interface and user experience of websites and web applications. They work with HTML, CSS, and JavaScript to create responsive and interactive web pages that users can see and interact with directly. Frontend developers ensure that the design and functionality of a website work properly across different browsers, devices, and screen sizes.",
-      topics: [
-        "Internet Basics (DNS, HTTP, Browsers)",
-        "HTML Fundamentals",
-        "CSS Fundamentals",
-        "JavaScript Basics",
-        "Version Control Systems (Git)",
-        "Package Managers (npm, yarn)",
-        "CSS Frameworks (Bootstrap, Tailwind CSS)",
-        "CSS Preprocessors (Sass, Less)",
-        "JavaScript Frameworks (React, Vue, Angular)",
-        "State Management",
-        "Modern CSS (Flexbox, Grid, Custom Properties)",
-        "Web Components",
-        "Progressive Web Apps",
-        "Performance Optimization",
-        "Testing (Unit, Integration, E2E)",
-        "TypeScript",
-        "Server-Side Rendering / Static Site Generation",
-        "GraphQL",
-        "Mobile Development (React Native)",
-        "Web Security Basics",
-      ],
-      topicsWithResources: frontendTopicsWithResources,
-      projects: [
-        "Personal Portfolio Website",
-        "E-commerce Product Page",
-        "Weather Application using APIs",
-        "Task Management Application",
-        "Social Media Dashboard",
-        "Blog Platform with CMS",
-        "Real-time Chat Application",
-        "Interactive Data Visualization",
-        "Online Quiz or Survey Application",
-        "Restaurant Reservation System",
-      ],
-    },
-    backend: {
-      id: "backend",
-      title: "Backend Developer",
-      description: "Step by step guide to becoming a modern backend developer in 2025",
-      faq: "A Backend Developer focuses on the server-side of web applications. They are responsible for creating and maintaining the core functionality of web applications, working with databases, server logic, APIs, and application architecture. Backend developers ensure that the data or services requested by the frontend are delivered efficiently.",
-      topics: [
-        "Internet Basics (DNS, HTTP, Hosting)",
-        "Programming Language (Node.js, Python, Java, etc.)",
-        "Version Control Systems (Git)",
-        "Relational Databases (MySQL, PostgreSQL)",
-        "NoSQL Databases (MongoDB, Redis)",
-        "APIs (REST, GraphQL)",
-        "Authentication & Authorization",
-        "Caching Strategies",
-        "Web Security",
-        "Testing (Unit, Integration, E2E)",
-        "Containerization (Docker)",
-        "CI/CD Pipelines",
-        "Cloud Services (AWS, Azure, GCP)",
-        "Serverless Architecture",
-        "Microservices",
-        "Message Brokers (RabbitMQ, Kafka)",
-        "Search Engines (Elasticsearch)",
-        "WebSockets",
-        "GraphQL",
-        "Performance Optimization",
-      ],
-      topicsWithResources: [], // This would be populated similar to frontendTopicsWithResources
-      projects: [
-        "RESTful API for a Blog",
-        "Authentication System",
-        "E-commerce Backend",
-        "Real-time Chat Server",
-        "Task Scheduling Service",
-        "Payment Processing System",
-        "Content Management System",
-        "File Upload and Storage Service",
-        "Social Media API",
-        "Data Analytics Pipeline",
-      ],
-    },
-    devops: {
-      id: "devops",
-      title: "DevOps Engineer",
-      description: "Step by step guide to becoming a DevOps engineer in 2025",
-      faq: "A DevOps Engineer works at the intersection of development and operations, focusing on improving collaboration between these teams and automating the process of software delivery and infrastructure changes. They implement practices that reduce the time between committing code changes and deploying them to production while ensuring high quality.",
-      topics: [
-        "Operating Systems (Linux)",
-        "Programming & Scripting (Python, Bash)",
-        "Version Control Systems (Git)",
-        "Networking Fundamentals",
-        "Containerization (Docker)",
-        "Container Orchestration (Kubernetes)",
-        "Infrastructure as Code (Terraform, CloudFormation)",
-        "Configuration Management (Ansible, Chef, Puppet)",
-        "CI/CD Pipelines (Jenkins, GitHub Actions)",
-        "Cloud Platforms (AWS, Azure, GCP)",
-        "Monitoring & Logging (Prometheus, Grafana, ELK Stack)",
-        "Security Practices (DevSecOps)",
-        "Database Administration",
-        "Service Mesh (Istio)",
-        "Serverless Computing",
-        "Microservices Architecture",
-        "Site Reliability Engineering Practices",
-        "Cost Optimization",
-        "Disaster Recovery & Backup Strategies",
-        "Performance Tuning",
-      ],
-      topicsWithResources: [], // This would be populated similar to frontendTopicsWithResources
-      projects: [
-        "Automated CI/CD Pipeline",
-        "Infrastructure as Code for a Web Application",
-        "Containerized Microservices Deployment",
-        "Monitoring and Alerting System",
-        "Auto-scaling Infrastructure",
-        "Disaster Recovery Solution",
-        "Security Scanning Integration",
-        "Log Management System",
-        "Multi-environment Deployment Strategy",
-        "Performance Optimization Project",
-      ],
-    },
-  }
-  
-  export function getRoadmapData(id: string): RoadmapDetail | undefined {
-    return roadmapDetails[id]
-  }
-  
-  export function getAllRoadmapIds(): string[] {
-    return Object.keys(roadmapDetails)
-  }
-  
+
+  // Build the complete hierarchy for this roadmap by including all descendants
+  // This is a more comprehensive approach that will include all levels (4, 5, etc.)
+  const relevantTopics = allTopics.filter((topic) => {
+    // Include the roadmap itself
+    if (topic.id === id) return true
+
+    // Find all topics that are descendants of this roadmap
+    let currentTopic = topic
+    let parentId = currentTopic.parent_id
+
+    // Traverse up the hierarchy until we reach the root or find our target roadmap
+    while (parentId) {
+      if (parentId === id) return true
+
+      // Move up to the parent
+      const parent = allTopics.find((t) => t.id === parentId)
+      if (!parent) break
+
+      currentTopic = parent
+      parentId = parent.parent_id
+    }
+
+    return false
+  })
+
+  const topicHierarchy = buildTopicHierarchy(relevantTopics)
+  return topicHierarchy[0]
+}
+
+// Get all topic IDs for generating static paths
+export function getAllTopicIds(): string[] {
+  return topicsData.map((topic) => topic.id)
+}

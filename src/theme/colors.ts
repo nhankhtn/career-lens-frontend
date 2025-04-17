@@ -107,3 +107,25 @@ export const error = withAlphas({
   darkest: "#7A271A",
   contrastText: "#FFFFFF",
 });
+
+// Priority colors
+export const priority = {
+  high: {
+    main: green.main,
+    light: green.light,
+    dark: green.dark,
+    contrastText: "#FFFFFF",
+  },
+  medium: {
+    main: purple.main,
+    light: purple.light,
+    dark: purple.dark,
+    contrastText: "#FFFFFF",
+  },
+  low: {
+    main: neutral[500],
+    light: neutral[200],
+    dark: neutral[700],
+    contrastText: "#FFFFFF",
+  },
+}

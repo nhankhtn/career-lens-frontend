@@ -7,7 +7,7 @@ import ShareIcon from "@mui/icons-material/Share"
 export default function RoadmapActions() {
   return (
     <Box sx={{ display: "flex", gap: 1 }}>
-      <IconButton sx={{ color: "#64748b" }}>
+      <IconButton sx={{ color: "text.secondary" }}>
         <BookmarkBorderIcon />
       </IconButton>
 
@@ -15,11 +15,11 @@ export default function RoadmapActions() {
         startIcon={<CalendarTodayIcon />}
         variant="outlined"
         sx={{
-          color: "#64748b",
-          borderColor: "#cbd5e1",
+          color: "text.secondary",
+          borderColor: "divider",
           "&:hover": {
-            borderColor: "#94a3b8",
-            bgcolor: "rgba(203, 213, 225, 0.1)",
+            borderColor: "text.secondary",
+            bgcolor: "action.hover",
           },
         }}
       >
@@ -30,10 +30,10 @@ export default function RoadmapActions() {
         startIcon={<DownloadIcon />}
         variant="contained"
         sx={{
-          bgcolor: "#eab308",
-          color: "#000",
+          bgcolor: "warning.main",
+          color: "text.primary",
           "&:hover": {
-            bgcolor: "#ca8a04",
+            bgcolor: "warning.dark",
           },
         }}
       >
@@ -44,11 +44,11 @@ export default function RoadmapActions() {
         startIcon={<ShareIcon />}
         variant="outlined"
         sx={{
-          color: "#64748b",
-          borderColor: "#cbd5e1",
+          color: "text.secondary",
+          borderColor: "divider",
           "&:hover": {
-            borderColor: "#94a3b8",
-            bgcolor: "rgba(203, 213, 225, 0.1)",
+            borderColor: "text.secondary",
+            bgcolor: "action.hover",
           },
         }}
       >
