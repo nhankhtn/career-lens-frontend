@@ -16,10 +16,27 @@ import Link from "next/link";
 import { useState } from "react";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { paths } from "@/paths";
+import { useAuth } from "@/contexts/auth/firebase-context";
+import useFunction from "@/hooks/use-function";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const AuthRegisterContent = () => {
+  const { signInWithGoogle } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const signInWithGoogleHelper = useFunction(signInWithGoogle, {
+    onSuccess: () => {
+      const returnTo = searchParams.get("returnTo");
+      if (returnTo) {
+        router.push(returnTo as string);
+      } else {
+        router.push(paths.dashboard);
+      }
+    },
+  });
 
   return (
     <Box display='flex' minHeight='100vh'>
@@ -79,6 +96,7 @@ const AuthRegisterContent = () => {
                 backgroundColor: "#fddede",
               },
             }}
+            onClick={signInWithGoogleHelper.call}
           >
             Đăng ký bằng Google
           </Button>

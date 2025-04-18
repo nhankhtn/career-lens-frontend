@@ -8,6 +8,7 @@ import {
   Avatar,
   Badge,
   Box,
+  Button,
   IconButton,
   Menu,
   MenuItem,
@@ -23,10 +24,12 @@ import Link from "next/link";
 import RowStack from "@/components/row-stack";
 import { getNavConfig } from "./get-nav-config";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/auth/firebase-context";
 
 interface TopNavProps {}
 
 const TopNav = ({}: TopNavProps) => {
+  const { user } = useAuth();
   const router = useRouter();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =
@@ -54,7 +57,7 @@ const TopNav = ({}: TopNavProps) => {
   const menuId = "primary-search-account-menu";
 
   const mobileMenuId = "primary-search-account-menu-mobile";
-
+  console.log("user", user);
   return (
     <AppBar
       position='fixed'
@@ -71,7 +74,7 @@ const TopNav = ({}: TopNavProps) => {
         <Link href={paths.dashboard}>
           <Box
             component={"img"}
-            src='/logo-transparent.png'
+            src='/images/logo-transparent.png'
             width={120}
             height={48}
             sx={{
@@ -93,28 +96,39 @@ const TopNav = ({}: TopNavProps) => {
             </Stack>
           ))}
         </RowStack>
-        <Box sx={{ display: { xs: "none", md: "flex" } }}>
-          <IconButton
-            size='large'
-            aria-label='show 4 new notifications'
-            color='inherit'
-          >
-            <Badge badgeContent={4} color='error'>
-              <NotificationsIcon />
-            </Badge>
-          </IconButton>
-          <IconButton
-            size='large'
-            edge='end'
-            aria-label='account of current user'
-            aria-controls={menuId}
-            aria-haspopup='true'
-            onClick={handleProfileMenuOpen}
-            color='inherit'
-          >
-            <Avatar sx={{ width: 32, height: 32 }}>A</Avatar>
-          </IconButton>
-        </Box>
+        {user?.email ? (
+          <Box sx={{ display: { xs: "none", md: "flex" } }}>
+            <IconButton
+              size='large'
+              aria-label='show 4 new notifications'
+              color='inherit'
+            >
+              <Badge badgeContent={4} color='error'>
+                <NotificationsIcon />
+              </Badge>
+            </IconButton>
+            <IconButton
+              size='large'
+              edge='end'
+              aria-label='account of current user'
+              aria-controls={menuId}
+              aria-haspopup='true'
+              onClick={handleProfileMenuOpen}
+              color='inherit'
+            >
+              <Avatar sx={{ width: 32, height: 32 }}>A</Avatar>
+            </IconButton>
+          </Box>
+        ) : (
+          <RowStack>
+            <Button
+              variant='contained'
+              onClick={() => router.push(paths.auth.login)}
+            >
+              Đăng nhập
+            </Button>
+          </RowStack>
+        )}
         <Box sx={{ display: { xs: "flex", md: "none" } }}>
           <IconButton
             size='large'
