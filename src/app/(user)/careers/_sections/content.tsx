@@ -14,19 +14,22 @@ import {
   Typography,
   IconButton,
 } from '@mui/material';
-import { SelectChangeEvent } from '@mui/material/Select'; // ✅ Bổ sung
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { paths } from '@/paths'; // ✅ import paths
 
 const CareerContent = () => {
+  const router = useRouter();
+
   const allSkills = ['HTML', 'Python', 'C#', 'Figma', 'JavaScript', 'SQL'];
   const [selectedSkills, setSelectedSkills] = useState<string[]>(['HTML', 'Python', 'C#', 'Figma']);
   const [loading, setLoading] = useState(false);
   const [showCareers, setShowCareers] = useState(false);
 
-  const handleAddSkill = (e: SelectChangeEvent<string>) => {
+  const handleAddSkill = (e: any) => {
     const newSkill = e.target.value;
     if (newSkill && !selectedSkills.includes(newSkill)) {
       setSelectedSkills([...selectedSkills, newSkill]);
@@ -46,35 +49,33 @@ const CareerContent = () => {
     }, 1500);
   };
 
+  const handleSeeDetail = (careerId: string) => {
+    const path = paths.career.detail.replace(':careerId', careerId);
+    router.push(path);
+  };
+
   return (
     <Stack spacing={6} px={4} py={6}>
       <Typography variant="h5" fontWeight="bold">Phân tích nghề</Typography>
 
       <Paper
-        component="div"
         sx={{
           borderRadius: 3,
           p: 4,
           backgroundColor: 'white',
           border: '1px solid #D6D9FF',
           boxShadow: 3,
-          transition: 'box-shadow 0.2s',
-          '&:hover': {
-            boxShadow: 6,
-            borderColor: '#6366F1',
-          },
+          '&:hover': { boxShadow: 6, borderColor: '#6366F1' },
         }}
       >
+        {/* Phần form */}
         <Typography variant="h6" fontWeight="bold" mb={3}>Thông tin cơ bản</Typography>
-
-        {/* Tải CV */}
         <Stack direction="row" spacing={1} alignItems="center" mb={3}>
           <Typography fontWeight="bold">Tải lên CV</Typography>
           <Typography color="text.secondary">(tùy chọn)</Typography>
           <IconButton color="primary" size="small"><CloudUploadIcon /></IconButton>
         </Stack>
 
-        {/* Kỹ năng + trắc nghiệm */}
         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="flex-start" mb={2}>
           <Stack spacing={1} flex={1}>
             <Typography fontWeight="bold">Kỹ năng hiện có</Typography>
@@ -101,28 +102,16 @@ const CareerContent = () => {
             </Stack>
           </Stack>
 
-          <Stack spacing={1} flex={1} justifyContent="center">
+          <Stack spacing={1} flex={1}>
             <Typography variant="body2" color="text.secondary" mt={2}>
               <u>Ban chưa biết mình có kỹ năng gì ?</u>
             </Typography>
-            <Button
-              variant="outlined"
-              size="medium"
-              fullWidth
-              sx={{
-                height: 56,
-                textTransform: 'none',
-                fontWeight: 'bold',
-                fontSize: '16px',
-                borderRadius: 2
-              }}
-            >
+            <Button variant="outlined" fullWidth>
               ⮐ Làm bài trắc nghiệm tự đánh giá
             </Button>
           </Stack>
         </Stack>
 
-        {/* 4 ô thông tin */}
         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} mt={2}>
           <Stack spacing={2} flex={1}>
             <TextField select label="Kinh nghiệm làm việc" defaultValue="Sinh viên năm 3" fullWidth>
@@ -152,20 +141,12 @@ const CareerContent = () => {
           </Stack>
         </Stack>
 
-        {/* Nút phân tích */}
         <Box display="flex" justifyContent="flex-end" mt={5}>
           <Button
             variant="contained"
             endIcon={<ArrowForwardIcon />}
             onClick={handleAnalyze}
-            sx={{
-              backgroundColor: '#6366F1',
-              textTransform: 'none',
-              fontWeight: 'bold',
-              '&:hover': {
-                backgroundColor: '#4F46E5',
-              },
-            }}
+            sx={{ backgroundColor: '#6366F1', textTransform: 'none', fontWeight: 'bold' }}
           >
             Phân tích nghề nghiệp
           </Button>
@@ -179,7 +160,7 @@ const CareerContent = () => {
         </Typography>
       )}
 
-      {/* Kết quả nghề nghiệp */}
+      {/* Danh sách nghề nghiệp */}
       <Fade in={showCareers} timeout={600}>
         <Stack spacing={2}>
           <Typography variant="h6" fontWeight="bold">Nghề nghiệp phù hợp</Typography>
@@ -205,19 +186,10 @@ const CareerContent = () => {
                   <Typography variant="body2" mt={1}>
                     <strong>Mô tả ngắn:</strong> Chịu trách nhiệm thu thập, xử lý và phản ánh dữ liệu
                   </Typography>
-                  <Stack direction="row" spacing={1} mt={1} flexWrap="wrap" alignItems="center">
+                  <Stack direction="row" spacing={1} mt={1} flexWrap="wrap">
                     <Typography variant="body2" fontWeight="bold" mr={1}>Kỹ năng cần có:</Typography>
                     {["Figma", "AdobeXD", "Excel", "Python"].map((tag) => (
-                      <Chip
-                        key={tag}
-                        label={tag}
-                        size="small"
-                        sx={{
-                          bgcolor: '#E0E7FF',
-                          color: '#1E3A8A',
-                          fontWeight: 500,
-                        }}
-                      />
+                      <Chip key={tag} label={tag} size="small" />
                     ))}
                   </Stack>
                   <Typography variant="body2" mt={1}>
@@ -227,20 +199,18 @@ const CareerContent = () => {
                     <Button
                       startIcon={<FavoriteBorderIcon />}
                       variant="text"
-                      sx={{ textTransform: 'none', color: '#6366F1', fontWeight: 'bold' }}
+                      sx={{ color: '#6366F1', fontWeight: 'bold' }}
                     >
                       Thêm vào ưu thích
                     </Button>
                     <Button
                       variant="contained"
                       endIcon={<ArrowForwardIcon />}
+                      onClick={() => router.push(paths.career.detail.replace(':careerId', 'data-analyst'))}
                       sx={{
                         backgroundColor: '#6366F1',
-                        textTransform: 'none',
                         fontWeight: 'bold',
-                        '&:hover': {
-                          backgroundColor: '#4F46E5',
-                        },
+                        '&:hover': { backgroundColor: '#4F46E5' },
                       }}
                     >
                       Xem chi tiết hơn
@@ -250,9 +220,6 @@ const CareerContent = () => {
               </Grid>
             ))}
           </Grid>
-          <Box textAlign="right">
-            <Button variant="text">Xem thêm</Button>
-          </Box>
         </Stack>
       </Fade>
     </Stack>

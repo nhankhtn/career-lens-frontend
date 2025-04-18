@@ -18,7 +18,7 @@ import {
   updateProfile,
   verifyPasswordResetCode,
 } from "firebase/auth";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import type { FC, ReactNode } from "react";
 import {
   createContext,
@@ -32,6 +32,8 @@ import { UsersApi } from "@/api/users";
 import useAppSnackbar from "@/hooks/use-app-snackbar";
 import { errorMap, firebaseApp } from "@/libs/firebase";
 import { paths } from "@/paths";
+import { RegisterValues } from "@/types/auth";
+import type { User, UserOnboarding } from "@/types/user";
 import {
   clearAuthData,
   getAuthData,
@@ -40,14 +42,13 @@ import {
   storeAuthData,
 } from "@/utils/auth";
 import CookieHelper, { CookieKeys } from "@/utils/cookie-helper";
-import { User, UserOnboarding } from "@/types/user";
-import { RegisterValues } from "@/types/auth";
 
 const auth = getAuth(firebaseApp);
 
 // State Types
 interface State {
   isInitialized: boolean;
+  isAuthenticated: boolean;
   user: User | null;
 }
 
@@ -67,6 +68,7 @@ type UpdateAction = {
 type InitializeAction = {
   type: ActionType.INITIALIZE;
   payload: {
+    isAuthenticated: boolean;
     user: User | null;
   };
 };
@@ -82,6 +84,7 @@ type Handler = (state: State, action: any) => State;
 type Action = InitializeAction | SignInAction | UpdateAction;
 
 const initialState: State = {
+  isAuthenticated: false,
   isInitialized: false,
   user: null,
 };
@@ -89,10 +92,11 @@ const initialState: State = {
 // Reducer and Handlers
 const handlers: Record<ActionType, Handler> = {
   INITIALIZE: (state: State, action: InitializeAction): State => {
-    const { user } = action.payload;
+    const { isAuthenticated, user } = action.payload;
 
     return {
       ...state,
+      isAuthenticated,
       isInitialized: true,
       user,
     };
@@ -102,6 +106,7 @@ const handlers: Record<ActionType, Handler> = {
 
     return {
       ...state,
+      isAuthenticated: true,
       user,
     };
   },
@@ -109,6 +114,7 @@ const handlers: Record<ActionType, Handler> = {
     const { user } = action.payload;
     return {
       ...state,
+      isAuthenticated: true,
       user: state.user ? { ...state.user, ...user } : null,
     };
   },
@@ -125,6 +131,7 @@ export interface AuthContextType extends State {
     currentPassword: string,
     newPassword: string
   ) => Promise<any>;
+  completeOnboarding: (values: UserOnboarding) => Promise<void>;
 
   signInWithEmailAndPassword: (
     email: string,
@@ -150,6 +157,7 @@ export const AuthContext = createContext<AuthContextType>({
   issuer: Issuer.Firebase,
   register: () => Promise.resolve(),
   changePassword: () => Promise.resolve(),
+  completeOnboarding: () => Promise.resolve(),
 
   signInWithEmailAndPassword: () => Promise.resolve(null),
   signInWithGoogle: () => Promise.resolve(null),
@@ -233,7 +241,6 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
       if (errorMap[(error as any).code]) {
         console.log(errorMap[(error as any).code]);
       }
-      console.log(error);
     }
   }, []);
 
@@ -242,7 +249,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
       await signOut(auth);
       dispatch({
         type: ActionType.INITIALIZE,
-        payload: { user: null },
+        payload: { isAuthenticated: false, user: null },
       });
       clearAuthData();
     } catch (error) {
@@ -255,6 +262,11 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
    * Periodically check if token exists to handle multi-tab signouts
    */
   const checkTokenInterval = useCallback(() => {
+    // Only create an interval if the user is authenticated
+    if (!state.isAuthenticated) {
+      return () => {}; // Return empty cleanup function if not authenticated
+    }
+
     const intervalId = setInterval(async () => {
       const accessToken = CookieHelper.getItem(CookieKeys.TOKEN, {
         domain: process.env.NEXT_PUBLIC_COOKIE_DOMAIN || undefined,
@@ -264,7 +276,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
         try {
           await _signOut();
           if (isDashboard) {
-            // router.push(paths.auth.login);
+            router.push(paths.auth.login);
             showSnackbarError("Vui lòng đăng nhập lại.");
           }
         } catch (error) {
@@ -274,19 +286,19 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     }, 2000);
 
     return () => clearInterval(intervalId);
-  }, [_signOut, isDashboard, showSnackbarError]);
+  }, [_signOut, state.isAuthenticated, isDashboard, router, showSnackbarError]);
 
   useEffect(() => {
-    // const cleanup = checkTokenInterval();
-    // return () => cleanup();
+    const cleanup = checkTokenInterval();
+    return () => cleanup();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [state.isAuthenticated]);
 
   const initializeUserInfo = useCallback(async () => {
     try {
       const user = await UsersApi.me();
 
-      if (!user?.id || !user.role || !user.name) {
+      if (!user?.id) {
         throw new Error("Invalid user data");
       }
 
@@ -294,10 +306,10 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
       return user;
     } catch (error) {
       await _signOut();
-      // await router.push(paths.auth.login);
+      router.push(paths.auth.login);
       throw new Error("Vui lòng đăng nhập lại");
     }
-  }, [_signOut]);
+  }, [_signOut, router]);
 
   /**
    * Initialize auth state on app load
@@ -313,15 +325,15 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
           const userData = await _signInAnonymously();
           dispatch({
             type: ActionType.INITIALIZE,
-            payload: { user: userData },
+            payload: { isAuthenticated: true, user: userData },
           });
         }
 
-        dispatch({
-          type: ActionType.INITIALIZE,
-          payload: { user: null },
-        });
-        return;
+        // dispatch({
+        //   type: ActionType.INITIALIZE,
+        //   payload: { isAuthenticated: false, user: null },
+        // });
+        // return;
       }
 
       // Get user from localStorage to reduce initial loading time
@@ -344,16 +356,15 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
           }
         });
       }
-
       dispatch({
         type: ActionType.INITIALIZE,
-        payload: { user },
+        payload: { isAuthenticated: true, user },
       });
     } catch (err) {
       showSnackbarError(err);
       dispatch({
         type: ActionType.INITIALIZE,
-        payload: { user: null },
+        payload: { isAuthenticated: false, user: null },
       });
     }
   }, [_signInAnonymously, initializeUserInfo, isDashboard, showSnackbarError]);
@@ -376,6 +387,27 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
+
+  const completeOnboarding = useCallback(async (values: UserOnboarding) => {
+    try {
+      // await UsersApi.userOnboarding({
+      //   ...values,
+      //   business_type: values.business_type || "0",
+      // });
+      // dispatch({
+      //   type: ActionType.UPDATE,
+      //   payload: {
+      //     user: {
+      //       tiktok_id: values.tiktok_id,
+      //       phone: values.phone,
+      //       onboarding_completed: true,
+      //     },
+      //   },
+      // });
+    } catch (error) {
+      throw error;
+    }
+  }, []);
 
   const _signInWithEmailAndPassword = useCallback(
     async (email: string, password: string): Promise<User> => {
@@ -420,6 +452,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
           userInfo.email,
           currentPassword
         );
+
         await updatePassword(user, newPassword);
       } catch (error) {
         handleAuthError(error);
@@ -551,7 +584,6 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
         if (returnTo) {
           url.searchParams.set("returnTo", returnTo);
         }
-        // router.push(url.toString());
       };
       const timeout = setTimeout(forceSignOut, 1500);
       return () => {
@@ -568,6 +600,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
         issuer: Issuer.Firebase,
         register,
         changePassword,
+        completeOnboarding,
 
         signInWithEmailAndPassword: _signInWithEmailAndPassword,
         signInAnonymously: _signInAnonymously,

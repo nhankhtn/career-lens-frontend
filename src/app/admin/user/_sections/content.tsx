@@ -96,7 +96,7 @@ const UserContent = () => {
   const filteredUsers = users.filter(
     (user) =>
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user?.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.role.toLowerCase().includes(searchTerm.toLowerCase())
   );
   return (
@@ -190,7 +190,7 @@ const UserContent = () => {
                         <Typography variant='body2'>{user.name}</Typography>
                       </Stack>
                     </TableCell>
-                    <TableCell>{user.email}</TableCell>
+                    <TableCell>{user?.email}</TableCell>
                     <TableCell>
                       <Chip
                         label={user.role}

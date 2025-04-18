@@ -92,7 +92,6 @@ const RoadmapDetailContent = () => {
     handleCloseAlert,
   } = useRoadmapDetailSearch();
   const dialogAddTopic = useDialog();
-
   if (!topic) {
     return <LoadingState />;
   }
