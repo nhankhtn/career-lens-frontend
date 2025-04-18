@@ -18,10 +18,9 @@ interface ExperienceLevelChartProps {
 export default function ExperienceLevelChart({ filters }: ExperienceLevelChartProps) {
   // Filter data based on filters (in a real app, this would fetch from API)
   const filteredData = useMemo(() => {
-    console.log("Applying filters to experience level chart:", filters)
     // This is a mock implementation - in a real app, you would filter the data based on the filters
     return experienceLevelData
-  }, [filters])
+  }, [])
 
   const chartData = useMemo(() => {
     return {
