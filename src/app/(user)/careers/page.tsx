@@ -1,5 +1,7 @@
 import CareerContent from "./_sections/content";
 
-export default function Page() {
+const CareerAnalysisPage = () => {
   return <CareerContent />;
-}
+};
+
+export default CareerAnalysisPage;

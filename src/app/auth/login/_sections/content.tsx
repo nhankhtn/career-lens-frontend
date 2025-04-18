@@ -3,16 +3,40 @@
 import {
   Box,
   Button,
+  Divider,
   Stack,
   TextField,
   Typography,
   Link as MuiLink,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
 import { paths } from "@/paths";
+import { useAuth } from "@/contexts/auth/firebase-context";
+import { useState } from "react";
+import useFunction from "@/hooks/use-function";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 const AuthLoginContent = () => {
+  const { signInWithGoogle } = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const signInWithGoogleHelper = useFunction(signInWithGoogle, {
+    onSuccess: () => {
+      const returnTo = searchParams.get("returnTo");
+      if (returnTo) {
+        router.push(returnTo as string);
+      } else {
+        router.push(paths.dashboard);
+      }
+    },
+  });
   return (
     <Box display='flex' minHeight='100vh'>
       {/* Bên trái - Form đăng nhập */}
@@ -23,6 +47,7 @@ const AuthLoginContent = () => {
         alignItems='center'
         justifyContent='center'
         bgcolor='white'
+        spacing={3}
       >
         <Image
           src='/images/logo.png'
@@ -31,21 +56,80 @@ const AuthLoginContent = () => {
           height={40}
         />
 
-        <Typography variant='h5' fontWeight='bold' mt={4}>
-          Chào mừng bạn quay lại
-        </Typography>
+        <Box textAlign='center'>
+          <Typography variant='h5' fontWeight='bold'>
+            Chào mừng bạn quay lại
+          </Typography>
+          <Typography variant='body2' mt={1} color='text.secondary'>
+            Vui lòng nhập thông tin để đăng nhập vào tài khoản của bạn.
+          </Typography>
+        </Box>
 
-        <Typography
-          variant='body2'
-          mt={1}
-          color='text.secondary'
-          textAlign='center'
-        >
-          Vui lòng nhập thông tin để đăng nhập vào tài khoản của bạn.
-        </Typography>
+        {/* Nút đăng nhập qua MXH */}
+        <Stack spacing={1.5} width='100%' maxWidth={320}>
+          <Button
+            variant='outlined'
+            startIcon={
+              <Image
+                src='/icons/google-icon.svg'
+                alt='Google'
+                width={20}
+                height={20}
+              />
+            }
+            sx={{
+              backgroundColor: "#FFECEC",
+              color: "#c72b32",
+              borderColor: "#f5c2c7",
+              textTransform: "none",
+              borderRadius: "12px",
+              fontWeight: 500,
+              "&:hover": {
+                backgroundColor: "#fddede",
+              },
+            }}
+            onClick={signInWithGoogleHelper.call}
+          >
+            Đăng nhập bằng Google
+          </Button>
 
-        {/* Form */}
-        <Box mt={5} width='100%' maxWidth={320}>
+          <Button
+            variant='outlined'
+            startIcon={
+              <Image
+                src='/icons/facebook-icon.svg'
+                alt='Facebook'
+                width={20}
+                height={20}
+              />
+            }
+            sx={{
+              backgroundColor: "#EEF2FF",
+              color: "#3b5998",
+              borderColor: "#c7d2fe",
+              textTransform: "none",
+              borderRadius: "12px",
+              fontWeight: 500,
+              "&:hover": {
+                backgroundColor: "#e0e7ff",
+              },
+            }}
+          >
+            Đăng nhập bằng Facebook
+          </Button>
+        </Stack>
+
+        {/* Divider */}
+        <Box width='100%' maxWidth={320}>
+          <Divider sx={{ my: 3 }}>
+            <Typography variant='caption' color='text.secondary'>
+              HOẶC ĐĂNG NHẬP BẰNG EMAIL
+            </Typography>
+          </Divider>
+        </Box>
+
+        {/* Form đăng nhập */}
+        <Box width='100%' maxWidth={320}>
           <Typography variant='body2' fontWeight='bold' mb={1}>
             Email
           </Typography>
@@ -54,18 +138,48 @@ const AuthLoginContent = () => {
             placeholder='example.email@gmail.com'
             fullWidth
             variant='outlined'
-            sx={{ borderRadius: "12px" }}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "12px",
+                backgroundColor: "#F9FAFB",
+                "&.Mui-focused fieldset": {
+                  borderColor: "#6366F1",
+                  boxShadow: "0 0 0 2px rgba(99, 102, 241, 0.2)",
+                },
+              },
+            }}
           />
 
           <Typography variant='body2' fontWeight='bold' mt={3} mb={1}>
             Mật khẩu
           </Typography>
           <TextField
-            type='password'
+            type={showPassword ? "text" : "password"}
             placeholder='Nhập mật khẩu của bạn'
             fullWidth
             variant='outlined'
-            sx={{ borderRadius: "12px" }}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "12px",
+                backgroundColor: "#F9FAFB",
+                "&.Mui-focused fieldset": {
+                  borderColor: "#6366F1",
+                  boxShadow: "0 0 0 2px rgba(99, 102, 241, 0.2)",
+                },
+              },
+            }}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position='end'>
+                  <IconButton
+                    onClick={() => setShowPassword(!showPassword)}
+                    edge='end'
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
 
           <Box textAlign='right' mt={1}>
@@ -98,21 +212,20 @@ const AuthLoginContent = () => {
           </Button>
         </Box>
 
-        {/* Chuyển sang đăng ký */}
+        {/* Link chuyển sang đăng ký */}
         <Typography variant='body2' mt={3}>
           Chưa có tài khoản?{" "}
           <MuiLink
             component={Link}
             href={paths.auth.register}
             underline='hover'
-            color='primary'
           >
             Đăng ký ngay
           </MuiLink>
         </Typography>
       </Stack>
 
-      {/* Bên phải - Hình minh hoạ */}
+      {/* Bên phải - Minh hoạ */}
       <Box
         flex={1}
         bgcolor='#F9FAFB'
@@ -128,11 +241,12 @@ const AuthLoginContent = () => {
         <Typography variant='body2' mb={3} color='text.secondary'>
           Chúng tôi luôn sẵn sàng đồng hành cùng bạn 👋🏼
         </Typography>
-        <img
+        <Image
           src='/images/login-illustration.png'
           alt='Minh hoạ đăng nhập'
           width={300}
           height={300}
+          suppressHydrationWarning
         />
       </Box>
     </Box>
