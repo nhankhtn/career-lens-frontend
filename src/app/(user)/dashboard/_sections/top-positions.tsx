@@ -1,35 +1,41 @@
-"use client"
+"use client";
 
-import { useCallback, useMemo, useState } from "react"
-import { Typography, IconButton, Tooltip, Box } from "@mui/material"
-import { Stack } from "@mui/material"
-import { FilterList as FilterIcon } from "@mui/icons-material"
-import { Bar } from "react-chartjs-2"
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip as ChartTooltip } from "chart.js"
-import { topPositionsData } from "@/types/dashboard/mock-data"
-import RowStack from "@/components/row-stack"
-import { warning } from "@/theme/colors"
+import { useCallback, useMemo, useState } from "react";
+import { Typography, IconButton, Tooltip, Box } from "@mui/material";
+import { Stack } from "@mui/material";
+import { FilterList as FilterIcon } from "@mui/icons-material";
+import { Bar } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip as ChartTooltip,
+} from "chart.js";
+import { topPositionsData } from "@/types/dashboard/mock-data";
+import RowStack from "@/components/row-stack";
+import { warning } from "@/theme/colors";
 
 // Register ChartJS components
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, ChartTooltip)
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, ChartTooltip);
 
 interface TopPositionsProps {
-  filters: { fromDate: string; toDate: string; region: string }
+  filters: { fromDate: string; toDate: string; region: string };
 }
 
 export default function TopPositions({ filters }: TopPositionsProps) {
-  const [highlightedIndex, setHighlightedIndex] = useState<number | null>(null)
+  const [highlightedIndex, setHighlightedIndex] = useState<number | null>(null);
 
   const handleBarHover = useCallback((index: number | null) => {
-    setHighlightedIndex(index)
-  }, [])
+    setHighlightedIndex(index);
+  }, []);
 
   // Filter data based on filters (in a real app, this would fetch from API)
   const filteredData = useMemo(() => {
-    console.log("Applying filters to top positions:", filters)
     // This is a mock implementation - in a real app, you would filter the data based on the filters
-    return topPositionsData
-  }, [filters])
+    return topPositionsData;
+  }, []);
 
   const chartData = useMemo(() => {
     return {
@@ -37,15 +43,17 @@ export default function TopPositions({ filters }: TopPositionsProps) {
       datasets: [
         {
           data: filteredData.map((item) => item.count),
-          backgroundColor: filteredData.map((_, index) => (index === highlightedIndex ? warning.main : warning.light)),
+          backgroundColor: filteredData.map((_, index) =>
+            index === highlightedIndex ? warning.main : warning.light
+          ),
           borderColor: warning.main,
           borderWidth: 1,
           borderRadius: 4,
           barThickness: 30,
         },
       ],
-    }
-  }, [filteredData, highlightedIndex])
+    };
+  }, [filteredData, highlightedIndex]);
 
   const chartOptions = useMemo(() => {
     return {
@@ -78,23 +86,27 @@ export default function TopPositions({ filters }: TopPositionsProps) {
       },
       onHover: (_: any, elements: any[]) => {
         if (elements && elements.length) {
-          handleBarHover(elements[0].index)
+          handleBarHover(elements[0].index);
         } else {
-          handleBarHover(null)
+          handleBarHover(null);
         }
       },
-    }
-  }, [handleBarHover])
+    };
+  }, [handleBarHover]);
 
   return (
     <Stack>
-      <RowStack justifyContent="space-between" mb={2}>
-        <Typography variant="h6" fontWeight="medium">
+      <RowStack justifyContent='space-between' mb={2}>
+        <Typography variant='h6' fontWeight='medium'>
           5 vị trí vị trí có nhu cầu cao nhất
         </Typography>
         <RowStack>
-          <Tooltip title="Tất cả">
-            <Typography variant="body2" color="primary" sx={{ cursor: "pointer", textDecoration: "underline", mr: 1 }}>
+          <Tooltip title='Tất cả'>
+            <Typography
+              variant='body2'
+              color='primary'
+              sx={{ cursor: "pointer", textDecoration: "underline", mr: 1 }}
+            >
               Tất cả
             </Typography>
           </Tooltip>
@@ -110,5 +122,5 @@ export default function TopPositions({ filters }: TopPositionsProps) {
         <Bar data={chartData} options={chartOptions} />
       </Box>
     </Stack>
-  )
+  );
 }

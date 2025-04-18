@@ -22,9 +22,8 @@ export default function InDemandSkills({ filters }: InDemandSkillsProps) {
   });
 
   const filteredData = useMemo(() => {
-    console.log("Applying filters to in-demand skills:", filters);
     return inDemandSkillsData;
-  }, [filters]);
+  }, []);
 
   const visibleRows = useMemo(
     () =>
