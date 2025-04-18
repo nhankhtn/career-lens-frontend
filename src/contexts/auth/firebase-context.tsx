@@ -287,7 +287,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
 
     return () => clearInterval(intervalId);
   }, [_signOut, state.isAuthenticated, isDashboard, router, showSnackbarError]);
-  console.log("state", state);
+
   useEffect(() => {
     const cleanup = checkTokenInterval();
     return () => cleanup();
@@ -356,7 +356,6 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
           }
         });
       }
-
       dispatch({
         type: ActionType.INITIALIZE,
         payload: { isAuthenticated: true, user },
