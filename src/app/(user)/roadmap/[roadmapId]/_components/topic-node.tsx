@@ -20,8 +20,6 @@ import {
 } from "@mui/material"
 import ChevronRightIcon from "@mui/icons-material/ChevronRight"
 import CheckCircleIcon from "@mui/icons-material/CheckCircle"
-import RadioButtonCheckedIcon from "@mui/icons-material/RadioButtonChecked"
-import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord"
 import type { Topic, Resource } from "../../_data/roadmap-details"
 import ResourceProgress from "./resource-progress"
 import { priority } from "@/theme/colors"
@@ -71,14 +69,14 @@ export default function TopicNode({ topic, level, expanded, onToggle }: TopicNod
         priorityText = "High Priority"
         break
       case 2:
-        priorityIcon = <RadioButtonCheckedIcon fontSize={isMobile ? "small" : "small"} />
+        priorityIcon = <CheckCircleIcon fontSize={isMobile ? "small" : "small"} />
         priorityColor = priority.medium.main
         priorityBgColor = priority.medium.light
         priorityText = "Medium Priority"
         break
       case 3:
       default:
-        priorityIcon = <FiberManualRecordIcon fontSize={isMobile ? "small" : "small"} />
+        priorityIcon = <CheckCircleIcon fontSize={isMobile ? "small" : "small"} />
         priorityColor = priority.low.main
         priorityBgColor = priority.low.light
         priorityText = "Low Priority"

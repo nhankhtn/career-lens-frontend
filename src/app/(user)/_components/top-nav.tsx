@@ -36,6 +36,7 @@ import { useRouter, usePathname } from "next/navigation"
 import { useAuth } from "@/contexts/auth/firebase-context"
 import { useMediaQuery, useTheme, Drawer, List, ListItem, ListItemIcon, ListItemText, Divider } from "@mui/material"
 
+
 type TopNavProps = {}
 
 // Map of icons for navigation items
@@ -60,6 +61,8 @@ const TopNav = ({ }: TopNavProps) => {
   const configNav = useMemo(() => getNavConfig(), [])
   const isMenuOpen = Boolean(anchorEl)
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl)
+
+  
 
   // Close drawer when screen size changes from mobile to desktop
   useEffect(() => {
@@ -102,14 +105,15 @@ const TopNav = ({ }: TopNavProps) => {
 
   const isActive = useCallback(
     (href: string) => {
-      return pathname === href
+      return pathname.startsWith(href)
     },
     [pathname],
   )
-
+  
   const menuId = "primary-search-account-menu"
   const mobileMenuId = "primary-search-account-menu-mobile"
 
+  console.log('user', user);
   // Check if a nav item is active
 
   return (
@@ -187,11 +191,11 @@ const TopNav = ({ }: TopNavProps) => {
               <>
                 {/* Desktop view */}
                 <Box sx={{ display: { xs: "none", md: "flex" } }}>
-                  <IconButton size="large" aria-label="show 4 new notifications" color="inherit">
+                  {/* <IconButton size="large" aria-label="show 4 new notifications" color="inherit">
                     <Badge badgeContent={4} color="error">
                       <NotificationsIcon />
                     </Badge>
-                  </IconButton>
+                  </IconButton> */}
                   <IconButton
                     size="large"
                     edge="end"
@@ -201,7 +205,11 @@ const TopNav = ({ }: TopNavProps) => {
                     onClick={handleProfileMenuOpen}
                     color="inherit"
                   >
-                    <Avatar sx={{ width: 32, height: 32 }}>A</Avatar>
+                    {/* <Box
+                      component={'img'}src={user?.photo_url || ""}
+                      width={32} height={32}
+                    /> */}
+                    <Avatar sx={{ width: 32, height: 32 }} src={user?.photo_url || ""}>{user?.email?.charAt(0).toUpperCase() || "?"}</Avatar>
                   </IconButton>
                 </Box>
                 {/* Mobile view */}
@@ -252,7 +260,7 @@ const TopNav = ({ }: TopNavProps) => {
       <Menu
         anchorEl={anchorEl}
         anchorOrigin={{
-          vertical: "top",
+          vertical: "bottom",
           horizontal: "right",
         }}
         id={menuId}
