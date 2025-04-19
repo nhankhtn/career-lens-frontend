@@ -42,9 +42,9 @@ const AdminGuard = ({ children }: { children: React.ReactNode }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (user?.role !== "admin") {
+  if (!user?.email) {
     return (
-      <Container maxWidth='sm' sx={{ py: 8 }}>
+      <Container maxWidth="sm" sx={{ py: 8 }}>
         <Paper
           elevation={3}
           sx={{
@@ -55,33 +55,33 @@ const AdminGuard = ({ children }: { children: React.ReactNode }) => {
             color: "error.contrastText",
           }}
         >
-          <Stack spacing={3} alignItems='center'>
+          <Stack spacing={3} alignItems="center">
             <AlertCircle size={64} />
             <LazyLottie
-              path='/assets/lottie/forbidden.json'
+              path="/assets/lottie/forbidden.json"
               width={300}
               height={300}
             />
             <Typography
-              variant='h4'
-              component='h1'
-              fontWeight='bold'
-              textAlign='center'
+              variant="h4"
+              component="h1"
+              fontWeight="bold"
+              textAlign="center"
             >
               Access Forbidden
             </Typography>
-            <Typography variant='body1' textAlign='center'>
+            <Typography variant="body1" textAlign="center">
               This page is restricted to administrators only. You do not have
               the required permissions to access this content.
             </Typography>
-            <Alert severity='info' icon={<Clock />} sx={{ width: "100%" }}>
+            <Alert severity="info" icon={<Clock />} sx={{ width: "100%" }}>
               You will be redirected to the home page in{" "}
               <strong>{countdown}</strong> seconds.
             </Alert>
 
             <Button
-              variant='contained'
-              color='primary'
+              variant="contained"
+              color="primary"
               onClick={() => router.push(paths.dashboard)}
               sx={{ mt: 2 }}
             >
