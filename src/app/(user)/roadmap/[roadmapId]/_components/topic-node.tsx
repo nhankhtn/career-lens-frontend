@@ -17,18 +17,13 @@ import {
   Tooltip,
 } from "@mui/material"
 import ChevronRightIcon from "@mui/icons-material/ChevronRight"
-import SchoolIcon from "@mui/icons-material/School"
-import ArticleIcon from "@mui/icons-material/Article"
-import VideoLibraryIcon from "@mui/icons-material/VideoLibrary"
-import MenuBookIcon from "@mui/icons-material/MenuBook"
-import BuildIcon from "@mui/icons-material/Build"
-import PersonIcon from "@mui/icons-material/Person"
-import LinkIcon from "@mui/icons-material/Link"
-import MoreHorizIcon from "@mui/icons-material/MoreHoriz"
 import CheckCircleIcon from "@mui/icons-material/CheckCircle"
+import RadioButtonCheckedIcon from "@mui/icons-material/RadioButtonChecked"
+import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord"
 import type { Topic, Resource } from "../../_data/roadmap-details"
 import ResourceProgress from "./resource-progress"
 import { priority } from "@/theme/colors"
+import { getResourceIcon } from "@/utils/icon-helper"
 
 interface TopicNodeProps {
   topic: Topic
@@ -56,27 +51,6 @@ export default function TopicNode({ topic, level, expanded, onToggle }: TopicNod
     }))
   }
 
-  const getResourceIcon = (type: string) => {
-    switch (type) {
-      case "course":
-        return <SchoolIcon fontSize="small" color="primary" />
-      case "article":
-        return <ArticleIcon fontSize="small" color="secondary" />
-      case "video":
-        return <VideoLibraryIcon fontSize="small" color="error" />
-      case "book":
-        return <MenuBookIcon fontSize="small" color="success" />
-      case "project":
-        return <BuildIcon fontSize="small" color="warning" />
-      case "interview":
-        return <PersonIcon fontSize="small" color="info" />
-      case "resource":
-        return <LinkIcon fontSize="small" color="primary" />
-      default:
-        return <MoreHorizIcon fontSize="small" color="action" />
-    }
-  }
-
   // Render priority indicator based on priority value (1-3)
   const renderPriorityIndicator = () => {
     // Priority 1 is highest (green), 2 is medium (purple), 3 is lowest (gray)
@@ -93,14 +67,14 @@ export default function TopicNode({ topic, level, expanded, onToggle }: TopicNod
         priorityText = "High Priority"
         break
       case 2:
-        priorityIcon = <CheckCircleIcon fontSize="small" />
+        priorityIcon = <RadioButtonCheckedIcon fontSize="small" />
         priorityColor = priority.medium.main
         priorityBgColor = priority.medium.light
         priorityText = "Medium Priority"
         break
       case 3:
       default:
-        priorityIcon = <CheckCircleIcon fontSize="small" />
+        priorityIcon = <FiberManualRecordIcon fontSize="small" />
         priorityColor = priority.low.main
         priorityBgColor = priority.low.light
         priorityText = "Low Priority"

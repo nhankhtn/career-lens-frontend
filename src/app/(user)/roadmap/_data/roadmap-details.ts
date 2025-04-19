@@ -1,7 +1,7 @@
 export interface Resource {
   id: string
   title: string
-  type: "course" | "article" | "video" | "book" | "project" | "interview" | "resource" | "other"
+  type: "Course" | "Article" | "Video" | "Book" | "Project" | "Interview" | "Resource" | "Other"
   url: string
   platform?: string
   free?: boolean
@@ -46,7 +46,7 @@ const topicsData: Topic[] = [
       {
         id: "html-1",
         title: "HTML Crash Course For Absolute Beginners",
-        type: "video",
+        type: "Video",
         url: "https://www.youtube.com/watch?v=UB1O30fR-EE",
         platform: "YouTube",
         free: true,
@@ -55,7 +55,7 @@ const topicsData: Topic[] = [
       {
         id: "html-2",
         title: "HTML5 and CSS Fundamentals",
-        type: "course",
+        type: "Course",
         url: "https://www.edx.org/course/html5-and-css-fundamentals",
         platform: "edX",
         free: true,
@@ -76,7 +76,7 @@ const topicsData: Topic[] = [
       {
         id: "html-basics-1",
         title: "HTML Elements Reference",
-        type: "resource",
+        type: "Resource",
         url: "https://developer.mozilla.org/en-US/docs/Web/HTML/Element",
         platform: "MDN",
         free: true,
@@ -96,7 +96,7 @@ const topicsData: Topic[] = [
       {
         id: "html-forms-1",
         title: "HTML Forms Tutorial",
-        type: "article",
+        type: "Article",
         url: "https://www.w3schools.com/html/html_forms.asp",
         platform: "W3Schools",
         free: true,
@@ -116,7 +116,7 @@ const topicsData: Topic[] = [
       {
         id: "css-1",
         title: "CSS Crash Course For Absolute Beginners",
-        type: "video",
+        type: "Video",
         url: "https://www.youtube.com/watch?v=yfoY53QXEnI",
         platform: "YouTube",
         free: true,
@@ -137,7 +137,7 @@ const topicsData: Topic[] = [
       {
         id: "css-selectors-1",
         title: "CSS Selectors Reference",
-        type: "resource",
+        type: "Resource",
         url: "https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors",
         platform: "MDN",
         free: true,
@@ -157,7 +157,7 @@ const topicsData: Topic[] = [
       {
         id: "js-1",
         title: "JavaScript Crash Course For Beginners",
-        type: "video",
+        type: "Video",
         url: "https://www.youtube.com/watch?v=hdI2bqOjy3c",
         platform: "YouTube",
         free: true,
@@ -189,7 +189,7 @@ const topicsData: Topic[] = [
       {
         id: "nodejs-1",
         title: "Node.js Crash Course",
-        type: "video",
+        type: "Video",
         url: "https://www.youtube.com/watch?v=fBNz5xF-Kx4",
         platform: "YouTube",
         free: true,
@@ -210,7 +210,7 @@ const topicsData: Topic[] = [
       {
         id: "db-1",
         title: "SQL Tutorial",
-        type: "article",
+        type: "Article",
         url: "https://www.w3schools.com/sql/",
         platform: "W3Schools",
         free: true,
@@ -241,7 +241,7 @@ const topicsData: Topic[] = [
       {
         id: "docker-1",
         title: "Docker Crash Course",
-        type: "video",
+        type: "Video",
         url: "https://www.youtube.com/watch?v=pTFZFxd4hOI",
         platform: "YouTube",
         free: true,
@@ -264,7 +264,7 @@ const topicsData: Topic[] = [
       {
         id: "html-semantic-1",
         title: "HTML Semantic Elements Guide",
-        type: "article",
+        type: "Article",
         url: "https://www.w3schools.com/html/html5_semantic_elements.asp",
         platform: "W3Schools",
         free: true,
@@ -272,7 +272,7 @@ const topicsData: Topic[] = [
       {
         id: "html-semantic-2",
         title: "Why You Should Use Semantic HTML",
-        type: "video",
+        type: "Video",
         url: "https://www.youtube.com/watch?v=kGW8Al_cga4",
         platform: "YouTube",
         free: true,
@@ -294,7 +294,7 @@ const topicsData: Topic[] = [
       {
         id: "html-tables-1",
         title: "HTML Table Basics",
-        type: "article",
+        type: "Article",
         url: "https://developer.mozilla.org/en-US/docs/Learn/HTML/Tables/Basics",
         platform: "MDN",
         free: true,
@@ -302,7 +302,7 @@ const topicsData: Topic[] = [
       {
         id: "html-tables-2",
         title: "Advanced HTML Tables",
-        type: "course",
+        type: "Course",
         url: "https://www.linkedin.com/learning/html-tables",
         platform: "LinkedIn Learning",
         free: false,
@@ -324,7 +324,7 @@ const topicsData: Topic[] = [
       {
         id: "form-validation-1",
         title: "Client-side form validation",
-        type: "article",
+        type: "Article",
         url: "https://developer.mozilla.org/en-US/docs/Learn/Forms/Form_validation",
         platform: "MDN",
         free: true,
@@ -332,7 +332,7 @@ const topicsData: Topic[] = [
       {
         id: "form-validation-2",
         title: "HTML Form Validation Examples",
-        type: "video",
+        type: "Video",
         url: "https://www.youtube.com/watch?v=In0nB0ABaUk",
         platform: "YouTube",
         free: true,
@@ -354,7 +354,7 @@ const topicsData: Topic[] = [
       {
         id: "form-accessibility-1",
         title: "Web Forms Accessibility",
-        type: "article",
+        type: "Article",
         url: "https://webaim.org/techniques/forms/",
         platform: "WebAIM",
         free: true,
@@ -362,7 +362,7 @@ const topicsData: Topic[] = [
       {
         id: "form-accessibility-2",
         title: "Creating Accessible Forms",
-        type: "course",
+        type: "Course",
         url: "https://www.udemy.com/course/web-accessibility-creating-accessible-forms/",
         platform: "Udemy",
         free: false,
@@ -384,7 +384,7 @@ const topicsData: Topic[] = [
       {
         id: "css-box-model-1",
         title: "The CSS Box Model",
-        type: "article",
+        type: "Article",
         url: "https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Box_Model/Introduction_to_the_CSS_box_model",
         platform: "MDN",
         free: true,
@@ -392,7 +392,7 @@ const topicsData: Topic[] = [
       {
         id: "css-box-model-2",
         title: "CSS Box Model Explained",
-        type: "video",
+        type: "Video",
         url: "https://www.youtube.com/watch?v=rIO5326FgPE",
         platform: "YouTube",
         free: true,
@@ -414,7 +414,7 @@ const topicsData: Topic[] = [
       {
         id: "css-flexbox-1",
         title: "A Complete Guide to Flexbox",
-        type: "article",
+        type: "Article",
         url: "https://css-tricks.com/snippets/css/a-guide-to-flexbox/",
         platform: "CSS-Tricks",
         free: true,
@@ -422,7 +422,7 @@ const topicsData: Topic[] = [
       {
         id: "css-flexbox-2",
         title: "Flexbox in 20 Minutes",
-        type: "video",
+        type: "Video",
         url: "https://www.youtube.com/watch?v=JJSoEo8JSnc",
         platform: "YouTube",
         free: true,
@@ -431,7 +431,7 @@ const topicsData: Topic[] = [
       {
         id: "css-flexbox-3",
         title: "Flexbox Froggy",
-        type: "resource",
+        type: "Resource",
         url: "https://flexboxfroggy.com/",
         platform: "Flexbox Froggy",
         free: true,
@@ -454,7 +454,7 @@ const topicsData: Topic[] = [
       {
         id: "header-elements-1",
         title: "Semantic HTML: Header and Footer",
-        type: "article",
+        type: "Article",
         url: "https://www.semrush.com/blog/semantic-html5-guide/#header-and-footer-elements",
         platform: "Semrush Blog",
         free: true,
@@ -462,7 +462,7 @@ const topicsData: Topic[] = [
       {
         id: "header-elements-2",
         title: "HTML5 Semantic Elements: Header",
-        type: "video",
+        type: "Video",
         url: "https://www.youtube.com/watch?v=QVX0X3UaDMM",
         platform: "YouTube",
         free: true,
@@ -484,7 +484,7 @@ const topicsData: Topic[] = [
       {
         id: "content-sectioning-1",
         title: "Content Sectioning in HTML5",
-        type: "article",
+        type: "Article",
         url: "https://developer.mozilla.org/en-US/docs/Web/HTML/Element#content_sectioning",
         platform: "MDN",
         free: true,
@@ -492,7 +492,7 @@ const topicsData: Topic[] = [
       {
         id: "content-sectioning-2",
         title: "HTML5 Semantic Elements: Article vs Section",
-        type: "video",
+        type: "Video",
         url: "https://www.youtube.com/watch?v=o3A1WGLvXiE",
         platform: "YouTube",
         free: true,
@@ -514,7 +514,7 @@ const topicsData: Topic[] = [
       {
         id: "html5-validation-1",
         title: "HTML5 Form Validation",
-        type: "article",
+        type: "Article",
         url: "https://developer.mozilla.org/en-US/docs/Learn/Forms/Form_validation#using_built-in_form_validation",
         platform: "MDN",
         free: true,
@@ -522,7 +522,7 @@ const topicsData: Topic[] = [
       {
         id: "html5-validation-2",
         title: "HTML5 Form Validation Attributes",
-        type: "video",
+        type: "Video",
         url: "https://www.youtube.com/watch?v=NDNoj8slu_w",
         platform: "YouTube",
         free: true,
@@ -544,7 +544,7 @@ const topicsData: Topic[] = [
       {
         id: "js-validation-1",
         title: "JavaScript Form Validation",
-        type: "article",
+        type: "Article",
         url: "https://www.w3schools.com/js/js_validation.asp",
         platform: "W3Schools",
         free: true,
@@ -552,7 +552,7 @@ const topicsData: Topic[] = [
       {
         id: "js-validation-2",
         title: "Form Validation with JavaScript",
-        type: "course",
+        type: "Course",
         url: "https://www.udemy.com/course/form-validation-with-javascript/",
         platform: "Udemy",
         free: false,
@@ -574,7 +574,7 @@ const topicsData: Topic[] = [
       {
         id: "flexbox-container-1",
         title: "Flexbox Container Properties",
-        type: "article",
+        type: "Article",
         url: "https://css-tricks.com/snippets/css/a-guide-to-flexbox/#aa-properties-for-the-parent-flex-container",
         platform: "CSS-Tricks",
         free: true,
@@ -582,7 +582,7 @@ const topicsData: Topic[] = [
       {
         id: "flexbox-container-2",
         title: "Flexbox Container Deep Dive",
-        type: "video",
+        type: "Video",
         url: "https://www.youtube.com/watch?v=K74l26pE4YA",
         platform: "YouTube",
         free: true,
@@ -604,7 +604,7 @@ const topicsData: Topic[] = [
       {
         id: "flexbox-items-1",
         title: "Flexbox Item Properties",
-        type: "article",
+        type: "Article",
         url: "https://css-tricks.com/snippets/css/a-guide-to-flexbox/#aa-properties-for-the-children-flex-items",
         platform: "CSS-Tricks",
         free: true,
@@ -612,7 +612,7 @@ const topicsData: Topic[] = [
       {
         id: "flexbox-items-2",
         title: "Mastering Flex Items",
-        type: "video",
+        type: "Video",
         url: "https://www.youtube.com/watch?v=4Oi5xpjoCRk",
         platform: "YouTube",
         free: true,
