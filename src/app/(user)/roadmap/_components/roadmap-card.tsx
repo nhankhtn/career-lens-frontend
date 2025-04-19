@@ -1,4 +1,6 @@
-import { Card, CardContent, Typography, Box, IconButton } from "@mui/material"
+"use client"
+
+import { Card, CardContent, Typography, Box, IconButton, useMediaQuery, useTheme } from "@mui/material"
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder"
 import Link from "next/link"
 
@@ -9,6 +11,9 @@ interface RoadmapCardProps {
 }
 
 export default function RoadmapCard({ id, title, description }: RoadmapCardProps) {
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
+
   return (
     <Card
       sx={{
@@ -23,9 +28,17 @@ export default function RoadmapCard({ id, title, description }: RoadmapCardProps
         boxShadow: 1,
       }}
     >
-      <CardContent sx={{ p: 3 }}>
+      <CardContent sx={{ p: isMobile ? 2 : 3 }}>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 2 }}>
-          <Typography variant="h6" component="h3" sx={{ fontWeight: 600, color: "text.primary" }}>
+          <Typography
+            variant={isMobile ? "subtitle1" : "h6"}
+            component="h3"
+            sx={{
+              fontWeight: 600,
+              color: "text.primary",
+              fontSize: isMobile ? "1rem" : "1.125rem",
+            }}
+          >
             <Link href={`/roadmap/${id}`} style={{ textDecoration: "none", color: "inherit" }}>
               {title}
             </Link>
@@ -35,7 +48,18 @@ export default function RoadmapCard({ id, title, description }: RoadmapCardProps
           </IconButton>
         </Box>
 
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{
+            mb: 2,
+            display: isMobile ? "-webkit-box" : "block",
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden",
+            fontSize: isMobile ? "0.8125rem" : "0.875rem",
+          }}
+        >
           {description}
         </Typography>
 
@@ -45,7 +69,7 @@ export default function RoadmapCard({ id, title, description }: RoadmapCardProps
             style={{
               textDecoration: "none",
               color: "primary.main",
-              fontSize: "0.875rem",
+              fontSize: isMobile ? "0.8125rem" : "0.875rem",
               fontWeight: 500,
             }}
           >

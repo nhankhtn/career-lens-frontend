@@ -6,6 +6,7 @@ import { Stack } from "@mui/material"
 import RowStack from "@/components/row-stack"
 import { recruitmentData } from "@/types/dashboard/mock-data"
 import { blue, neutral } from "@/theme/colors"
+import React from "react"
 
 export default function RecruitmentHeatmap() {
   const theme = useTheme()
@@ -47,9 +48,8 @@ export default function RecruitmentHeatmap() {
         ))}
 
         {weeks.map((week, weekIndex) => (
-          <>
+          <React.Fragment key={weekIndex}>
             <Typography
-              key={week}
               variant="caption"
               sx={{
                 display: "flex",
@@ -79,7 +79,7 @@ export default function RecruitmentHeatmap() {
                 />
               )
             })}
-          </>
+          </React.Fragment>
         ))}
       </Box>
     </Stack>

@@ -15,6 +15,8 @@ import {
   Chip,
   Link as MuiLink,
   Tooltip,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material"
 import ChevronRightIcon from "@mui/icons-material/ChevronRight"
 import CheckCircleIcon from "@mui/icons-material/CheckCircle"
@@ -38,6 +40,8 @@ export default function TopicNode({ topic, level, expanded, onToggle }: TopicNod
   const [childrenExpanded, setChildrenExpanded] = useState<Record<string, boolean>>({})
   const hasChildren = topic.children && topic.children.length > 0
   const hasResources = topic.resources && topic.resources.length > 0
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
 
   const handleResourcesToggle = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -61,20 +65,20 @@ export default function TopicNode({ topic, level, expanded, onToggle }: TopicNod
 
     switch (topic.priority) {
       case 1:
-        priorityIcon = <CheckCircleIcon fontSize="small" />
+        priorityIcon = <CheckCircleIcon fontSize={isMobile ? "small" : "small"} />
         priorityColor = priority.high.main
         priorityBgColor = priority.high.light
         priorityText = "High Priority"
         break
       case 2:
-        priorityIcon = <RadioButtonCheckedIcon fontSize="small" />
+        priorityIcon = <RadioButtonCheckedIcon fontSize={isMobile ? "small" : "small"} />
         priorityColor = priority.medium.main
         priorityBgColor = priority.medium.light
         priorityText = "Medium Priority"
         break
       case 3:
       default:
-        priorityIcon = <FiberManualRecordIcon fontSize="small" />
+        priorityIcon = <FiberManualRecordIcon fontSize={isMobile ? "small" : "small"} />
         priorityColor = priority.low.main
         priorityBgColor = priority.low.light
         priorityText = "Low Priority"
@@ -91,8 +95,8 @@ export default function TopicNode({ topic, level, expanded, onToggle }: TopicNod
             color: priorityColor,
             bgcolor: priorityBgColor,
             borderRadius: "50%",
-            width: 24,
-            height: 24,
+            width: isMobile ? 20 : 24,
+            height: isMobile ? 20 : 24,
           }}
         >
           {priorityIcon}
@@ -111,7 +115,7 @@ export default function TopicNode({ topic, level, expanded, onToggle }: TopicNod
         sx={{
           display: "flex",
           alignItems: "center",
-          p: 2,
+          p: isMobile ? 1.5 : 2,
           bgcolor: level === 0 ? "background.default" : "background.paper",
           borderLeft:
             level > 0
@@ -119,7 +123,7 @@ export default function TopicNode({ topic, level, expanded, onToggle }: TopicNod
                   level === 1 ? "primary.main" : level === 2 ? "secondary.main" : level === 3 ? "info.main" : "divider"
                 }`
               : "none",
-          pl: level > 0 ? 2 + level * 0.5 : 2,
+          pl: level > 0 ? (isMobile ? 1.5 : 2) + level * (isMobile ? 0.3 : 0.5) : isMobile ? 1.5 : 2,
           cursor: hasChildren ? "pointer" : "default",
           "&:hover": {
             bgcolor: level === 0 ? "action.hover" : "background.default",
@@ -130,23 +134,41 @@ export default function TopicNode({ topic, level, expanded, onToggle }: TopicNod
         {hasChildren && (
           <IconButton
             size="small"
-            sx={{ mr: 1, transform: expanded ? "rotate(90deg)" : "rotate(0deg)" }}
+            sx={{
+              mr: isMobile ? 0.5 : 1,
+              transform: expanded ? "rotate(90deg)" : "rotate(0deg)",
+              padding: isMobile ? 0.5 : 1,
+            }}
             onClick={(e) => {
               e.stopPropagation()
               onToggle()
             }}
           >
-            <ChevronRightIcon />
+            <ChevronRightIcon fontSize={isMobile ? "small" : "medium"} />
           </IconButton>
         )}
 
         <Box sx={{ flex: 1 }}>
-          <Box sx={{ display: "flex", alignItems: "center" }}>
+          <Box sx={{ display: "flex", alignItems: "center", flexWrap: isMobile ? "wrap" : "nowrap" }}>
             <Typography
-              variant={level === 0 ? "h6" : "subtitle1"}
+              variant={level === 0 ? (isMobile ? "subtitle1" : "h6") : isMobile ? "body2" : "subtitle1"}
               sx={{
                 fontWeight: level === 0 ? 600 : 500,
-                fontSize: level === 0 ? "1.125rem" : level === 1 ? "1rem" : level === 2 ? "0.95rem" : "0.9rem",
+                fontSize: isMobile
+                  ? level === 0
+                    ? "1rem"
+                    : level === 1
+                      ? "0.9rem"
+                      : level === 2
+                        ? "0.85rem"
+                        : "0.8rem"
+                  : level === 0
+                    ? "1.125rem"
+                    : level === 1
+                      ? "1rem"
+                      : level === 2
+                        ? "0.95rem"
+                        : "0.9rem",
               }}
             >
               {topic.title}
@@ -159,8 +181,8 @@ export default function TopicNode({ topic, level, expanded, onToggle }: TopicNod
                 size="small"
                 sx={{
                   ml: 1,
-                  height: 20,
-                  fontSize: "0.7rem",
+                  height: isMobile ? 16 : 20,
+                  fontSize: isMobile ? "0.6rem" : "0.7rem",
                   bgcolor: "info.light",
                   color: "info.dark",
                   fontWeight: 500,
@@ -171,13 +193,14 @@ export default function TopicNode({ topic, level, expanded, onToggle }: TopicNod
             </Tooltip>
           </Box>
 
-          {topic.description && (
+          {topic.description && !isMobile && (
             <Typography
               variant="body2"
               color="text.secondary"
               sx={{
                 mt: 0.5,
                 display: level > 2 ? "none" : "block",
+                fontSize: isMobile ? "0.75rem" : "0.875rem",
               }}
             >
               {topic.description}
@@ -189,7 +212,11 @@ export default function TopicNode({ topic, level, expanded, onToggle }: TopicNod
           <Chip
             label={`${topic.resources.length} resource${topic.resources.length > 1 ? "s" : ""}`}
             size="small"
-            sx={{ mr: 1 }}
+            sx={{
+              mr: 1,
+              height: isMobile ? 24 : 32,
+              fontSize: isMobile ? "0.7rem" : "0.75rem",
+            }}
             onClick={handleResourcesToggle}
           />
         )}
@@ -201,8 +228,11 @@ export default function TopicNode({ topic, level, expanded, onToggle }: TopicNod
       {/* Resources Collapse */}
       {hasResources && (
         <Collapse in={resourcesExpanded}>
-          <Box sx={{ px: 2, py: 1, bgcolor: "background.default" }}>
-            <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+          <Box sx={{ px: isMobile ? 1.5 : 2, py: isMobile ? 0.5 : 1, bgcolor: "background.default" }}>
+            <Typography
+              variant="subtitle2"
+              sx={{ mb: isMobile ? 0.5 : 1, fontWeight: 600, fontSize: isMobile ? "0.8rem" : "0.875rem" }}
+            >
               Learning Resources
             </Typography>
 
@@ -211,40 +241,63 @@ export default function TopicNode({ topic, level, expanded, onToggle }: TopicNod
                 <ListItem
                   key={resource.id}
                   sx={{
-                    px: 2,
-                    py: 1,
-                    mb: 1,
+                    px: isMobile ? 1.5 : 2,
+                    py: isMobile ? 0.5 : 1,
+                    mb: isMobile ? 0.5 : 1,
                     bgcolor: "background.paper",
                     borderRadius: 1,
                     border: "1px solid",
                     borderColor: "divider",
+                    flexDirection: isMobile ? "column" : "row",
+                    alignItems: isMobile ? "flex-start" : "center",
                   }}
-                  secondaryAction={<ResourceProgress resourceId={resource.id} topicId={topic.id} />}
+                  secondaryAction={isMobile ? null : <ResourceProgress resourceId={resource.id} topicId={topic.id} />}
                 >
-                  <Box sx={{ mr: 1.5, display: "flex", alignItems: "center" }}>{getResourceIcon(resource.type)}</Box>
-                  <ListItemText
-                    primary={
-                      <MuiLink
-                        href={resource.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        sx={{ textDecoration: "none" }}
-                      >
-                        {resource.title}
-                      </MuiLink>
-                    }
-                    secondary={
-                      <Chip
-                        label={resource.type}
-                        size="small"
-                        sx={{
-                          height: 20,
-                          fontSize: "0.7rem",
-                          mt: 0.5,
-                        }}
-                      />
-                    }
-                  />
+                  <Box
+                    sx={{
+                      mr: isMobile ? 0 : 1.5,
+                      mb: isMobile ? 0.5 : 0,
+                      display: "flex",
+                      alignItems: "center",
+                      width: isMobile ? "100%" : "auto",
+                    }}
+                  >
+                    <Box sx={{ mr: 1, display: "flex", alignItems: "center" }}>{getResourceIcon(resource.type)}</Box>
+                    <ListItemText
+                      primary={
+                        <MuiLink
+                          href={resource.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          sx={{
+                            textDecoration: "none",
+                            fontSize: isMobile ? "0.8rem" : "0.875rem",
+                            display: "block",
+                            mb: isMobile ? 0.5 : 0,
+                          }}
+                        >
+                          {resource.title}
+                        </MuiLink>
+                      }
+                      secondary={
+                        <Chip
+                          label={resource.type}
+                          size="small"
+                          sx={{
+                            height: isMobile ? 16 : 20,
+                            fontSize: isMobile ? "0.6rem" : "0.7rem",
+                            mt: 0.5,
+                          }}
+                        />
+                      }
+                    />
+                  </Box>
+
+                  {isMobile && (
+                    <Box sx={{ width: "100%", display: "flex", justifyContent: "flex-end", mt: 1 }}>
+                      <ResourceProgress resourceId={resource.id} topicId={topic.id} />
+                    </Box>
+                  )}
                 </ListItem>
               ))}
             </List>
@@ -256,7 +309,7 @@ export default function TopicNode({ topic, level, expanded, onToggle }: TopicNod
       {/* Children Collapse */}
       {hasChildren && (
         <Collapse in={expanded}>
-          <Box sx={{ py: level === 0 ? 1 : 0 }}>
+          <Box sx={{ py: level === 0 ? (isMobile ? 0.5 : 1) : 0 }}>
             {sortedChildren.map((child) => (
               <TopicNode
                 key={child.id}
