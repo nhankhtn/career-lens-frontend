@@ -35,15 +35,18 @@ const useRoadmapDetailSearch = () => {
 
   const topic = useMemo(
     () => getTopicByIdApi.data?.topic || null,
-    [getTopicByIdApi.data]
+    [getTopicByIdApi.data],
   );
   const childTopics = useMemo(
-    () => getTopicByIdApi.data?.childs || [],
-    [getTopicByIdApi.data]
+    () =>
+      getTopicByIdApi.data?.childs.sort(
+        (a, b) => (a.order || 0) - (b.order || 0),
+      ) || [],
+    [getTopicByIdApi.data],
   );
   const parentTopic = useMemo(
     () => getTopicByIdApi.data?.parent || null,
-    [getTopicByIdApi.data]
+    [getTopicByIdApi.data],
   );
 
   useEffect(() => {
@@ -73,7 +76,7 @@ const useRoadmapDetailSearch = () => {
         [name]: value,
       });
     },
-    [editedTopic]
+    [editedTopic],
   );
 
   const handleTopicSelectChange = useCallback(
@@ -84,7 +87,7 @@ const useRoadmapDetailSearch = () => {
         [name]: value,
       });
     },
-    [editedTopic]
+    [editedTopic],
   );
 
   const handleSaveTopic = useCallback(() => {
@@ -122,7 +125,7 @@ const useRoadmapDetailSearch = () => {
         resources: updatedResources,
       });
     },
-    [editedTopic]
+    [editedTopic],
   );
 
   const handleResourceChange = useCallback(
@@ -138,7 +141,7 @@ const useRoadmapDetailSearch = () => {
         resources: updatedResources,
       });
     },
-    [editedTopic]
+    [editedTopic],
   );
 
   const handleCloseAlert = useCallback(() => {

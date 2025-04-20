@@ -74,7 +74,7 @@ const CreateTopic = () => {
       updated.splice(index, 1);
       formik.setFieldValue("resources", updated);
     },
-    [formik]
+    [formik],
   );
 
   const handleResourceChange = useCallback(
@@ -86,7 +86,7 @@ const CreateTopic = () => {
       };
       formik.setFieldValue("resources", updated);
     },
-    [formik]
+    [formik],
   );
 
   return (
@@ -95,7 +95,7 @@ const CreateTopic = () => {
         <IconButton onClick={() => router.push(paths.admin.roadmap.index)}>
           <ArrowBackIcon />
         </IconButton>
-        <Typography variant='h4' fontWeight='bold'>
+        <Typography variant="h4" fontWeight="bold">
           Tạo Topic mới
         </Typography>
       </RowStack>
@@ -104,29 +104,24 @@ const CreateTopic = () => {
         <RowStack mb={1}>
           <TextField
             fullWidth
-            label='Tiêu đề'
+            label="Tiêu đề"
             {...formik.getFieldProps("title")}
             error={formik.touched.title && Boolean(formik.errors.title)}
             helperText={formik.touched.title && formik.errors.title}
           />
         </RowStack>
         <Grid2 container spacing={3}>
-          <Grid2
-            size={{
-              xs: 12,
-              md: 8,
-            }}
-          >
+          <Grid2 size={12}>
             <TextField
               fullWidth
-              label='Mô tả'
+              label="Mô tả"
               {...formik.getFieldProps("description")}
               multiline
               rows={4}
             />
           </Grid2>
 
-          <Grid2
+          {/* <Grid2
             size={{
               xs: 12,
               md: 4,
@@ -147,17 +142,17 @@ const CreateTopic = () => {
                 ))}
               </Select>
             </FormControl>
-          </Grid2>
+          </Grid2> */}
 
           <Grid2 size={12}>
             <Divider sx={{ my: 2 }} />
             <Stack
-              direction='row'
-              justifyContent='space-between'
-              alignItems='center'
+              direction="row"
+              justifyContent="space-between"
+              alignItems="center"
               sx={{ mb: 2 }}
             >
-              <Typography variant='h6' fontWeight='bold'>
+              <Typography variant="h6" fontWeight="bold">
                 Tài nguyên
               </Typography>
               <Button startIcon={<AddIcon />} onClick={handleAddResource}>
@@ -167,16 +162,16 @@ const CreateTopic = () => {
 
             {formik.values.resources.map((resource, index) => (
               <Box key={index} sx={{ mb: 3 }}>
-                <Grid2 container spacing={2} alignItems='center'>
+                <Grid2 container spacing={2} alignItems="center">
                   <Grid2 size={4}>
                     <TextField
                       fullWidth
-                      label='Tiêu đề tài nguyên'
+                      label="Tiêu đề tài nguyên"
                       value={resource.title}
                       onChange={(e) =>
                         handleResourceChange(index, "title", e.target.value)
                       }
-                      size='small'
+                      size="small"
                     />
                     <FormHelperText>
                       {formik.touched.resources &&
@@ -194,7 +189,7 @@ const CreateTopic = () => {
                         onChange={(e) =>
                           handleResourceChange(index, "type", e.target.value)
                         }
-                        label='Loại'
+                        label="Loại"
                       >
                         {Object.values(TopicType).map((type) => (
                           <MenuItem key={type} value={type}>
@@ -208,18 +203,18 @@ const CreateTopic = () => {
                   <Grid2 size={4}>
                     <TextField
                       fullWidth
-                      label='URL'
+                      label="URL"
                       value={resource.url}
                       onChange={(e) =>
                         handleResourceChange(index, "url", e.target.value)
                       }
-                      size='small'
+                      size="small"
                     />
                   </Grid2>
 
                   <Grid2 size={1}>
                     <IconButton
-                      color='error'
+                      color="error"
                       onClick={() => handleRemoveResource(index)}
                       disabled={formik.values.resources.length === 1}
                     >
@@ -233,16 +228,16 @@ const CreateTopic = () => {
 
           <Grid2 size={12}>
             <Divider sx={{ my: 2 }} />
-            <Stack direction='row' spacing={2} justifyContent='flex-end'>
+            <Stack direction="row" spacing={2} justifyContent="flex-end">
               <Button
-                variant='outlined'
+                variant="outlined"
                 onClick={() => router.push(paths.admin.roadmap.index)}
               >
                 Hủy
               </Button>
               <Button
                 onClick={() => formik.handleSubmit()}
-                variant='contained'
+                variant="contained"
                 startIcon={<SaveIcon />}
                 // disabled={formik.isSubmitting}
               >
