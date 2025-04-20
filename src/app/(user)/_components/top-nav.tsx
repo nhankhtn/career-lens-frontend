@@ -29,7 +29,7 @@ import { useAuth } from "@/contexts/auth/firebase-context";
 interface TopNavProps {}
 
 const TopNav = ({}: TopNavProps) => {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const router = useRouter();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =
@@ -51,7 +51,7 @@ const TopNav = ({}: TopNavProps) => {
     (event: React.MouseEvent<HTMLElement>) => {
       setMobileMoreAnchorEl(event.currentTarget);
     },
-    [setMobileMoreAnchorEl]
+    [setMobileMoreAnchorEl],
   );
 
   const menuId = "primary-search-account-menu";
@@ -60,7 +60,7 @@ const TopNav = ({}: TopNavProps) => {
   console.log("user", user);
   return (
     <AppBar
-      position='fixed'
+      position="fixed"
       sx={{
         zIndex: (theme) => theme.zIndex.drawer + 1,
         transition: (theme) =>
@@ -74,7 +74,7 @@ const TopNav = ({}: TopNavProps) => {
         <Link href={paths.dashboard}>
           <Box
             component={"img"}
-            src='/images/logo-transparent.png'
+            src="/images/logo-transparent.png"
             width={120}
             height={48}
             sx={{
@@ -99,22 +99,22 @@ const TopNav = ({}: TopNavProps) => {
         {user?.email ? (
           <Box sx={{ display: { xs: "none", md: "flex" } }}>
             <IconButton
-              size='large'
-              aria-label='show 4 new notifications'
-              color='inherit'
+              size="large"
+              aria-label="show 4 new notifications"
+              color="inherit"
             >
-              <Badge badgeContent={4} color='error'>
+              <Badge badgeContent={4} color="error">
                 <NotificationsIcon />
               </Badge>
             </IconButton>
             <IconButton
-              size='large'
-              edge='end'
-              aria-label='account of current user'
+              size="large"
+              edge="end"
+              aria-label="account of current user"
               aria-controls={menuId}
-              aria-haspopup='true'
+              aria-haspopup="true"
               onClick={handleProfileMenuOpen}
-              color='inherit'
+              color="inherit"
             >
               <Avatar sx={{ width: 32, height: 32 }}>A</Avatar>
             </IconButton>
@@ -122,7 +122,7 @@ const TopNav = ({}: TopNavProps) => {
         ) : (
           <RowStack>
             <Button
-              variant='contained'
+              variant="contained"
               onClick={() => router.push(paths.auth.login)}
             >
               Đăng nhập
@@ -131,12 +131,12 @@ const TopNav = ({}: TopNavProps) => {
         )}
         <Box sx={{ display: { xs: "flex", md: "none" } }}>
           <IconButton
-            size='large'
-            aria-label='show more'
+            size="large"
+            aria-label="show more"
             aria-controls={mobileMenuId}
-            aria-haspopup='true'
+            aria-haspopup="true"
             onClick={handleMobileMenuOpen}
-            color='inherit'
+            color="inherit"
           >
             <MoreIcon />
           </IconButton>
@@ -159,7 +159,14 @@ const TopNav = ({}: TopNavProps) => {
       >
         <MenuItem onClick={handleMenuClose}>Hồ sơ</MenuItem>
         <MenuItem onClick={handleMenuClose}>Tài khoản</MenuItem>
-        <MenuItem onClick={handleMenuClose}>Đăng xuất</MenuItem>
+        <MenuItem
+          onClick={() => {
+            handleMenuClose();
+            signOut();
+          }}
+        >
+          Đăng xuất
+        </MenuItem>
       </Menu>
     </AppBar>
   );
