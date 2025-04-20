@@ -102,12 +102,12 @@ const RoadmapDetailContent = () => {
           severity={alertInfo.severity}
           action={
             <IconButton
-              aria-label='close'
-              color='inherit'
-              size='small'
+              aria-label="close"
+              color="inherit"
+              size="small"
               onClick={handleCloseAlert}
             >
-              <CloseIcon fontSize='inherit' />
+              <CloseIcon fontSize="inherit" />
             </IconButton>
           }
           sx={{ mb: 2 }}
@@ -116,30 +116,30 @@ const RoadmapDetailContent = () => {
         </Alert>
       </Collapse>
 
-      <RowStack spacing={2} alignItems='center' sx={{ my: 3 }}>
+      <RowStack spacing={2} alignItems="center" sx={{ my: 3 }}>
         <IconButton onClick={() => router.back()}>
           <ArrowBackIcon />
         </IconButton>
-        <Typography variant='h5' flex={1}>
+        <Typography variant="h5" flex={1}>
           Chi tiết Topic
         </Typography>
         <Stack
-          direction='row'
-          justifyContent='flex-end'
+          direction="row"
+          justifyContent="flex-end"
           spacing={2}
           sx={{ mb: 3 }}
         >
           {isEditing ? (
             <>
               <Button
-                variant='outlined'
+                variant="outlined"
                 startIcon={<CancelIcon />}
                 onClick={handleEditToggle}
               >
                 Hủy
               </Button>
               <Button
-                variant='contained'
+                variant="contained"
                 startIcon={<SaveIcon />}
                 onClick={handleSaveTopic}
               >
@@ -149,22 +149,22 @@ const RoadmapDetailContent = () => {
           ) : (
             <>
               <Button
-                variant='outlined'
+                variant="outlined"
                 startIcon={<EditIcon />}
                 onClick={handleEditToggle}
               >
                 Chỉnh sửa
               </Button>
               <Button
-                variant='contained'
+                variant="contained"
                 startIcon={<AddIcon />}
                 onClick={dialogAddTopic.handleOpen}
               >
                 Thêm topic con
               </Button>
               <Button
-                variant='outlined'
-                color='error'
+                variant="outlined"
+                color="error"
                 startIcon={<DeleteIcon />}
                 onClick={() => {
                   if (window.confirm("Bạn có chắc chắn muốn xóa topic này?")) {
@@ -200,7 +200,7 @@ const RoadmapDetailContent = () => {
           >
             {topic.resources && topic.resources.length > 0 ? (
               <Paper sx={{ p: 3, mb: 3 }}>
-                <Typography variant='h6' fontWeight='bold' sx={{ mb: 2 }}>
+                <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
                   Tài nguyên ({topic.resources.length})
                 </Typography>
                 <List>
@@ -209,10 +209,10 @@ const RoadmapDetailContent = () => {
                       key={index}
                       secondaryAction={
                         <IconButton
-                          edge='end'
-                          aria-label='open link'
+                          edge="end"
+                          aria-label="open link"
                           href={resource.url}
-                          target='_blank'
+                          target="_blank"
                         >
                           <LinkIcon />
                         </IconButton>
@@ -231,7 +231,7 @@ const RoadmapDetailContent = () => {
               </Paper>
             ) : (
               <Paper sx={{ p: 3, mb: 3 }}>
-                <Typography variant='h6' fontWeight='bold' sx={{ mb: 2 }}>
+                <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
                   Chưa có tài nguyên nào
                 </Typography>
               </Paper>
@@ -257,6 +257,7 @@ const RoadmapDetailContent = () => {
         open={dialogAddTopic.open}
         onClose={dialogAddTopic.handleClose}
         topic={topic}
+        childs={childTopics}
       />
     </Stack>
   );

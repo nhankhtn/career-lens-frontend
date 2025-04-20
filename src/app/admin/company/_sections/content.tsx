@@ -67,7 +67,7 @@ const companies = [
   },
 ];
 
-const CampanyContent = () => {
+const CompanyContent = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
@@ -76,7 +76,7 @@ const CampanyContent = () => {
   };
 
   const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     setRowsPerPage(Number.parseInt(event.target.value, 10));
     setPage(0);
@@ -85,15 +85,15 @@ const CampanyContent = () => {
   return (
     <Stack>
       <Stack
-        direction='row'
-        justifyContent='space-between'
-        alignItems='center'
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
         sx={{ mb: 3 }}
       >
-        <Typography variant='h4' fontWeight='bold'>
+        <Typography variant="h4" fontWeight="bold">
           Quản lý công ty
         </Typography>
-        <Button variant='contained' startIcon={<AddIcon />}>
+        <Button variant="contained" startIcon={<AddIcon />}>
           Thêm công ty
         </Button>
       </Stack>
@@ -102,30 +102,30 @@ const CampanyContent = () => {
         <Grid item xs={12} sm={4}>
           <Card>
             <CardContent>
-              <Typography variant='h5' fontWeight='bold'>
+              <Typography variant="h5" fontWeight="bold">
                 {companies.length}
               </Typography>
-              <Typography variant='body2'>Tổng số công ty</Typography>
+              <Typography variant="body2">Tổng số công ty</Typography>
             </CardContent>
           </Card>
         </Grid>
         <Grid item xs={12} sm={4}>
           <Card>
             <CardContent>
-              <Typography variant='h5' fontWeight='bold'>
+              <Typography variant="h5" fontWeight="bold">
                 {companies.filter((c) => c.status === "Hoạt động").length}
               </Typography>
-              <Typography variant='body2'>Đang hoạt động</Typography>
+              <Typography variant="body2">Đang hoạt động</Typography>
             </CardContent>
           </Card>
         </Grid>
         <Grid item xs={12} sm={4}>
           <Card>
             <CardContent>
-              <Typography variant='h5' fontWeight='bold'>
+              <Typography variant="h5" fontWeight="bold">
                 {companies.reduce((acc, company) => acc + company.employees, 0)}
               </Typography>
-              <Typography variant='body2'>Tổng số nhân viên</Typography>
+              <Typography variant="body2">Tổng số nhân viên</Typography>
             </CardContent>
           </Card>
         </Grid>
@@ -133,7 +133,7 @@ const CampanyContent = () => {
 
       <Paper sx={{ width: "100%", overflow: "hidden" }}>
         <TableContainer>
-          <Table stickyHeader aria-label='sticky table'>
+          <Table stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>
                 <TableCell>ID</TableCell>
@@ -142,7 +142,7 @@ const CampanyContent = () => {
                 <TableCell>Số nhân viên</TableCell>
                 <TableCell>Địa điểm</TableCell>
                 <TableCell>Trạng thái</TableCell>
-                <TableCell align='right'>Thao tác</TableCell>
+                <TableCell align="right">Thao tác</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -161,18 +161,18 @@ const CampanyContent = () => {
                         color={
                           company.status === "Hoạt động" ? "success" : "warning"
                         }
-                        size='small'
+                        size="small"
                       />
                     </TableCell>
-                    <TableCell align='right'>
-                      <IconButton size='small' color='primary'>
-                        <VisibilityIcon fontSize='small' />
+                    <TableCell align="right">
+                      <IconButton size="small" color="primary">
+                        <VisibilityIcon fontSize="small" />
                       </IconButton>
-                      <IconButton size='small' color='primary'>
-                        <EditIcon fontSize='small' />
+                      <IconButton size="small" color="primary">
+                        <EditIcon fontSize="small" />
                       </IconButton>
-                      <IconButton size='small' color='error'>
-                        <DeleteIcon fontSize='small' />
+                      <IconButton size="small" color="error">
+                        <DeleteIcon fontSize="small" />
                       </IconButton>
                     </TableCell>
                   </TableRow>
@@ -182,7 +182,7 @@ const CampanyContent = () => {
         </TableContainer>
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
-          component='div'
+          component="div"
           count={companies.length}
           rowsPerPage={rowsPerPage}
           page={page}
@@ -194,4 +194,4 @@ const CampanyContent = () => {
   );
 };
 
-export default CampanyContent;
+export default CompanyContent;
