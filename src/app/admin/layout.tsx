@@ -28,7 +28,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
       {/* Main Content */}
       <Box
-        component='main'
+        component="main"
         sx={{
           p: 3,
           width: {
@@ -51,4 +51,4 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export default Layout;
+export default withAdminGuard(Layout);
