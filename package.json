@@ -18,6 +18,7 @@
     "@mui/material": "^6.4.11",
     "@mui/material-nextjs": "^6.4.3",
     "@mui/system": "^6.4.7",
+    "@mui/x-charts": "^7.29.0",
     "@mui/x-date-pickers": "^7.28.3",
     "chart.js": "^4.4.8",
     "cookies-next": "^5.1.0",
