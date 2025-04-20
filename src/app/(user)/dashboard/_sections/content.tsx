@@ -1,15 +1,13 @@
 "use client"
 
 import { useCallback, useMemo, useState } from "react"
-import { Container, Typography, Box } from "@mui/material"
+import { Container, Typography, Box, useMediaQuery, useTheme } from "@mui/material"
 import { Stack } from "@mui/material"
 import RecruitmentHeatmap from "./recruitment-heatmap"
 import TopPositions from "./top-positions"
 import TopCompanies from "./top-companies"
 import ExperienceLevelChart from "./experience-level-chart"
 import InDemandSkills from "./in-demand-skills"
-
-
 import DashboardFilters from "@/app/(user)/dashboard/_components/filter-time-region"
 import { neutral } from "@/theme/colors"
 import RowStack from "@/components/row-stack"
@@ -21,6 +19,8 @@ export default function DashboardContent() {
     toDate: "2023-12-31",
     region: "all",
   })
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
 
   const handleFilterChange = useCallback((newFilters: { fromDate: string; toDate: string; region: string }) => {
     console.log("Filters changed:", newFilters)
@@ -29,17 +29,38 @@ export default function DashboardContent() {
 
   return (
     <Stack sx={{ bgcolor: neutral[50], minHeight: "100vh", pb: 4 }}>
-
-      <Container maxWidth="lg">
-        <RowStack justifyContent="space-between" sx={{ my: 3 }}>
-          <Typography variant="h3" component="h1" fontWeight="bold">
+      <Container maxWidth="lg" sx={{ px: { xs: 1, sm: 2, md: 3 } }}>
+        <RowStack
+          justifyContent="space-between"
+          sx={{
+            my: { xs: 2, sm: 3 },
+            flexDirection: isMobile ? "column" : "row",
+            alignItems: isMobile ? "flex-start" : "center",
+            gap: isMobile ? 2 : 0,
+          }}
+        >
+          <Typography
+            variant={isMobile ? "h4" : "h3"}
+            component="h1"
+            fontWeight="bold"
+            sx={{ fontSize: { xs: "1.5rem", sm: "2rem", md: "2.25rem" } }}
+          >
             {pageTitle}
           </Typography>
           <DashboardFilters onFilterChange={handleFilterChange} />
         </RowStack>
 
         {/* Heatmap Section - Full Width */}
-        <Box sx={{ bgcolor: "white", borderRadius: 2, p: 3, mb: 3, boxShadow: `0 1px 3px ${neutral[300]}` }}>
+        <Box
+          sx={{
+            bgcolor: "white",
+            borderRadius: 2,
+            p: { xs: 2, sm: 3 },
+            mb: { xs: 2, sm: 3 },
+            boxShadow: `0 1px 3px ${neutral[300]}`,
+            overflowX: "auto",
+          }}
+        >
           <Typography variant="h6" fontWeight="medium" sx={{ mb: 2 }}>
             Tin tuyển dụng IT
           </Typography>
@@ -50,8 +71,9 @@ export default function DashboardContent() {
         <Box
           sx={{
             display: "flex",
-            gap: 3,
-            mb: 3,
+            flexDirection: { xs: "column", md: "row" },
+            gap: { xs: 2, sm: 3 },
+            mb: { xs: 2, sm: 3 },
             width: "100%",
           }}
         >
@@ -59,9 +81,10 @@ export default function DashboardContent() {
             sx={{
               bgcolor: "white",
               borderRadius: 2,
-              p: 3,
+              p: { xs: 2, sm: 3 },
               flex: 1,
               boxShadow: `0 1px 3px ${neutral[300]}`,
+              width: "100%",
             }}
           >
             <TopPositions filters={filters} />
@@ -70,9 +93,10 @@ export default function DashboardContent() {
             sx={{
               bgcolor: "white",
               borderRadius: 2,
-              p: 3,
+              p: { xs: 2, sm: 3 },
               flex: 1,
               boxShadow: `0 1px 3px ${neutral[300]}`,
+              width: "100%",
             }}
           >
             <TopCompanies filters={filters} />
@@ -83,7 +107,8 @@ export default function DashboardContent() {
         <Box
           sx={{
             display: "flex",
-            gap: 3,
+            flexDirection: { xs: "column", md: "row" },
+            gap: { xs: 2, sm: 3 },
             width: "100%",
           }}
         >
@@ -91,9 +116,10 @@ export default function DashboardContent() {
             sx={{
               bgcolor: "white",
               borderRadius: 2,
-              p: 3,
+              p: { xs: 2, sm: 3 },
               flex: 5,
               boxShadow: `0 1px 3px ${neutral[300]}`,
+              width: "100%",
             }}
           >
             <ExperienceLevelChart filters={filters} />
@@ -102,9 +128,10 @@ export default function DashboardContent() {
             sx={{
               bgcolor: "white",
               borderRadius: 2,
-              p: 3,
+              p: { xs: 2, sm: 3 },
               flex: 7,
               boxShadow: `0 1px 3px ${neutral[300]}`,
+              width: "100%",
             }}
           >
             <InDemandSkills filters={filters} />

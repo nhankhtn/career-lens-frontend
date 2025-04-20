@@ -21,6 +21,8 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import SettingsIcon from "@mui/icons-material/Settings";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import MoreIcon from "@mui/icons-material/MoreVert";
+import { useAuth } from "@/contexts/auth/firebase-context";
+import { usePathname } from "next/navigation";
 
 interface TopNavProps {
   toggleSidebar: () => void;
@@ -28,6 +30,7 @@ interface TopNavProps {
 }
 
 const TopNav = ({ toggleSidebar, sidebarOpen }: TopNavProps) => {
+  const { signOut } = useAuth();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =
     useState<null | HTMLElement>(null);

@@ -1,114 +1,124 @@
-"use client";
+"use client"
 
-import type React from "react";
-import type { SelectChangeEvent } from "@mui/material";
+import type React from "react"
 
-import { useCallback, useState } from "react";
-import {
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-} from "@mui/material";
+import { useCallback, useState } from "react"
+import { TextField, Box, useMediaQuery, useTheme } from "@mui/material"
 import RowStack from "../../../../components/row-stack";
+import SelectFilter from "./select-filter"
 
 interface DashboardFiltersProps {
   onFilterChange: (filters: {
-    fromDate: string;
-    toDate: string;
-    region: string;
-  }) => void;
+    fromDate: string
+    toDate: string
+    region: string
+  }) => void
 }
 
-export default function DashboardFilters({
-  onFilterChange,
-}: DashboardFiltersProps) {
-  const [fromDate, setFromDate] = useState("2023-01-01");
-  const [toDate, setToDate] = useState("2023-12-31");
-  const [region, setRegion] = useState("all");
+export default function DashboardFilters({ onFilterChange }: DashboardFiltersProps) {
+  const [fromDate, setFromDate] = useState("2023-01-01")
+  const [toDate, setToDate] = useState("2023-12-31")
+  const [filter, setFilter] = useState({ region: "Tất cả" })
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
 
   const handleFilterChange = useCallback(() => {
     onFilterChange({
       fromDate,
       toDate,
-      region,
-    });
-  }, [fromDate, toDate, region, onFilterChange]);
+      region: filter.region === "Tất cả" ? "all" : filter.region,
+    })
+  }, [fromDate, toDate, filter, onFilterChange])
 
   const handleFromDateChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      setFromDate(event.target.value);
+      setFromDate(event.target.value)
       setTimeout(() => {
-        handleFilterChange();
-      }, 0);
+        handleFilterChange()
+      }, 0)
     },
-    [handleFilterChange]
-  );
+    [handleFilterChange],
+  )
 
   const handleToDateChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      setToDate(event.target.value);
+      setToDate(event.target.value)
       setTimeout(() => {
-        handleFilterChange();
-      }, 0);
+        handleFilterChange()
+      }, 0)
     },
-    [handleFilterChange]
-  );
+    [handleFilterChange],
+  )
 
-  const handleRegionChange = useCallback(
-    (event: SelectChangeEvent) => {
-      setRegion(event.target.value);
+  const handleSelectChange = useCallback(
+    (key: string, value: string) => {
+      setFilter((prev) => ({ ...prev, [key]: value }))
       setTimeout(() => {
-        handleFilterChange();
-      }, 0);
+        handleFilterChange()
+      }, 0)
     },
-    [handleFilterChange]
-  );
+    [handleFilterChange],
+  )
+
+  const filterConfigs = [
+    {
+      label: "Khu vực",
+      xs: 12,
+      key: "region",
+      options: [
+        { value: "all", label: "Tất cả" },
+        { value: "north", label: "Miền Bắc" },
+        { value: "central", label: "Miền Trung" },
+        { value: "south", label: "Miền Nam" },
+      ],
+    },
+  ]
 
   return (
-    <RowStack spacing={1} justifyContent='flex-end'>
-      <FormControl size='small' sx={{ minWidth: 150 }}>
-        <InputLabel id='region-label'>Khu vực</InputLabel>
-        <Select
-          labelId='region-label'
-          id='region-select'
-          value={region}
-          label='Khu vực'
-          onChange={handleRegionChange}
-        >
-          <MenuItem value='all'>Tất cả</MenuItem>
-          <MenuItem value='north'>Miền Bắc</MenuItem>
-          <MenuItem value='central'>Miền Trung</MenuItem>
-          <MenuItem value='south'>Miền Nam</MenuItem>
-        </Select>
-      </FormControl>
-
-      <TextField
-        id='from-date'
-        label='Từ ngày'
-        type='date'
-        value={fromDate}
-        onChange={handleFromDateChange}
-        size='small'
-        variant='outlined'
-        InputLabelProps={{ shrink: true }}
+    <Box sx={{ width: isMobile ? "100%" : "auto" }}>
+      <RowStack
+        spacing={1}
+        justifyContent="flex-end"
         sx={{
-          width: 150,
+          flexDirection: isMobile ? "column" : "row",
+          width: "100%",
         }}
-      />
-
-      <TextField
-        id='to-date'
-        label='Đến ngày'
-        type='date'
-        value={toDate}
-        onChange={handleToDateChange}
-        size='small'
-        variant='outlined'
-        InputLabelProps={{ shrink: true }}
-        sx={{ width: 150 }}
-      />
-    </RowStack>
-  );
+      >
+        <SelectFilter configs={filterConfigs} filter={filter} onChange={handleSelectChange} />
+        <Box
+          sx={{
+            display: "flex",
+            gap: 1,
+            flexDirection: isMobile ? "column" : "row",
+            width: isMobile ? "100%" : "auto",
+          }}
+        >
+          <TextField
+            id="from-date"
+            label="Từ ngày"
+            type="date"
+            value={fromDate}
+            onChange={handleFromDateChange}
+            size="small"
+            InputLabelProps={{
+              shrink: true,
+            }}
+            sx={{ width: isMobile ? "100%" : 150 }}
+          />
+          <TextField
+            id="to-date"
+            label="Đến ngày"
+            type="date"
+            value={toDate}
+            onChange={handleToDateChange}
+            size="small"
+            InputLabelProps={{
+              shrink: true,
+            }}
+            sx={{ width: isMobile ? "100%" : 150 }}
+          />
+        </Box>
+      </RowStack>
+    </Box>
+  )
 }
