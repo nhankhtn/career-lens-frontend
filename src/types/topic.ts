@@ -17,7 +17,8 @@ export interface Topic {
   level: number;
   parent_id: string | null;
   description: string | null;
-  priority: number;
+  priority: number | null;
+  order: number | null;
   resources:
     | {
         title: string | null;
@@ -39,13 +40,16 @@ export const resourceValidateSchema = Yup.object().shape({
 
 export const topicValidateSchema = Yup.object().shape({
   title: Yup.string().required("Tiêu đề là bắt buộc"),
-  priority: Yup.number().required(),
+  priority: Yup.number().nullable(),
+  order: Yup.number().nullable(),
   resources: Yup.array().of(resourceValidateSchema).min(1),
+  level: Yup.number().nullable(),
 });
 
 export const initialValuesTopic = {
   title: "",
-  priority: 1,
+  priority: null,
+  order: null,
   description: "",
   resources: [
     {

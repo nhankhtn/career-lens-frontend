@@ -37,7 +37,7 @@ const RoadmpaDetailChild = ({
           ...getTopicByIdApi.data,
           childs:
             getTopicByIdApi.data.childs.filter(
-              (child) => child.id !== payload
+              (child) => child.id !== payload,
             ) || [],
         });
     },
@@ -47,26 +47,26 @@ const RoadmpaDetailChild = ({
     <>
       {parentTopic && (
         <Paper sx={{ p: 3, mb: 3 }}>
-          <Typography variant='h6' fontWeight='bold' sx={{ mb: 2 }}>
+          <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
             Topic cha
           </Typography>
-          <Card variant='outlined'>
+          <Card variant="outlined">
             <CardContent>
-              <Typography variant='subtitle1' fontWeight='bold'>
+              <Typography variant="subtitle1" fontWeight="bold">
                 {parentTopic.title}
               </Typography>
-              <Typography variant='body2' color='text.secondary' sx={{ mb: 1 }}>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
                 Level {parentTopic.level} • Độ ưu tiên: {parentTopic.priority}
               </Typography>
               <Button
-                size='small'
-                variant='outlined'
+                size="small"
+                variant="outlined"
                 onClick={() =>
                   router.push(
                     paths.admin.roadmap.detail.replace(
                       "[roadmapId]",
-                      parentTopic.id
-                    )
+                      parentTopic.id,
+                    ),
                   )
                 }
               >
@@ -79,36 +79,47 @@ const RoadmpaDetailChild = ({
 
       <Paper sx={{ p: 3 }}>
         <Stack
-          direction='row'
-          justifyContent='space-between'
-          alignItems='center'
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
           sx={{ mb: 2 }}
         >
-          <Typography variant='h6' fontWeight='bold'>
+          <Typography variant="h6" fontWeight="bold">
             Topics con ({childTopics.length})
           </Typography>
         </Stack>
 
-        <Box sx={{ mt: 2 }} maxHeight={300} overflow='auto'>
+        <Box sx={{ mt: 2 }} maxHeight={300} overflow="auto">
           {childTopics.map((childTopic) => (
-            <Card key={childTopic.id} variant='outlined' sx={{ mb: 2 }}>
+            <Card key={childTopic.id} variant="outlined" sx={{ mb: 2 }}>
               <CardContent>
-                <RowStack justifyContent='space-between'>
-                  <Typography variant='subtitle1' fontWeight='bold'>
+                <RowStack justifyContent="space-between">
+                  <Typography variant="subtitle1" fontWeight="bold">
                     {childTopic.title}
                   </Typography>
-                  <Chip
-                    label={`Ưu tiên: ${childTopic.priority}`}
-                    size='small'
-                    color='primary'
-                    variant='outlined'
-                  />
+                  {childTopic.priority ? (
+                    <Chip
+                      label={`Ưu tiên: ${childTopic.priority}`}
+                      size="small"
+                      color="primary"
+                      variant="outlined"
+                    />
+                  ) : (
+                    childTopic.order && (
+                      <Chip
+                        label={`Bài: ${childTopic.order}`}
+                        size="small"
+                        color="primary"
+                        variant="outlined"
+                      />
+                    )
+                  )}
                 </RowStack>
 
                 {childTopic.description && (
                   <Typography
-                    variant='body2'
-                    color='text.secondary'
+                    variant="body2"
+                    color="text.secondary"
                     sx={{ mt: 1 }}
                   >
                     {childTopic.description.length > 100
@@ -123,23 +134,23 @@ const RoadmpaDetailChild = ({
                   sx={{ mt: 2 }}
                 >
                   <Button
-                    size='small'
-                    variant='outlined'
+                    size="small"
+                    variant="outlined"
                     onClick={() =>
                       router.push(
                         paths.admin.roadmap.detail.replace(
                           "[roadmapId]",
-                          childTopic?.id || ""
-                        )
+                          childTopic?.id || "",
+                        ),
                       )
                     }
                   >
                     Chi tiết
                   </Button>
                   <Button
-                    size='small'
-                    variant='outlined'
-                    color='error'
+                    size="small"
+                    variant="outlined"
+                    color="error"
                     onClick={() => {
                       if (window.confirm("Bạn có chắc chắn xoá không?"))
                         deleteChildTopicApi.call(childTopic?.id || "");
@@ -154,9 +165,9 @@ const RoadmpaDetailChild = ({
 
           {childTopics.length === 0 && (
             <Typography
-              variant='body2'
-              color='text.secondary'
-              align='center'
+              variant="body2"
+              color="text.secondary"
+              align="center"
               sx={{ py: 2 }}
             >
               Chưa có topic con nào. Hãy thêm topic con mới.
