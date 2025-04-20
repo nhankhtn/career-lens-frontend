@@ -29,7 +29,7 @@ export default function DashboardContent() {
 
   return (
     <Stack sx={{ bgcolor: neutral[50], minHeight: "100vh", pb: 4 }}>
-      <Container maxWidth="lg" sx={{ px: { xs: 1, sm: 2, md: 3 } }}>
+      <Stack >
         <RowStack
           justifyContent="space-between"
           sx={{
@@ -137,7 +137,7 @@ export default function DashboardContent() {
             <InDemandSkills filters={filters} />
           </Box>
         </Box>
-      </Container>
+      </Stack>
     </Stack>
   )
 }
