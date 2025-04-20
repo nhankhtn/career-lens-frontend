@@ -12,7 +12,7 @@ import {
     Stack,
     Typography,
 } from "@mui/material";
-import { ThumbUp, ChatBubbleOutline, Share, Visibility } from "@mui/icons-material"; // Thêm Visibility
+import { ThumbUp, ChatBubbleOutline, Save, Visibility } from "@mui/icons-material"; // Thêm Visibility
 import { blue } from "@mui/material/colors";
 
 interface PostAuthor {
@@ -30,12 +30,12 @@ interface PostProps {
         image?: string;
         likes: number;
         comments: number;
-        shares: number;
+        saves: number;
     };
 }
 
 export default function PostItem({ post }: PostProps) {
-    const { author, date, content, image, likes, comments, shares } = post;
+    const { author, date, content, image, likes, comments, saves } = post;
 
     // Function to render content with hashtags as links
     const renderContent = (text: string) => {
@@ -112,8 +112,8 @@ export default function PostItem({ post }: PostProps) {
                     <Typography variant="body2">{likes > 0 ? likes : ""}</Typography>
                     <Typography variant="body2">
                         {comments > 0 ? `${comments} bình luận` : ""}{" "}
-                        {comments > 0 && shares > 0 ? "• " : ""}
-                        {shares > 0 ? `${shares} chia sẻ` : ""}
+                        {comments > 0 && saves > 0 ? "• " : ""}
+                        {saves > 0 ? `${saves} chia sẻ` : ""}
                     </Typography>
                 </Box>
 
@@ -143,15 +143,15 @@ export default function PostItem({ post }: PostProps) {
                         {comments > 0 ? comments : "Bình luận"}
                     </Button>
                     <Button
-                        startIcon={<Share />}
+                        startIcon={<Save />}
                         sx={{
                             textTransform: "none",
                             color: "text.secondary",
                             flex: 1,
                         }}
-                        aria-label={`Share post, ${shares} shares`}
+                        aria-label={`Save post, ${saves} saves`}
                     >
-                        {shares > 0 ? shares : "Chia sẻ"}
+                        {saves > 0 ? saves : "Lưu"}
                     </Button>
                 </Stack>
             </CardContent>

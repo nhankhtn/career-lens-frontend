@@ -37,7 +37,7 @@ const suggestedUsers = [
         name: "Bill Gates",
         avatar: "/placeholder.svg?height=50&width=50",
         title: "Chair, Gates Foundation and Founder Breakthrough Energy",
-        icon: <LinkedIn fontSize="small"/>,
+        icon: <LinkedIn fontSize="small" />,
     },
 ]
 

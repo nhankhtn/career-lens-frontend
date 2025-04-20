@@ -1,5 +1,5 @@
-import CareerContent from "./_sections/content";
+import CareerDetailContent from './_sections/content';
 
-export default function Page() {
-  return <CareerContent />;
+export default function CareerDetailPage() {
+  return <CareerDetailContent />;
 }

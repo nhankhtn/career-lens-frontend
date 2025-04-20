@@ -8,6 +8,7 @@ import TopNav from "./_components/top-nav";
 import RowStack from "@/components/row-stack";
 import Sidebar from "./_components/sidebar";
 import { HEIGHT_HEADER_ADMIN, WITDH_SIDEBAR_ADMIN } from "@/constants";
+import { withAdminGuard } from "@/hocs/with-admin-guard";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const theme = useTheme();
@@ -27,7 +28,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
       {/* Main Content */}
       <Box
-        component='main'
+        component="main"
         sx={{
           p: 3,
           width: {
@@ -50,4 +51,4 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export default Layout;
+export default withAdminGuard(Layout);

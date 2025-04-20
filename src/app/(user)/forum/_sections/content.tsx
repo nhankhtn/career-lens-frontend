@@ -1,3 +1,4 @@
+"use client"
 import { Grid, Stack, Paper } from "@mui/material";
 import ProfileSidebar from "@/app/(user)/forum/_sections/profile-sidebar";
 import PostCreator from "@/app/(user)/forum/_sections/post-creater";
@@ -9,7 +10,15 @@ const CareerContent = () => {
         <Stack>
             <Grid container spacing={2}>
                 {/* Left sidebar - Profile */}
-                <Grid item xs={12} md={3} order={{ xs: 1, md: 1 }}>
+                <Grid
+                    item
+                    xs={12}
+                    md={3}
+                    order={{ xs: 1, md: 1 }}
+                    sx={{
+                        height: { xs: "250px", md: "auto" }, // Fixed 250px on mobile, auto on desktop
+                    }}
+                >
                     <ProfileSidebar />
                 </Grid>
 
