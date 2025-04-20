@@ -19,6 +19,8 @@ export class TopicApi {
     return await apiGet("/topics", removeUndefinedKeys(params));
   }
 
+  
+
   static async getTopicById(id: string): Promise<{
     topic: Topic;
     childs: Topic[];

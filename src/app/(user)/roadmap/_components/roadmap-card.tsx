@@ -62,6 +62,8 @@ export default function RoadmapCard({ id, title, description }: RoadmapCardProps
         >
           {description}
         </Typography>
+        
+        
 
         <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
           <Link

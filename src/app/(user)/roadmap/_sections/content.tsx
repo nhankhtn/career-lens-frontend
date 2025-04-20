@@ -1,11 +1,11 @@
 "use client"
 
 import { Container, Typography, Box, Paper, CssBaseline, useMediaQuery, useTheme } from "@mui/material"
-import { getAllRoadmaps } from "../_data/roadmap-details"
+import {  useRoadmapSearch } from "./use-roadmap-search"
 import RoadmapGrid from "../_components/roadmap-grid"
 
 export default function RoadmapContent() {
-  const roadmaps = getAllRoadmaps()
+  const {topicLevel1} = useRoadmapSearch()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
 
@@ -46,7 +46,7 @@ export default function RoadmapContent() {
 
           <Box sx={{ mb: { xs: 4, sm: 6, md: 8 } }}>
 
-            <RoadmapGrid roadmaps={roadmaps} />
+            <RoadmapGrid roadmaps={topicLevel1} />
           </Box>
         </Container>
       </Box>

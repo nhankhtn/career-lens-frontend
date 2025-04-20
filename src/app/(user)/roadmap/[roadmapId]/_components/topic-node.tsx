@@ -15,31 +15,87 @@ import {
   Chip,
   Link as MuiLink,
   Tooltip,
-  useMediaQuery,
-  useTheme,
+  Button,
 } from "@mui/material"
 import ChevronRightIcon from "@mui/icons-material/ChevronRight"
+import SchoolIcon from "@mui/icons-material/School"
+import ArticleIcon from "@mui/icons-material/Article"
+import VideoLibraryIcon from "@mui/icons-material/VideoLibrary"
+import MenuBookIcon from "@mui/icons-material/MenuBook"
+import BuildIcon from "@mui/icons-material/Build"
+import PersonIcon from "@mui/icons-material/Person"
+import LinkIcon from "@mui/icons-material/Link"
+import MoreHorizIcon from "@mui/icons-material/MoreHoriz"
 import CheckCircleIcon from "@mui/icons-material/CheckCircle"
-import type { Topic, Resource } from "../../_data/roadmap-details"
+import RadioButtonCheckedIcon from "@mui/icons-material/RadioButtonChecked"
+import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord"
 import ResourceProgress from "./resource-progress"
 import { priority } from "@/theme/colors"
-import { getResourceIcon } from "@/utils/icon-helper"
+
+// Update the interfaces to match the API data structure
+interface TopicResource {
+  title: string
+  type: string
+  url: string
+  platform?: string
+  free?: boolean
+  duration?: string
+}
+
+interface Topic {
+  id: string
+  title: string
+  description?: string
+  level?: number
+  priority?: number
+  resources?: TopicResource[]
+  order?: number
+  parent_id?: string | null
+  children?: Topic[]
+}
 
 interface TopicNodeProps {
   topic: Topic
   level: number
   expanded: boolean
   onToggle: () => void
+  fetchChildren?: (parentId: string) => Promise<Topic[]>
 }
 
-// Update the TopicNode component to properly handle recursive rendering of children
-export default function TopicNode({ topic, level, expanded, onToggle }: TopicNodeProps) {
+export default function TopicNode({ topic, level, expanded, onToggle, fetchChildren }: TopicNodeProps) {
+  const [dynamicChildren, setDynamicChildren] = useState<Topic[]>([])
+  const [loadingChildren, setLoadingChildren] = useState(false)
+
+  const hasStaticChildren = topic.children && topic.children.length > 0
+  const hasDynamicChildren = dynamicChildren.length > 0
+  const showChildren = hasStaticChildren ? topic.children! : dynamicChildren
+
+  const handleExpand = async () => {
+    if (!hasStaticChildren && fetchChildren && dynamicChildren.length === 0) {
+      setLoadingChildren(true)
+      try {
+        const children = await fetchChildren(topic.id)
+        setDynamicChildren(children)
+      } catch (err) {
+        console.error("Failed to fetch children", err)
+      } finally {
+        setLoadingChildren(false)
+      }
+    }
+    onToggle()
+  }
+  
   const [resourcesExpanded, setResourcesExpanded] = useState(false)
   const [childrenExpanded, setChildrenExpanded] = useState<Record<string, boolean>>({})
-  const hasChildren = topic.children && topic.children.length > 0
-  const hasResources = topic.resources && topic.resources.length > 0
-  const theme = useTheme()
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
+  const [showFullDescription, setShowFullDescription] = useState(false)
+
+  // Ensure resources is always an array
+  const resources = topic.resources || []
+  const hasResources = resources.length > 0
+
+  // Ensure children is always an array
+  const children = topic.children || []
+  const hasChildren = children.length > 0
 
   const handleResourcesToggle = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -53,9 +109,46 @@ export default function TopicNode({ topic, level, expanded, onToggle }: TopicNod
     }))
   }
 
+  const handleDescriptionToggle = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setShowFullDescription(!showFullDescription)
+  }
+
+  // Truncate description to approximately one line (around 100 characters)
+  const truncateDescription = (text: string, maxLength = 100) => {
+    if (!text) return ""
+    if (text.length <= maxLength) return text
+    return text.substring(0, maxLength) + "..."
+  }
+
+  const getResourceIcon = (type: string) => {
+    switch (type.toLowerCase()) {
+      case "course":
+        return <SchoolIcon fontSize="small" color="primary" />
+      case "article":
+        return <ArticleIcon fontSize="small" color="secondary" />
+      case "video":
+        return <VideoLibraryIcon fontSize="small" color="error" />
+      case "book":
+        return <MenuBookIcon fontSize="small" color="success" />
+      case "project":
+        return <BuildIcon fontSize="small" color="warning" />
+      case "interview":
+        return <PersonIcon fontSize="small" color="info" />
+      case "resource":
+        return <LinkIcon fontSize="small" color="primary" />
+      default:
+        return <MoreHorizIcon fontSize="small" color="action" />
+    }
+  }
+
   // Render priority indicator based on priority value (1-3)
   const renderPriorityIndicator = () => {
-    // Priority 1 is highest (green), 2 is medium (purple), 3 is lowest (gray)
+    // If priority is null or undefined, don't show the indicator
+    if (topic.priority === null || topic.priority === undefined) {
+      return null
+    }
+
     let priorityIcon
     let priorityColor
     let priorityBgColor
@@ -63,20 +156,20 @@ export default function TopicNode({ topic, level, expanded, onToggle }: TopicNod
 
     switch (topic.priority) {
       case 1:
-        priorityIcon = <CheckCircleIcon fontSize={isMobile ? "small" : "small"} />
+        priorityIcon = <CheckCircleIcon fontSize="small" />
         priorityColor = priority.high.main
         priorityBgColor = priority.high.light
         priorityText = "High Priority"
         break
       case 2:
-        priorityIcon = <CheckCircleIcon fontSize={isMobile ? "small" : "small"} />
+        priorityIcon = <RadioButtonCheckedIcon fontSize="small" />
         priorityColor = priority.medium.main
         priorityBgColor = priority.medium.light
         priorityText = "Medium Priority"
         break
       case 3:
       default:
-        priorityIcon = <CheckCircleIcon fontSize={isMobile ? "small" : "small"} />
+        priorityIcon = <FiberManualRecordIcon fontSize="small" />
         priorityColor = priority.low.main
         priorityBgColor = priority.low.light
         priorityText = "Low Priority"
@@ -93,8 +186,8 @@ export default function TopicNode({ topic, level, expanded, onToggle }: TopicNod
             color: priorityColor,
             bgcolor: priorityBgColor,
             borderRadius: "50%",
-            width: isMobile ? 20 : 24,
-            height: isMobile ? 20 : 24,
+            width: 24,
+            height: 24,
           }}
         >
           {priorityIcon}
@@ -104,7 +197,15 @@ export default function TopicNode({ topic, level, expanded, onToggle }: TopicNod
   }
 
   // Sort children by order
-  const sortedChildren = topic.children ? [...topic.children].sort((a, b) => a.order - b.order) : []
+  const sortedChildren =
+    children.length > 0
+      ? [...children].sort((a, b) => {
+          // If order is not defined, default to 1
+          const orderA = a.order || 1
+          const orderB = b.order || 1
+          return orderA - orderB
+        })
+      : []
 
   return (
     <Box>
@@ -113,7 +214,7 @@ export default function TopicNode({ topic, level, expanded, onToggle }: TopicNod
         sx={{
           display: "flex",
           alignItems: "center",
-          p: isMobile ? 1.5 : 2,
+          p: 2,
           bgcolor: level === 0 ? "background.default" : "background.paper",
           borderLeft:
             level > 0
@@ -121,7 +222,7 @@ export default function TopicNode({ topic, level, expanded, onToggle }: TopicNod
                   level === 1 ? "primary.main" : level === 2 ? "secondary.main" : level === 3 ? "info.main" : "divider"
                 }`
               : "none",
-          pl: level > 0 ? (isMobile ? 1.5 : 2) + level * (isMobile ? 0.3 : 0.5) : isMobile ? 1.5 : 2,
+          pl: level > 0 ? 2 + level * 1.5 : 2, // Increased indentation for child topics
           cursor: hasChildren ? "pointer" : "default",
           "&:hover": {
             bgcolor: level === 0 ? "action.hover" : "background.default",
@@ -132,170 +233,135 @@ export default function TopicNode({ topic, level, expanded, onToggle }: TopicNod
         {hasChildren && (
           <IconButton
             size="small"
-            sx={{
-              mr: isMobile ? 0.5 : 1,
-              transform: expanded ? "rotate(90deg)" : "rotate(0deg)",
-              padding: isMobile ? 0.5 : 1,
-            }}
+            sx={{ mr: 1, transform: expanded ? "rotate(90deg)" : "rotate(0deg)" }}
             onClick={(e) => {
               e.stopPropagation()
               onToggle()
             }}
           >
-            <ChevronRightIcon fontSize={isMobile ? "small" : "medium"} />
+            <ChevronRightIcon />
           </IconButton>
         )}
 
         <Box sx={{ flex: 1 }}>
-          <Box sx={{ display: "flex", alignItems: "center", flexWrap: isMobile ? "wrap" : "nowrap" }}>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
             <Typography
-              variant={level === 0 ? (isMobile ? "subtitle1" : "h6") : isMobile ? "body2" : "subtitle1"}
+              variant={level === 0 ? "h6" : "subtitle1"}
               sx={{
                 fontWeight: level === 0 ? 600 : 500,
-                fontSize: isMobile
-                  ? level === 0
-                    ? "1rem"
-                    : level === 1
-                      ? "0.9rem"
-                      : level === 2
-                        ? "0.85rem"
-                        : "0.8rem"
-                  : level === 0
-                    ? "1.125rem"
-                    : level === 1
-                      ? "1rem"
-                      : level === 2
-                        ? "0.95rem"
-                        : "0.9rem",
+                fontSize: level === 0 ? "1.125rem" : level === 1 ? "1rem" : level === 2 ? "0.95rem" : "0.9rem",
               }}
             >
               {topic.title}
             </Typography>
 
-            {/* Display order number */}
-            <Tooltip title={`Order: ${topic.order}`}>
-              <Chip
-                label={`#${topic.order}`}
-                size="small"
-                sx={{
-                  ml: 1,
-                  height: isMobile ? 16 : 20,
-                  fontSize: isMobile ? "0.6rem" : "0.7rem",
-                  bgcolor: "info.light",
-                  color: "info.dark",
-                  fontWeight: 500,
-                  border: 1,
-                  borderColor: "info.main",
-                }}
-              />
-            </Tooltip>
+            {/* Display order number only if order is not null */}
+            {topic.order !== null && topic.order !== undefined && (
+              <Tooltip title={`Order: ${topic.order}`}>
+                <Chip
+                  label={`#${topic.order}`}
+                  size="small"
+                  sx={{
+                    ml: 1,
+                    height: 20,
+                    fontSize: "0.7rem",
+                    bgcolor: "info.light",
+                    color: "info.dark",
+                    fontWeight: 500,
+                    border: 1,
+                    borderColor: "info.main",
+                  }}
+                />
+              </Tooltip>
+            )}
           </Box>
 
-          {topic.description && !isMobile && (
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{
-                mt: 0.5,
-                display: level > 2 ? "none" : "block",
-                fontSize: isMobile ? "0.75rem" : "0.875rem",
-              }}
-            >
-              {topic.description}
-            </Typography>
+          {topic.description && (
+            <Box sx={{ mt: 0.5 }}>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{
+                  display: level > 2 && !showFullDescription ? "none" : "block",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+              >
+                {showFullDescription ? topic.description : truncateDescription(topic.description)}
+              </Typography>
+              {topic.description.length > 100 && (
+                <Button
+                  size="small"
+                  onClick={handleDescriptionToggle}
+                  sx={{ mt: 0.5, p: 0, minWidth: "auto", textTransform: "none", color: "primary.main" }}
+                >
+                  {showFullDescription ? "Show less" : "Show more"}
+                </Button>
+              )}
+            </Box>
           )}
         </Box>
 
         {hasResources && (
           <Chip
-            label={`${topic.resources.length} resource${topic.resources.length > 1 ? "s" : ""}`}
+            label={`${resources.length} resource${resources.length > 1 ? "s" : ""}`}
             size="small"
-            sx={{
-              mr: 1,
-              height: isMobile ? 24 : 32,
-              fontSize: isMobile ? "0.7rem" : "0.75rem",
-            }}
+            sx={{ mr: 1 }}
             onClick={handleResourcesToggle}
           />
         )}
 
-        {/* Display priority indicator on the right side */}
+        {/* Display priority indicator on the right side only if priority is not null */}
         {renderPriorityIndicator()}
       </Box>
 
       {/* Resources Collapse */}
       {hasResources && (
         <Collapse in={resourcesExpanded}>
-          <Box sx={{ px: isMobile ? 1.5 : 2, py: isMobile ? 0.5 : 1, bgcolor: "background.default" }}>
-            <Typography
-              variant="subtitle2"
-              sx={{ mb: isMobile ? 0.5 : 1, fontWeight: 600, fontSize: isMobile ? "0.8rem" : "0.875rem" }}
-            >
+          <Box sx={{ px: 2, py: 1, bgcolor: "background.default" }}>
+            <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
               Learning Resources
             </Typography>
 
             <List dense disablePadding>
-              {topic.resources.map((resource: Resource) => (
+              {resources.map((resource: TopicResource, index) => (
                 <ListItem
-                  key={resource.id}
+                  key={`${topic.id}-resource-${index}`}
                   sx={{
-                    px: isMobile ? 1.5 : 2,
-                    py: isMobile ? 0.5 : 1,
-                    mb: isMobile ? 0.5 : 1,
+                    px: 2,
+                    py: 1,
+                    mb: 1,
                     bgcolor: "background.paper",
                     borderRadius: 1,
                     border: "1px solid",
                     borderColor: "divider",
-                    flexDirection: isMobile ? "column" : "row",
-                    alignItems: isMobile ? "flex-start" : "center",
                   }}
-                  secondaryAction={isMobile ? null : <ResourceProgress resourceId={resource.id} topicId={topic.id} />}
+                  secondaryAction={<ResourceProgress resourceId={`${topic.id}-resource-${index}`} topicId={topic.id} />}
                 >
-                  <Box
-                    sx={{
-                      mr: isMobile ? 0 : 1.5,
-                      mb: isMobile ? 0.5 : 0,
-                      display: "flex",
-                      alignItems: "center",
-                      width: isMobile ? "100%" : "auto",
-                    }}
-                  >
-                    <Box sx={{ mr: 1, display: "flex", alignItems: "center" }}>{getResourceIcon(resource.type)}</Box>
-                    <ListItemText
-                      primary={
-                        <MuiLink
-                          href={resource.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          sx={{
-                            textDecoration: "none",
-                            fontSize: isMobile ? "0.8rem" : "0.875rem",
-                            display: "block",
-                            mb: isMobile ? 0.5 : 0,
-                          }}
-                        >
-                          {resource.title}
-                        </MuiLink>
-                      }
-                      secondary={
-                        <Chip
-                          label={resource.type}
-                          size="small"
-                          sx={{
-                            height: isMobile ? 16 : 20,
-                            fontSize: isMobile ? "0.6rem" : "0.7rem",
-                            mt: 0.5,
-                          }}
-                        />
-                      }
-                    />
-                  </Box>
-
-                  {isMobile && (
-                    <Box sx={{ width: "100%", display: "flex", justifyContent: "flex-end", mt: 1 }}>
-                      <ResourceProgress resourceId={resource.id} topicId={topic.id} />
-                    </Box>
-                  )}
+                  <Box sx={{ mr: 1.5, display: "flex", alignItems: "center" }}>{getResourceIcon(resource.type)}</Box>
+                  <ListItemText
+                    primary={
+                      <MuiLink
+                        href={resource.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        sx={{ textDecoration: "none" }}
+                      >
+                        {resource.title}
+                      </MuiLink>
+                    }
+                    secondary={
+                      <Chip
+                        label={resource.type}
+                        size="small"
+                        sx={{
+                          height: 20,
+                          fontSize: "0.7rem",
+                          mt: 0.5,
+                        }}
+                      />
+                    }
+                  />
                 </ListItem>
               ))}
             </List>
@@ -307,7 +373,7 @@ export default function TopicNode({ topic, level, expanded, onToggle }: TopicNod
       {/* Children Collapse */}
       {hasChildren && (
         <Collapse in={expanded}>
-          <Box sx={{ py: level === 0 ? (isMobile ? 0.5 : 1) : 0 }}>
+          <Box sx={{ py: level === 0 ? 1 : 0 }}>
             {sortedChildren.map((child) => (
               <TopicNode
                 key={child.id}

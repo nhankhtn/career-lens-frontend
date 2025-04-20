@@ -37,6 +37,7 @@ export default function ResourceProgress({ resourceId, topicId }: ResourceProgre
     }
   }
 
+  // Use the same color for all states (primary color)
   return (
     <ToggleButtonGroup value={progress} exclusive onChange={handleProgressChange} size="small" sx={{ height: 28 }}>
       <ToggleButton
@@ -45,7 +46,7 @@ export default function ResourceProgress({ resourceId, topicId }: ResourceProgre
           px: 1,
           py: 0.5,
           fontSize: "0.75rem",
-          "&.Mui-selected": { bgcolor: "action.hover", color: "text.secondary" },
+          "&.Mui-selected": { bgcolor: "primary.light", color: "primary.dark" },
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -73,7 +74,7 @@ export default function ResourceProgress({ resourceId, topicId }: ResourceProgre
           px: 1,
           py: 0.5,
           fontSize: "0.75rem",
-          "&.Mui-selected": { bgcolor: "success.light", color: "success.dark" },
+          "&.Mui-selected": { bgcolor: "primary.light", color: "primary.dark" },
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center" }}>
