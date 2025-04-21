@@ -141,7 +141,7 @@ const TopNav = ({}: TopNavProps) => {
             }),
         }}
       >
-        <Toolbar sx={{ justifyContent: "space-between", px: { xs: 1, sm: 2 } }}>
+        <Toolbar sx={{ justifyContent: "space-between", px: { xs: 1, md: 2 } }}>
           <Link href={paths.dashboard}>
             <Box
               component={"img"}
@@ -255,15 +255,31 @@ const TopNav = ({}: TopNavProps) => {
             )}
           </RowStack>
           {isMobile && (
-            <IconButton
-              color="secondary"
-              aria-label="open drawer"
-              edge="start"
-              onClick={handleDrawerToggle}
-              sx={{ mr: 0.5 }}
-            >
-              <MenuIcon />
-            </IconButton>
+            <RowStack gap={1}>
+              <Button
+                variant="contained"
+                onClick={() =>
+                  router.push(paths.auth.login + `?returnTo=${pathname}`)
+                }
+                size="medium"
+                sx={{
+                  display: { xs: "none", md: "inline-flex" }, // Ẩn trên mobile
+                  whiteSpace: "nowrap",
+                  px: 2,
+                }}
+              >
+                Đăng nhập
+              </Button>
+              <IconButton
+                color="secondary"
+                aria-label="open drawer"
+                edge="start"
+                onClick={handleDrawerToggle}
+                sx={{ mr: 0.5 }}
+              >
+                <MenuIcon />
+              </IconButton>
+            </RowStack>
           )}
         </Toolbar>
       </AppBar>
