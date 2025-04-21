@@ -54,42 +54,46 @@ const RoadmapInfoDetail = ({
           >
             <TextField
               fullWidth
-              label='Tiêu đề'
-              name='title'
+              label="Tiêu đề"
+              name="title"
               value={editedTopic.title}
               onChange={handleTopicChange}
               required
             />
           </Grid2>
 
-          <Grid2
-            size={{
-              xs: 12,
-              md: 2,
-            }}
-          >
-            <FormControl fullWidth>
-              <InputLabel>Độ ưu tiên</InputLabel>
-              <Select
-                name='priority'
-                value={editedTopic.priority}
-                onChange={handleTopicSelectChange}
-                label='Độ ưu tiên'
-              >
-                {[1, 2, 3, 4, 5].map((p) => (
-                  <MenuItem key={p} value={p}>
-                    {p}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid2>
+          {editedTopic.priority && (
+            <Grid2
+              size={{
+                xs: 12,
+                md: 2,
+              }}
+            >
+              {
+                <FormControl fullWidth>
+                  <InputLabel>Độ ưu tiên</InputLabel>
+                  <Select
+                    name="priority"
+                    value={editedTopic.priority}
+                    onChange={handleTopicSelectChange}
+                    label="Độ ưu tiên"
+                  >
+                    {[1, 2, 3].map((p) => (
+                      <MenuItem key={p} value={p}>
+                        {p}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              }
+            </Grid2>
+          )}
 
           <Grid2 size={12}>
             <TextField
               fullWidth
-              label='Mô tả'
-              name='description'
+              label="Mô tả"
+              name="description"
               value={editedTopic.description || ""}
               onChange={handleTopicChange}
               multiline
@@ -99,8 +103,8 @@ const RoadmapInfoDetail = ({
 
           <Grid2 size={12}>
             <Divider sx={{ my: 2 }} />
-            <RowStack justifyContent='space-between' sx={{ mb: 2 }}>
-              <Typography variant='h6' fontWeight='bold'>
+            <RowStack justifyContent="space-between" sx={{ mb: 2 }}>
+              <Typography variant="h6" fontWeight="bold">
                 Tài nguyên
               </Typography>
               <Button startIcon={<AddIcon />} onClick={handleAddResource}>
@@ -111,7 +115,7 @@ const RoadmapInfoDetail = ({
             {editedTopic.resources &&
               editedTopic.resources.map((resource: any, index: number) => (
                 <Box key={index} sx={{ mb: 3 }}>
-                  <Grid2 container spacing={2} alignItems='center'>
+                  <Grid2 container spacing={2} alignItems="center">
                     <Grid2
                       size={{
                         xs: 12,
@@ -120,7 +124,7 @@ const RoadmapInfoDetail = ({
                     >
                       <TextField
                         fullWidth
-                        label='Tiêu đề tài nguyên'
+                        label="Tiêu đề tài nguyên"
                         value={resource.title || ""}
                         onChange={(e) =>
                           handleResourceChange(index, "title", e.target.value)
@@ -141,7 +145,7 @@ const RoadmapInfoDetail = ({
                           onChange={(e) =>
                             handleResourceChange(index, "type", e.target.value)
                           }
-                          label='Loại'
+                          label="Loại"
                         >
                           {Object.values(TopicType).map((type) => (
                             <MenuItem key={type} value={type}>
@@ -160,7 +164,7 @@ const RoadmapInfoDetail = ({
                     >
                       <TextField
                         fullWidth
-                        label='URL'
+                        label="URL"
                         value={resource.url || ""}
                         onChange={(e) =>
                           handleResourceChange(index, "url", e.target.value)
@@ -175,7 +179,7 @@ const RoadmapInfoDetail = ({
                       }}
                     >
                       <IconButton
-                        color='error'
+                        color="error"
                         onClick={() => handleRemoveResource(index)}
                         disabled={editedTopic.resources?.length === 1}
                       >
@@ -190,8 +194,8 @@ const RoadmapInfoDetail = ({
       ) : (
         // View mode
         <>
-          <RowStack justifyContent='space-between' sx={{ mb: 2 }}>
-            <Typography variant='h5' fontWeight='bold'>
+          <RowStack justifyContent="space-between" sx={{ mb: 2 }}>
+            <Typography variant="h5" fontWeight="bold">
               {topic.title}
             </Typography>
             <Chip
@@ -200,34 +204,50 @@ const RoadmapInfoDetail = ({
             />
           </RowStack>
 
-          <Typography variant='body1' sx={{ mb: 3 }}>
+          <Typography variant="body1" sx={{ mb: 3 }}>
             {topic.description}
           </Typography>
 
           <Divider sx={{ my: 2 }} />
 
           <Grid2 container spacing={2}>
+            {topic.priority ? (
+              <Grid2
+                size={{
+                  xs: 6,
+                  md: 3,
+                }}
+              >
+                <Typography variant="subtitle2" color="text.secondary">
+                  Độ ưu tiên
+                </Typography>
+                <Typography variant="body2">{topic.priority}</Typography>
+              </Grid2>
+            ) : (
+              topic.order && (
+                <Grid2
+                  size={{
+                    xs: 6,
+                    md: 3,
+                  }}
+                >
+                  <Typography variant="subtitle2" color="text.secondary">
+                    Thứ tự
+                  </Typography>
+                  <Typography variant="body2">{topic.order}</Typography>
+                </Grid2>
+              )
+            )}
             <Grid2
               size={{
                 xs: 6,
                 md: 3,
               }}
             >
-              <Typography variant='subtitle2' color='text.secondary'>
-                Độ ưu tiên
-              </Typography>
-              <Typography variant='body2'>{topic.priority}</Typography>
-            </Grid2>
-            <Grid2
-              size={{
-                xs: 6,
-                md: 3,
-              }}
-            >
-              <Typography variant='subtitle2' color='text.secondary'>
+              <Typography variant="subtitle2" color="text.secondary">
                 Ngày tạo
               </Typography>
-              <Typography variant='body2'>
+              <Typography variant="body2">
                 {new Date(topic.created_at).toLocaleDateString("vi-VN")}
               </Typography>
             </Grid2>
@@ -237,10 +257,10 @@ const RoadmapInfoDetail = ({
                 md: 3,
               }}
             >
-              <Typography variant='subtitle2' color='text.secondary'>
+              <Typography variant="subtitle2" color="text.secondary">
                 Cập nhật lần cuối
               </Typography>
-              <Typography variant='body2'>
+              <Typography variant="body2">
                 {new Date(topic.updated_at).toLocaleDateString("vi-VN")}
               </Typography>
             </Grid2>

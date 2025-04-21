@@ -21,6 +21,8 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import SettingsIcon from "@mui/icons-material/Settings";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import MoreIcon from "@mui/icons-material/MoreVert";
+import { useAuth } from "@/contexts/auth/firebase-context";
+import { usePathname } from "next/navigation";
 
 interface TopNavProps {
   toggleSidebar: () => void;
@@ -28,6 +30,7 @@ interface TopNavProps {
 }
 
 const TopNav = ({ toggleSidebar, sidebarOpen }: TopNavProps) => {
+  const { signOut } = useAuth();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =
     useState<null | HTMLElement>(null);
@@ -48,7 +51,7 @@ const TopNav = ({ toggleSidebar, sidebarOpen }: TopNavProps) => {
     (event: React.MouseEvent<HTMLElement>) => {
       setMobileMoreAnchorEl(event.currentTarget);
     },
-    [setMobileMoreAnchorEl]
+    [setMobileMoreAnchorEl],
   );
 
   const menuId = "primary-search-account-menu";
@@ -72,29 +75,29 @@ const TopNav = ({ toggleSidebar, sidebarOpen }: TopNavProps) => {
     >
       <MenuItem>
         <IconButton
-          size='large'
-          aria-label='show 4 new notifications'
-          color='inherit'
+          size="large"
+          aria-label="show 4 new notifications"
+          color="inherit"
         >
-          <Badge badgeContent={4} color='error'>
+          <Badge badgeContent={4} color="error">
             <NotificationsIcon />
           </Badge>
         </IconButton>
         <p>Thông báo</p>
       </MenuItem>
       <MenuItem>
-        <IconButton size='large' aria-label='settings' color='inherit'>
+        <IconButton size="large" aria-label="settings" color="inherit">
           <SettingsIcon />
         </IconButton>
         <p>Cài đặt</p>
       </MenuItem>
       <MenuItem onClick={handleProfileMenuOpen}>
         <IconButton
-          size='large'
-          aria-label='account of current user'
-          aria-controls='primary-search-account-menu'
-          aria-haspopup='true'
-          color='inherit'
+          size="large"
+          aria-label="account of current user"
+          aria-controls="primary-search-account-menu"
+          aria-haspopup="true"
+          color="inherit"
         >
           <AccountCircleIcon />
         </IconButton>
@@ -105,7 +108,7 @@ const TopNav = ({ toggleSidebar, sidebarOpen }: TopNavProps) => {
 
   return (
     <AppBar
-      position='fixed'
+      position="fixed"
       sx={{
         zIndex: (theme) => theme.zIndex.drawer + 1,
         transition: (theme) =>
@@ -117,18 +120,18 @@ const TopNav = ({ toggleSidebar, sidebarOpen }: TopNavProps) => {
     >
       <Toolbar>
         <IconButton
-          color='inherit'
-          aria-label='open drawer'
-          edge='start'
+          color="inherit"
+          aria-label="open drawer"
+          edge="start"
           onClick={toggleSidebar}
           sx={{ mr: 2 }}
         >
           <MenuIcon />
         </IconButton>
         <Typography
-          variant='h6'
+          variant="h6"
           noWrap
-          component='div'
+          component="div"
           sx={{ display: { xs: "none", sm: "block" } }}
         >
           Admin Dashboard
@@ -136,37 +139,37 @@ const TopNav = ({ toggleSidebar, sidebarOpen }: TopNavProps) => {
         <Box sx={{ flexGrow: 1 }} />
         <Box sx={{ display: { xs: "none", md: "flex" } }}>
           <IconButton
-            size='large'
-            aria-label='show 4 new notifications'
-            color='inherit'
+            size="large"
+            aria-label="show 4 new notifications"
+            color="inherit"
           >
-            <Badge badgeContent={4} color='error'>
+            <Badge badgeContent={4} color="error">
               <NotificationsIcon />
             </Badge>
           </IconButton>
-          <IconButton size='large' aria-label='settings' color='inherit'>
+          <IconButton size="large" aria-label="settings" color="inherit">
             <SettingsIcon />
           </IconButton>
           <IconButton
-            size='large'
-            edge='end'
-            aria-label='account of current user'
+            size="large"
+            edge="end"
+            aria-label="account of current user"
             aria-controls={menuId}
-            aria-haspopup='true'
+            aria-haspopup="true"
             onClick={handleProfileMenuOpen}
-            color='inherit'
+            color="inherit"
           >
             <Avatar sx={{ width: 32, height: 32 }}>A</Avatar>
           </IconButton>
         </Box>
         <Box sx={{ display: { xs: "flex", md: "none" } }}>
           <IconButton
-            size='large'
-            aria-label='show more'
+            size="large"
+            aria-label="show more"
             aria-controls={mobileMenuId}
-            aria-haspopup='true'
+            aria-haspopup="true"
             onClick={handleMobileMenuOpen}
-            color='inherit'
+            color="inherit"
           >
             <MoreIcon />
           </IconButton>
@@ -190,7 +193,14 @@ const TopNav = ({ toggleSidebar, sidebarOpen }: TopNavProps) => {
       >
         <MenuItem onClick={handleMenuClose}>Hồ sơ</MenuItem>
         <MenuItem onClick={handleMenuClose}>Tài khoản</MenuItem>
-        <MenuItem onClick={handleMenuClose}>Đăng xuất</MenuItem>
+        <MenuItem
+          onClick={() => {
+            handleMenuClose();
+            signOut();
+          }}
+        >
+          Đăng xuất
+        </MenuItem>
       </Menu>
     </AppBar>
   );

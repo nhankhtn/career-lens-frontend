@@ -35,15 +35,21 @@ interface DialogAddTopicProps {
   open: boolean;
   onClose: () => void;
   topic: Topic;
+  childs: Topic[];
 }
 
-const DialogAddTopic = ({ open, onClose, topic }: DialogAddTopicProps) => {
+const DialogAddTopic = ({
+  open,
+  onClose,
+  topic,
+  childs,
+}: DialogAddTopicProps) => {
   const { showSnackbarSuccess } = useAppSnackbar();
   const { getTopicByIdApi } = useTopicContext();
   const createTopicApi = useFunction(TopicApi.createTopic, {
     onSuccess: ({ result }: { result: Topic }) => {
       showSnackbarSuccess("Thêm topic thành công");
-      console.log("result", result);
+
       if (getTopicByIdApi.data)
         getTopicByIdApi.setData({
           ...getTopicByIdApi.data,
@@ -61,6 +67,11 @@ const DialogAddTopic = ({ open, onClose, topic }: DialogAddTopicProps) => {
       createTopicApi.call({
         ...values,
         resources: values.resources.filter((r) => r.title),
+        order:
+          childs.some((c) => c.order !== null) || values.priority === null
+            ? childs.length + 1
+            : null,
+        priority: values.priority || null,
         parent_id: topic.id,
         level: topic.level + 1,
       } as Topic);
@@ -81,7 +92,7 @@ const DialogAddTopic = ({ open, onClose, topic }: DialogAddTopicProps) => {
       updated.splice(index, 1);
       formik.setFieldValue("resources", updated);
     },
-    [formik]
+    [formik],
   );
 
   const handleResourceChange = useCallback(
@@ -93,11 +104,11 @@ const DialogAddTopic = ({ open, onClose, topic }: DialogAddTopicProps) => {
       };
       formik.setFieldValue("resources", updated);
     },
-    [formik]
+    [formik],
   );
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth='md' fullWidth>
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>Thêm Topic Con Mới</DialogTitle>
       <DialogContent sx={{ pt: "8px !important" }}>
         <Grid2 container spacing={3} sx={{ mt: 0 }}>
@@ -109,7 +120,7 @@ const DialogAddTopic = ({ open, onClose, topic }: DialogAddTopicProps) => {
           >
             <TextField
               fullWidth
-              label='Tiêu đề'
+              label="Tiêu đề"
               {...formik.getFieldProps("title")}
               error={formik.touched.title && Boolean(formik.errors.title)}
               helperText={formik.touched.title && formik.errors.title}
@@ -125,12 +136,12 @@ const DialogAddTopic = ({ open, onClose, topic }: DialogAddTopicProps) => {
             <FormControl fullWidth>
               <InputLabel>Độ ưu tiên</InputLabel>
               <Select
-                name='priority'
+                name="priority"
                 value={formik.values.priority}
                 onChange={formik.handleChange}
-                label='Độ ưu tiên'
+                label="Độ ưu tiên"
               >
-                {[1, 2, 3, 4, 5].map((p) => (
+                {[0, 1, 2, 3].map((p) => (
                   <MenuItem key={p} value={p}>
                     {p}
                   </MenuItem>
@@ -142,7 +153,7 @@ const DialogAddTopic = ({ open, onClose, topic }: DialogAddTopicProps) => {
           <Grid2 size={12}>
             <TextField
               fullWidth
-              label='Mô tả'
+              label="Mô tả"
               {...formik.getFieldProps("description")}
               multiline
               rows={3}
@@ -151,12 +162,12 @@ const DialogAddTopic = ({ open, onClose, topic }: DialogAddTopicProps) => {
 
           <Grid2 size={12}>
             <Divider sx={{ my: 1 }} />
-            <RowStack justifyContent='space-between' sx={{ mb: 2 }}>
-              <Typography variant='subtitle1' fontWeight='bold'>
+            <RowStack justifyContent="space-between" sx={{ mb: 2 }}>
+              <Typography variant="subtitle1" fontWeight="bold">
                 Tài nguyên
               </Typography>
               <Button
-                size='small'
+                size="small"
                 startIcon={<AddIcon />}
                 onClick={handleAddResource}
               >
@@ -166,7 +177,7 @@ const DialogAddTopic = ({ open, onClose, topic }: DialogAddTopicProps) => {
 
             {formik.values.resources.map((resource, index) => (
               <Box key={index} sx={{ mb: 2 }}>
-                <Grid2 container spacing={2} alignItems='center'>
+                <Grid2 container spacing={2} alignItems="center">
                   <Grid2
                     size={{
                       xs: 12,
@@ -175,12 +186,12 @@ const DialogAddTopic = ({ open, onClose, topic }: DialogAddTopicProps) => {
                   >
                     <TextField
                       fullWidth
-                      label='Tiêu đề tài nguyên'
+                      label="Tiêu đề tài nguyên"
                       value={resource.title}
                       onChange={(e) =>
                         handleResourceChange(index, "title", e.target.value)
                       }
-                      size='small'
+                      size="small"
                     />
                   </Grid2>
 
@@ -190,14 +201,14 @@ const DialogAddTopic = ({ open, onClose, topic }: DialogAddTopicProps) => {
                       md: 3,
                     }}
                   >
-                    <FormControl fullWidth size='small'>
+                    <FormControl fullWidth size="small">
                       <InputLabel>Loại</InputLabel>
                       <Select
                         value={resource.type}
                         onChange={(e) =>
                           handleResourceChange(index, "type", e.target.value)
                         }
-                        label='Loại'
+                        label="Loại"
                       >
                         {Object.values(TopicType).map((type) => (
                           <MenuItem key={type} value={type}>
@@ -216,12 +227,12 @@ const DialogAddTopic = ({ open, onClose, topic }: DialogAddTopicProps) => {
                   >
                     <TextField
                       fullWidth
-                      label='URL'
+                      label="URL"
                       value={resource.url}
                       onChange={(e) =>
                         handleResourceChange(index, "url", e.target.value)
                       }
-                      size='small'
+                      size="small"
                     />
                   </Grid2>
 
@@ -232,12 +243,12 @@ const DialogAddTopic = ({ open, onClose, topic }: DialogAddTopicProps) => {
                     }}
                   >
                     <IconButton
-                      size='small'
-                      color='error'
+                      size="small"
+                      color="error"
                       onClick={() => handleRemoveResource(index)}
                       disabled={formik.values.resources.length === 1}
                     >
-                      <DeleteIcon fontSize='small' />
+                      <DeleteIcon fontSize="small" />
                     </IconButton>
                   </Grid2>
                 </Grid2>
@@ -248,7 +259,7 @@ const DialogAddTopic = ({ open, onClose, topic }: DialogAddTopicProps) => {
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Hủy</Button>
-        <Button onClick={() => formik.handleSubmit()} variant='contained'>
+        <Button onClick={() => formik.handleSubmit()} variant="contained">
           Lưu
         </Button>
       </DialogActions>
