@@ -39,10 +39,10 @@ export default function RoadmapDetailContent() {
     return (
       <Container maxWidth="lg" sx={{ py: 8 }}>
         <Alert severity="error" sx={{ mb: 4 }}>
-          Error loading roadmap: {error.message || "Unknown error"}
+          Lỗi tải lộ trình: {error.message || "Unknown error"}
         </Alert>
         <Button component={Link} href="/roadmap" startIcon={<ArrowBackIcon />}>
-          Back to Roadmaps
+          Quay lại
         </Button>
       </Container>
     )
@@ -51,9 +51,9 @@ export default function RoadmapDetailContent() {
   if (!topic) {
     return (
       <Container maxWidth="lg" sx={{ py: 8 }}>
-        <Typography variant="h4">Roadmap not found</Typography>
+        <Typography variant="h4">Lộ trình không được tìm thấy</Typography>
         <Button component={Link} href="/roadmap" startIcon={<ArrowBackIcon />} sx={{ mt: 2 }}>
-          Back to Roadmaps
+          Quay lại
         </Button>
       </Container>
     )
@@ -67,7 +67,7 @@ export default function RoadmapDetailContent() {
         {/* Breadcrumb and Actions */}
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 4 }}>
           <Button component={Link} href="/roadmap" startIcon={<ArrowBackIcon />} sx={{ color: "text.secondary" }}>
-            All Roadmaps
+            Quay lại
           </Button>
 
           <RoadmapActions />
@@ -81,14 +81,14 @@ export default function RoadmapDetailContent() {
         {/* Roadmap Content */}
         <Box sx={{ mb: 6 }}>
           <Typography variant="h5" sx={{ mb: 4, fontWeight: "bold" }}>
-            Learning Path
+            Lộ trình
           </Typography>
 
           {rootTopics.length > 0 ? (
             <TopicTree topics={rootTopics} />
           ) : (
             <Typography variant="body1" color="text.secondary">
-              This roadmap doesn't have any topics yet.
+              Lộ trình này không có bài học nào.
             </Typography>
           )}
         </Box>

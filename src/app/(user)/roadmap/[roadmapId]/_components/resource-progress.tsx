@@ -1,9 +1,8 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect } from "react"
-import { ToggleButtonGroup, ToggleButton, Box } from "@mui/material"
+import { ToggleButtonGroup, ToggleButton, Box, useMediaQuery, useTheme } from "@mui/material"
 import CheckCircleIcon from "@mui/icons-material/CheckCircle"
 import AccessTimeIcon from "@mui/icons-material/AccessTime"
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked"
@@ -17,8 +16,9 @@ interface ResourceProgressProps {
 
 export default function ResourceProgress({ resourceId, topicId }: ResourceProgressProps) {
   const [progress, setProgress] = useState<ProgressStatus>("not-started")
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
 
-  // Load progress from localStorage on component mount
   useEffect(() => {
     const savedProgress = localStorage.getItem(`progress-${topicId}-${resourceId}`)
     if (savedProgress) {
@@ -26,7 +26,6 @@ export default function ResourceProgress({ resourceId, topicId }: ResourceProgre
     }
   }, [resourceId, topicId])
 
-  // Save progress to localStorage when it changes
   useEffect(() => {
     localStorage.setItem(`progress-${topicId}-${resourceId}`, progress)
   }, [progress, resourceId, topicId])
@@ -37,51 +36,65 @@ export default function ResourceProgress({ resourceId, topicId }: ResourceProgre
     }
   }
 
-  // Use the same color for all states (primary color)
   return (
-    <ToggleButtonGroup value={progress} exclusive onChange={handleProgressChange} size="small" sx={{ height: 28 }}>
-      <ToggleButton
-        value="not-started"
+    <Box sx={{ width: "100%", overflowX: "auto" }}>
+      <ToggleButtonGroup
+        value={progress}
+        exclusive
+        onChange={handleProgressChange}
+        size="small"
         sx={{
-          px: 1,
-          py: 0.5,
-          fontSize: "0.75rem",
-          "&.Mui-selected": { bgcolor: "primary.light", color: "primary.dark" },
+          height: 32,
+          flexWrap: { xs: "wrap", sm: "nowrap" },
+          "& .MuiToggleButton-root": {
+            flexGrow: { xs: 1, sm: 0 },
+            whiteSpace: "nowrap",
+            fontSize: "0.75rem",
+          },
         }}
       >
-        <Box sx={{ display: "flex", alignItems: "center" }}>
-          <RadioButtonUncheckedIcon fontSize="small" sx={{ mr: 0.5 }} />
-          Not Started
-        </Box>
-      </ToggleButton>
-      <ToggleButton
-        value="in-progress"
-        sx={{
-          px: 1,
-          py: 0.5,
-          fontSize: "0.75rem",
-          "&.Mui-selected": { bgcolor: "primary.light", color: "primary.dark" },
-        }}
-      >
-        <Box sx={{ display: "flex", alignItems: "center" }}>
-          <AccessTimeIcon fontSize="small" sx={{ mr: 0.5 }} />
-          In Progress
-        </Box>
-      </ToggleButton>
-      <ToggleButton
-        value="completed"
-        sx={{
-          px: 1,
-          py: 0.5,
-          fontSize: "0.75rem",
-          "&.Mui-selected": { bgcolor: "primary.light", color: "primary.dark" },
-        }}
-      >
-        <Box sx={{ display: "flex", alignItems: "center" }}>
-          <CheckCircleIcon fontSize="small" sx={{ mr: 0.5 }} />
-          Completed
-        </Box>
-      </ToggleButton>
-    </ToggleButtonGroup>
+        <ToggleButton
+          value="not-started"
+          sx={{
+            px: 1,
+            py: 0.5,
+            "&.Mui-selected": { bgcolor: "primary.light", color: "primary.dark" },
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <RadioButtonUncheckedIcon fontSize="small" />
+            {!isMobile && <Box ml={0.5}>Không trạng thái</Box>}
+          </Box>
+        </ToggleButton>
+
+        <ToggleButton
+          value="in-progress"
+          sx={{
+            px: 1,
+            py: 0.5,
+            "&.Mui-selected": { bgcolor: "primary.light", color: "primary.dark" },
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <AccessTimeIcon fontSize="small" />
+            {!isMobile && <Box ml={0.5}>Đang tiến hành</Box>}
+          </Box>
+        </ToggleButton>
+
+        <ToggleButton
+          value="completed"
+          sx={{
+            px: 1,
+            py: 0.5,
+            "&.Mui-selected": { bgcolor: "primary.light", color: "primary.dark" },
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <CheckCircleIcon fontSize="small" />
+            {!isMobile && <Box ml={0.5}>Hoàn thành</Box>}
+          </Box>
+        </ToggleButton>
+      </ToggleButtonGroup>
+    </Box>
   )
 }

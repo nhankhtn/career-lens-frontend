@@ -19,20 +19,12 @@ import {
   CircularProgress,
 } from "@mui/material"
 import ChevronRightIcon from "@mui/icons-material/ChevronRight"
-import SchoolIcon from "@mui/icons-material/School"
-import ArticleIcon from "@mui/icons-material/Article"
-import VideoLibraryIcon from "@mui/icons-material/VideoLibrary"
-import MenuBookIcon from "@mui/icons-material/MenuBook"
-import BuildIcon from "@mui/icons-material/Build"
-import PersonIcon from "@mui/icons-material/Person"
-import LinkIcon from "@mui/icons-material/Link"
-import MoreHorizIcon from "@mui/icons-material/MoreHoriz"
 import CheckCircleIcon from "@mui/icons-material/CheckCircle"
-import RadioButtonCheckedIcon from "@mui/icons-material/RadioButtonChecked"
-import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord"
 import ResourceProgress from "./resource-progress"
 import { priority } from "@/theme/colors"
 import type { Topic } from "@/types/topic"
+import { getResourceIcon } from "@/utils/icon-helper"
+
 
 interface TopicNodeProps {
   topic: Topic
@@ -108,27 +100,6 @@ export default function TopicNode({ topic, level, expanded, onToggle, fetchChild
     return text.substring(0, maxLength) + "..."
   }
 
-  const getResourceIcon = (type: string) => {
-    switch (type.toLowerCase()) {
-      case "course":
-        return <SchoolIcon fontSize="small" color="primary" />
-      case "article":
-        return <ArticleIcon fontSize="small" color="secondary" />
-      case "video":
-        return <VideoLibraryIcon fontSize="small" color="error" />
-      case "book":
-        return <MenuBookIcon fontSize="small" color="success" />
-      case "project":
-        return <BuildIcon fontSize="small" color="warning" />
-      case "interview":
-        return <PersonIcon fontSize="small" color="info" />
-      case "resource":
-        return <LinkIcon fontSize="small" color="primary" />
-      default:
-        return <MoreHorizIcon fontSize="small" color="action" />
-    }
-  }
-
   // Render priority indicator based on priority value (1-3)
   const renderPriorityIndicator = () => {
     // If priority is null or undefined, don't show the indicator
@@ -149,14 +120,14 @@ export default function TopicNode({ topic, level, expanded, onToggle, fetchChild
         priorityText = "High Priority"
         break
       case 2:
-        priorityIcon = <RadioButtonCheckedIcon fontSize="small" />
+        priorityIcon = <CheckCircleIcon fontSize="small" />
         priorityColor = priority.medium.main
         priorityBgColor = priority.medium.light
         priorityText = "Medium Priority"
         break
       case 3:
       default:
-        priorityIcon = <FiberManualRecordIcon fontSize="small" />
+        priorityIcon = <CheckCircleIcon fontSize="small" />
         priorityColor = priority.low.main
         priorityBgColor = priority.low.light
         priorityText = "Low Priority"
@@ -195,7 +166,8 @@ export default function TopicNode({ topic, level, expanded, onToggle, fetchChild
       : []
 
   // Determine if we should show the arrow icon
-  const hasChildren = childTopics.length > 0 || hasChildrenToFetch
+  // Only show if we have children or if we haven't determined yet (hasChildrenToFetch is true)
+  const hasChildren = topic.order !== null && topic.order !== undefined
 
   return (
     <Box>
@@ -213,14 +185,15 @@ export default function TopicNode({ topic, level, expanded, onToggle, fetchChild
                 }`
               : "none",
           pl: level > 0 ? 2 + level * 1.5 : 2, // Increased indentation for child topics
-          cursor: hasChildren ? "pointer" : "default",
+          cursor: "pointer", // Make all topics clickable
           "&:hover": {
             bgcolor: level === 0 ? "action.hover" : "background.default",
           },
         }}
-        onClick={hasChildren ? onToggle : undefined}
+        onClick={onToggle} // Make all topics clickable
       >
-        {hasChildren && (
+        {/* Always show arrow for all topics */}
+        {hasChildren ? (
           <IconButton
             size="small"
             sx={{
@@ -242,6 +215,8 @@ export default function TopicNode({ topic, level, expanded, onToggle, fetchChild
           >
             {loadingChildren ? <CircularProgress size={16} /> : <ChevronRightIcon />}
           </IconButton>
+        ) : (
+          <Box sx={{ width: 32, mr: 1 }} /> // Empty space for alignment when no arrow
         )}
 
         <Box sx={{ flex: 1 }}>
@@ -260,7 +235,7 @@ export default function TopicNode({ topic, level, expanded, onToggle, fetchChild
             {topic.order !== null && topic.order !== undefined && (
               <Tooltip title={`Order: ${topic.order}`}>
                 <Chip
-                  label={`#${topic.order}`}
+                  label={`Bài ${topic.order}`}
                   size="small"
                   sx={{
                     ml: 1,
@@ -296,7 +271,7 @@ export default function TopicNode({ topic, level, expanded, onToggle, fetchChild
                   onClick={handleDescriptionToggle}
                   sx={{ mt: 0.5, p: 0, minWidth: "auto", textTransform: "none", color: "primary.main" }}
                 >
-                  {showFullDescription ? "Show less" : "Show more"}
+                  {showFullDescription ? "Xem ít" : "Xem thêm"}
                 </Button>
               )}
             </Box>
@@ -321,7 +296,7 @@ export default function TopicNode({ topic, level, expanded, onToggle, fetchChild
         <Collapse in={resourcesExpanded}>
           <Box sx={{ px: 2, py: 1, bgcolor: "background.default" }}>
             <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
-              Learning Resources
+              Tài nguyên học tập
             </Typography>
 
             <List dense disablePadding>
