@@ -9,45 +9,23 @@ import TopicTree from "../_components/topic-tree"
 // import PartnerBanner from "../_components/partner-banner"
 import useRoadmapDetail from "./use-roadmap-detail-search"
 import { useEffect, useState } from "react"
+import type { Topic } from "@/types/topic"
 
 export default function RoadmapDetailContent() {
   const { topic, childTopics, loading, error } = useRoadmapDetail()
-  const [processedTopics, setProcessedTopics] = useState<any[]>([])
+  const [rootTopics, setRootTopics] = useState<Topic[]>([])
 
-  // Process child topics to include their children recursively
+  // Process child topics to get only the root topics (direct children of the roadmap)
   useEffect(() => {
-    if (!childTopics || childTopics.length === 0) {
-      setProcessedTopics([])
+    if (!topic || !childTopics || childTopics.length === 0) {
+      setRootTopics([])
       return
     }
 
-    // Create a map of all topics by ID for quick lookup
-    const topicMap = new Map()
-    childTopics.forEach((topic) => {
-      topicMap.set(topic.id, { ...topic, children: [] })
-    })
-
-    // Build the hierarchy
-    const rootTopics: any[] = []
-    childTopics.forEach((topic) => {
-      const processedTopic = topicMap.get(topic.id)
-
-      if (!topic.parent_id || topic.parent_id === topic.id) {
-        // This is a root topic under the main roadmap
-        rootTopics.push(processedTopic)
-      } else if (topicMap.has(topic.parent_id)) {
-        // This is a child topic, add it to its parent
-        const parent = topicMap.get(topic.parent_id)
-        if (!parent.children) parent.children = []
-        parent.children.push(processedTopic)
-      } else {
-        // Parent not found, add to root
-        rootTopics.push(processedTopic)
-      }
-    })
-
-    setProcessedTopics(rootTopics)
-  }, [childTopics])
+    // Get only the direct children of the roadmap
+    const directChildren = childTopics.filter((child) => child.parent_id === topic.id)
+    setRootTopics(directChildren)
+  }, [topic, childTopics])
 
   if (loading) {
     return (
@@ -106,8 +84,8 @@ export default function RoadmapDetailContent() {
             Learning Path
           </Typography>
 
-          {processedTopics.length > 0 ? (
-            <TopicTree topics={processedTopics} />
+          {rootTopics.length > 0 ? (
+            <TopicTree topics={rootTopics} />
           ) : (
             <Typography variant="body1" color="text.secondary">
               This roadmap doesn't have any topics yet.

@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   Box,
   Typography,
@@ -16,6 +16,7 @@ import {
   Link as MuiLink,
   Tooltip,
   Button,
+  CircularProgress,
 } from "@mui/material"
 import ChevronRightIcon from "@mui/icons-material/ChevronRight"
 import SchoolIcon from "@mui/icons-material/School"
@@ -31,28 +32,7 @@ import RadioButtonCheckedIcon from "@mui/icons-material/RadioButtonChecked"
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord"
 import ResourceProgress from "./resource-progress"
 import { priority } from "@/theme/colors"
-
-// Update the interfaces to match the API data structure
-interface TopicResource {
-  title: string
-  type: string
-  url: string
-  platform?: string
-  free?: boolean
-  duration?: string
-}
-
-interface Topic {
-  id: string
-  title: string
-  description?: string
-  level?: number
-  priority?: number
-  resources?: TopicResource[]
-  order?: number
-  parent_id?: string | null
-  children?: Topic[]
-}
+import type { Topic } from "@/types/topic"
 
 interface TopicNodeProps {
   topic: Topic
@@ -63,28 +43,9 @@ interface TopicNodeProps {
 }
 
 export default function TopicNode({ topic, level, expanded, onToggle, fetchChildren }: TopicNodeProps) {
-  const [dynamicChildren, setDynamicChildren] = useState<Topic[]>([])
+  const [childTopics, setChildTopics] = useState<Topic[]>([])
   const [loadingChildren, setLoadingChildren] = useState(false)
-
-  const hasStaticChildren = topic.children && topic.children.length > 0
-  const hasDynamicChildren = dynamicChildren.length > 0
-  const showChildren = hasStaticChildren ? topic.children! : dynamicChildren
-
-  const handleExpand = async () => {
-    if (!hasStaticChildren && fetchChildren && dynamicChildren.length === 0) {
-      setLoadingChildren(true)
-      try {
-        const children = await fetchChildren(topic.id)
-        setDynamicChildren(children)
-      } catch (err) {
-        console.error("Failed to fetch children", err)
-      } finally {
-        setLoadingChildren(false)
-      }
-    }
-    onToggle()
-  }
-  
+  const [hasChildrenToFetch, setHasChildrenToFetch] = useState(true)
   const [resourcesExpanded, setResourcesExpanded] = useState(false)
   const [childrenExpanded, setChildrenExpanded] = useState<Record<string, boolean>>({})
   const [showFullDescription, setShowFullDescription] = useState(false)
@@ -93,9 +54,35 @@ export default function TopicNode({ topic, level, expanded, onToggle, fetchChild
   const resources = topic.resources || []
   const hasResources = resources.length > 0
 
-  // Ensure children is always an array
-  const children = topic.children || []
-  const hasChildren = children.length > 0
+  // Check if we need to fetch children when expanded changes
+  useEffect(() => {
+    const fetchChildTopicsIfNeeded = async () => {
+      // Only fetch if expanded, we have a fetchChildren function, and we haven't fetched yet
+      if (expanded && fetchChildren && hasChildrenToFetch && childTopics.length === 0) {
+        setLoadingChildren(true)
+        try {
+          const fetchedChildren = await fetchChildren(topic.id)
+
+          // Filter to only include direct children of this topic
+          const directChildren = fetchedChildren.filter((child) => child.parent_id === topic.id)
+
+          setChildTopics(directChildren)
+
+          // If we got no children, mark that we don't need to fetch again
+          if (directChildren.length === 0) {
+            setHasChildrenToFetch(false)
+          }
+        } catch (error) {
+          console.error("Error fetching child topics:", error)
+          setHasChildrenToFetch(false)
+        } finally {
+          setLoadingChildren(false)
+        }
+      }
+    }
+
+    fetchChildTopicsIfNeeded()
+  }, [expanded, fetchChildren, topic.id, hasChildrenToFetch, childTopics.length])
 
   const handleResourcesToggle = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -198,14 +185,17 @@ export default function TopicNode({ topic, level, expanded, onToggle, fetchChild
 
   // Sort children by order
   const sortedChildren =
-    children.length > 0
-      ? [...children].sort((a, b) => {
+    childTopics.length > 0
+      ? [...childTopics].sort((a, b) => {
           // If order is not defined, default to 1
           const orderA = a.order || 1
           const orderB = b.order || 1
           return orderA - orderB
         })
       : []
+
+  // Determine if we should show the arrow icon
+  const hasChildren = childTopics.length > 0 || hasChildrenToFetch
 
   return (
     <Box>
@@ -233,13 +223,24 @@ export default function TopicNode({ topic, level, expanded, onToggle, fetchChild
         {hasChildren && (
           <IconButton
             size="small"
-            sx={{ mr: 1, transform: expanded ? "rotate(90deg)" : "rotate(0deg)" }}
+            sx={{
+              mr: 1,
+              transform: expanded ? "rotate(90deg)" : "rotate(0deg)",
+              transition: "transform 0.2s ease-in-out",
+              border: "1px solid",
+              borderColor: "divider",
+              bgcolor: "background.paper",
+              "&:hover": {
+                bgcolor: "primary.light",
+                color: "primary.contrastText",
+              },
+            }}
             onClick={(e) => {
               e.stopPropagation()
               onToggle()
             }}
           >
-            <ChevronRightIcon />
+            {loadingChildren ? <CircularProgress size={16} /> : <ChevronRightIcon />}
           </IconButton>
         )}
 
@@ -324,7 +325,7 @@ export default function TopicNode({ topic, level, expanded, onToggle, fetchChild
             </Typography>
 
             <List dense disablePadding>
-              {resources.map((resource: TopicResource, index) => (
+              {resources.map((resource, index) => (
                 <ListItem
                   key={`${topic.id}-resource-${index}`}
                   sx={{
@@ -342,12 +343,12 @@ export default function TopicNode({ topic, level, expanded, onToggle, fetchChild
                   <ListItemText
                     primary={
                       <MuiLink
-                        href={resource.url}
+                        href={resource.url || "#"}
                         target="_blank"
                         rel="noopener noreferrer"
                         sx={{ textDecoration: "none" }}
                       >
-                        {resource.title}
+                        {resource.title || "Untitled Resource"}
                       </MuiLink>
                     }
                     secondary={
@@ -371,21 +372,26 @@ export default function TopicNode({ topic, level, expanded, onToggle, fetchChild
       )}
 
       {/* Children Collapse */}
-      {hasChildren && (
-        <Collapse in={expanded}>
-          <Box sx={{ py: level === 0 ? 1 : 0 }}>
-            {sortedChildren.map((child) => (
+      <Collapse in={expanded}>
+        <Box sx={{ pl: 4 }}>
+          {loadingChildren ? (
+            <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
+              <CircularProgress size={24} />
+            </Box>
+          ) : (
+            sortedChildren.map((child) => (
               <TopicNode
                 key={child.id}
                 topic={child}
                 level={level + 1}
                 expanded={!!childrenExpanded[child.id]}
                 onToggle={() => handleChildToggle(child.id)}
+                fetchChildren={fetchChildren}
               />
-            ))}
-          </Box>
-        </Collapse>
-      )}
+            ))
+          )}
+        </Box>
+      </Collapse>
     </Box>
   )
 }
