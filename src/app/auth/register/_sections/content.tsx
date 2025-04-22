@@ -19,6 +19,7 @@ import { paths } from "@/paths";
 import { useAuth } from "@/contexts/auth/firebase-context";
 import useFunction from "@/hooks/use-function";
 import { useRouter } from "next/navigation";
+import { User } from "@/types/user";
 
 const AuthRegisterContent = () => {
   const { signInWithGoogle } = useAuth();
@@ -27,8 +28,12 @@ const AuthRegisterContent = () => {
   const router = useRouter();
 
   const signInWithGoogleHelper = useFunction(signInWithGoogle, {
-    onSuccess: () => {
-      router.push(paths.onboarding);
+    onSuccess: ({ result }: { result: User | null }) => {
+      if (!result?.onboarding_completed) {
+        router.push(paths.onboarding);
+        return;
+      }
+      router.push(paths.dashboard);
     },
   });
 

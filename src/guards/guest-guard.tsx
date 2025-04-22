@@ -24,10 +24,13 @@ export const GuestGuard: FC<GuestGuardProps> = (props) => {
   // Only check on mount, this allows us to redirect the user manually when auth state changes
   useEffect(
     () => {
-      check();
+      const timeoutId = setTimeout(check, 2000);
+      return () => {
+        clearTimeout(timeoutId);
+      };
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [isAuthenticated, user?.email]
+    [isAuthenticated, user?.email],
   );
 
   return <>{children}</>;

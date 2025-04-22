@@ -252,6 +252,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
         payload: { isAuthenticated: false, user: null },
       });
       clearAuthData();
+      _signInAnonymously();
     } catch (error) {
       handleAuthError(error);
       throw error;
