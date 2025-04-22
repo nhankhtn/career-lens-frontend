@@ -18,24 +18,9 @@ export interface ExperienceLevelStats {
 }
 
 export interface SkillDemandStats {
-  skillName: string;
-  recruitmentDemandPercentage: number;
-  applicantPercentage: number;
-}
-
-export interface JobPostingsHeatmap {
-  months: string[];
-  weeks: string[];
-  data: Array<{
-    count: number;
-    salaryRange: string;
-    color: string;
-  }>;
-  salaryRanges: Array<{
-    label: string;
-    color: string;
-  }>;
-  year: number;
+  name: string;
+  recruitment_demand: number;
+  applicant_percentage: number;
 }
 
 export type JobPostingsStatsRequest = {
@@ -80,7 +65,7 @@ export class JobPostingsApi {
 
   static async getJobPostingsHeatmap(
     request: JobPostingsStatsRequest,
-  ): Promise<JobPostingsHeatmap> {
+  ): Promise<number[][]> {
     return await apiGet("/job-postings/heatmap", removeUndefinedKeys(request));
   }
 }

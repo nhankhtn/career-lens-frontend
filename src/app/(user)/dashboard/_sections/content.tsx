@@ -25,6 +25,11 @@ export default function DashboardContent() {
     jobPostingsByExperienceLevel,
     topSkillsDemandStats,
     jobPostingsHeatmap,
+    getJobPostingsHeatmapApi,
+    getTopSkillsDemandStatsApi,
+    getJobPostingsByExperienceLevelApi,
+    getTopCompaniesByJobPostingsApi,
+    getPositionStatsApi,
   } = useDashboardSearch({ isMobile });
 
   return (
@@ -73,7 +78,7 @@ export default function DashboardContent() {
           <Typography variant="h6" fontWeight="medium" sx={{ mb: 2 }}>
             Tin tuyển dụng IT
           </Typography>
-          <RecruitmentHeatmap />
+          <RecruitmentHeatmap data={jobPostingsHeatmap} />
         </Box>
 
         {/* Top Positions and Top Companies - First Row, Full Width */}
@@ -96,7 +101,10 @@ export default function DashboardContent() {
               width: "100%",
             }}
           >
-            <TopPositions data={positionStats} />
+            <TopPositions
+              data={positionStats}
+              loading={getPositionStatsApi.loading}
+            />
           </Box>
           <Box
             sx={{
@@ -143,7 +151,10 @@ export default function DashboardContent() {
               width: "100%",
             }}
           >
-            <InDemandSkills filter={filter} />
+            <InDemandSkills
+              data={topSkillsDemandStats}
+              loading={getTopSkillsDemandStatsApi.loading}
+            />
           </Box>
         </Box>
       </Stack>

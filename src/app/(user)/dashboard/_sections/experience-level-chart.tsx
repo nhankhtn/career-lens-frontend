@@ -91,25 +91,27 @@ export default function ExperienceLevelChart({
   }, []);
 
   return (
-    <Stack>
+    <Stack height={"100%"}>
       <Typography variant="h6" fontWeight="medium" sx={{ mb: 2 }}>
         Tin tuyển dụng theo cấp độ kinh nghiệm
       </Typography>
 
-      <RowStack
-        justifyContent={"center"}
-        sx={{ height: 300, position: "relative" }}
-      >
-        {data.length === 0 ? (
-          <EmptyState
-            width={300}
-            height={200}
-            title="Hiện chưa có số liệu thống kê"
-          />
-        ) : (
-          <Doughnut data={chartData} options={chartOptions} />
-        )}
-      </RowStack>
+      <Stack height={"100%"} justifyContent={"center"} flex={1}>
+        <RowStack
+          justifyContent={"center"}
+          sx={{ height: 400, position: "relative" }}
+        >
+          {data.length === 0 ? (
+            <EmptyState
+              width={300}
+              height={200}
+              title="Hiện chưa có số liệu thống kê"
+            />
+          ) : (
+            <Doughnut data={chartData} options={chartOptions} />
+          )}
+        </RowStack>
+      </Stack>
     </Stack>
   );
 }

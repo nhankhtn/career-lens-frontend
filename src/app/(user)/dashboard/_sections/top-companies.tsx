@@ -104,9 +104,6 @@ export default function TopCompanies({ data }: TopCompaniesProps) {
         <Typography variant="h6" fontWeight="medium">
           Top 5 công ty trong ngành IT
         </Typography>
-        <Link href="#" underline="hover" color="primary" sx={{ fontSize: 14 }}>
-          Tất cả
-        </Link>
       </RowStack>
       <Stack
         justifyContent={"center"}
