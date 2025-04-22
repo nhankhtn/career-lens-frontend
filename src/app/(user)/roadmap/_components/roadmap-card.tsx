@@ -62,6 +62,8 @@ export default function RoadmapCard({ id, title, description }: RoadmapCardProps
         >
           {description}
         </Typography>
+        
+        
 
         <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
           <Link
@@ -73,7 +75,7 @@ export default function RoadmapCard({ id, title, description }: RoadmapCardProps
               fontWeight: 500,
             }}
           >
-            View Roadmap →
+            Xem lộ trình →
           </Link>
         </Box>
       </CardContent>
