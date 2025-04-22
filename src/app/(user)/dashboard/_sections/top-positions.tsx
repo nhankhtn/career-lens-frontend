@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { Typography } from "@mui/material";
+import { alpha, Box, keyframes, Typography, useTheme } from "@mui/material";
 import { Stack } from "@mui/material";
 import { Bar } from "react-chartjs-2";
 import {
@@ -16,15 +16,17 @@ import RowStack from "@/components/row-stack";
 import { warning } from "@/theme/colors";
 import { PositionStats } from "@/api/job-postings";
 import EmptyState from "@/components/empty-state";
+import LoadingBarChart from "@/components/loading-bar-chart";
 
 // Register ChartJS components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, ChartTooltip);
 
 interface TopPositionsProps {
   data: PositionStats[];
+  loading: boolean;
 }
 
-export default function TopPositions({ data }: TopPositionsProps) {
+export default function TopPositions({ data, loading }: TopPositionsProps) {
   const [highlightedIndex, setHighlightedIndex] = useState<number | null>(null);
 
   const handleBarHover = useCallback((index: number | null) => {
@@ -87,6 +89,10 @@ export default function TopPositions({ data }: TopPositionsProps) {
       },
     };
   }, [handleBarHover]);
+
+  // if (loading || data.length === 0) {
+  //   return <LoadingBarChart />;
+  // }
 
   return (
     <Stack>

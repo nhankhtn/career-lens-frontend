@@ -102,7 +102,7 @@ const useDashboardSearch = ({ isMobile }: { isMobile?: boolean }) => {
   );
 
   const jobPostingsHeatmap = useMemo(
-    () => getJobPostingsHeatmapApi.data,
+    () => getJobPostingsHeatmapApi.data || [],
     [getJobPostingsHeatmapApi.data],
   );
 
@@ -115,6 +115,11 @@ const useDashboardSearch = ({ isMobile }: { isMobile?: boolean }) => {
     jobPostingsByExperienceLevel,
     topSkillsDemandStats,
     jobPostingsHeatmap,
+    getJobPostingsHeatmapApi,
+    getTopSkillsDemandStatsApi,
+    getJobPostingsByExperienceLevelApi,
+    getTopCompaniesByJobPostingsApi,
+    getPositionStatsApi,
   };
 };
 
