@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 
 const useRoadmapSearch = () => {
   const { getTopicsApi } = useTopicContext();
+
   const deleteTopicApi = useFunction(TopicApi.deleteTopic, {
     successMessage: "Xóa topic thành công",
     onSuccess: ({ payload }: { payload: string }) => {
@@ -24,9 +25,10 @@ const useRoadmapSearch = () => {
   const [filter, setFilter] = useState<Partial<Topic>>({
     title: "",
   });
+
   const topics = useMemo(
     () => getTopicsApi.data?.data || [],
-    [getTopicsApi.data]
+    [getTopicsApi.data],
   );
 
   useEffect(() => {
