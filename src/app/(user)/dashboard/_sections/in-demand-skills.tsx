@@ -12,12 +12,14 @@ import {
   Card,
   CircularProgress,
   Tooltip,
+  Stack,
 } from "@mui/material";
 import RowStack from "@/components/row-stack";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import BalanceIcon from "@mui/icons-material/Balance";
 import { SkillDemandStats } from "@/api/job-postings";
+import { InfoOutlined } from "@mui/icons-material";
 
 interface SkillData {
   name: string;
@@ -47,7 +49,6 @@ const getComparisonMessage = (demand: number, applicant: number) => {
 export default function InDemandSkills({ loading, data }: InDemandSkillsProps) {
   const theme = useTheme();
 
-  // Component hiển thị khi đang loading
   const SkillCardSkeleton = () => (
     <Card
       sx={{
@@ -147,14 +148,33 @@ export default function InDemandSkills({ loading, data }: InDemandSkillsProps) {
     <Paper elevation={1} sx={{ borderRadius: 2, overflow: "hidden" }}>
       <Box p={2}>
         <RowStack justifyContent="space-between" mb={2}>
-          <Typography variant="h6" fontWeight="medium">
+          <Typography
+            variant="h6"
+            fontWeight="medium"
+            sx={{ whiteSpace: "nowrap" }}
+          >
             Những kỹ năng cứng hàng đầu đang được yêu cầu
           </Typography>
+          <Tooltip
+            placement="top"
+            title={
+              <Stack>
+                <Typography variant="body2">
+                  • Nhu cầu: Tỷ lệ phần trăm các công việc yêu cầu kỹ năng này
+                </Typography>
+                <Typography variant="body2">
+                  • Ứng viên: Tỷ lệ phần trăm ứng viên có kỹ năng này
+                </Typography>
+              </Stack>
+            }
+          >
+            <InfoOutlined sx={{ color: "action.active" }} />
+          </Tooltip>
         </RowStack>
 
         <Grid container spacing={2}>
           {data.map((skill, index) => (
-            <Grid item xs={12} sm={6} md={4} lg={2.4} key={index}>
+            <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
               <Card
                 sx={{
                   p: 2,
@@ -174,7 +194,7 @@ export default function InDemandSkills({ loading, data }: InDemandSkillsProps) {
                 <Box sx={{ position: "relative", mb: 2 }}>
                   <CircularProgress
                     variant="determinate"
-                    value={skill.recruitment_demand * 10}
+                    value={skill.recruitment_demand}
                     size={100}
                     thickness={4}
                     sx={{ color: theme.palette.success.main }}
@@ -207,14 +227,21 @@ export default function InDemandSkills({ loading, data }: InDemandSkillsProps) {
                     <Tooltip
                       title={
                         <Box>
-                          <Typography variant="body2">
-                            Nhu cầu: {skill.recruitment_demand}/10
+                          <Typography
+                            variant="body2"
+                            sx={{ whiteSpace: "nowrap" }}
+                          >
+                            Nhu cầu: {skill.recruitment_demand}%
                           </Typography>
-                          <Typography variant="body2">
+                          <Typography
+                            variant="body2"
+                            sx={{ whiteSpace: "nowrap" }}
+                          >
                             Ứng viên: {skill.applicant_percentage}%
                           </Typography>
                         </Box>
                       }
+                      placement="top"
                     >
                       <BalanceIcon
                         color={getComparisonColor(
@@ -227,7 +254,12 @@ export default function InDemandSkills({ loading, data }: InDemandSkillsProps) {
                   </Box>
                 </Box>
 
-                <Typography variant="h6" fontWeight="medium" gutterBottom>
+                <Typography
+                  variant="h6"
+                  fontWeight="medium"
+                  gutterBottom
+                  sx={{ whiteSpace: "nowrap" }}
+                >
                   {skill.name}
                 </Typography>
 
@@ -250,6 +282,7 @@ export default function InDemandSkills({ loading, data }: InDemandSkillsProps) {
                       ].main
                     }
                     fontWeight="medium"
+                    sx={{ whiteSpace: "nowrap" }}
                   >
                     {getComparisonMessage(
                       skill.recruitment_demand,
@@ -261,13 +294,21 @@ export default function InDemandSkills({ loading, data }: InDemandSkillsProps) {
                 <Box sx={{ mt: 2 }}>
                   <RowStack spacing={1} mb={0.5}>
                     <TrendingUpIcon fontSize="small" color="success" />
-                    <Typography variant="body2" color="text.secondary">
-                      Nhu cầu: {skill.recruitment_demand}/10
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ whiteSpace: "nowrap" }}
+                    >
+                      Nhu cầu: {skill.recruitment_demand}%
                     </Typography>
                   </RowStack>
                   <RowStack spacing={1}>
                     <PeopleAltIcon fontSize="small" color="info" />
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ whiteSpace: "nowrap" }}
+                    >
                       Ứng viên: {skill.applicant_percentage}%
                     </Typography>
                   </RowStack>
