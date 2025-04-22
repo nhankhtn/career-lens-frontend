@@ -8,6 +8,11 @@ export interface Career {
   average_salary: number;
   growth_rate: number;
   topic_id: Topic | null;
-  related_topics: Topic[] | null;
   skills: Skill[];
+  roadmap: Topic[];
+}
+
+export interface CareerList extends Career {
+  topic_count: number;
+  skill_match_percentage: number;
 }

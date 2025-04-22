@@ -1,5 +1,5 @@
 import { ResponseWithTotal } from "@/types";
-import { Career } from "@/types/career";
+import { Career, CareerList } from "@/types/career";
 import { apiGet, removeUndefinedKeys } from "@/utils/api-request";
 
 export type GetCareerRequest = {
@@ -15,7 +15,7 @@ export type GetCareerRequest = {
 export class CareerApi {
   static async getCareer(
     request: GetCareerRequest,
-  ): Promise<ResponseWithTotal<Career[]>> {
+  ): Promise<ResponseWithTotal<CareerList[]>> {
     return await apiGet("/careers", removeUndefinedKeys(request));
   }
 
