@@ -14,10 +14,10 @@ import {
   ChartData,
   ChartOptions,
 } from "chart.js";
-import { topCompaniesData } from "@/types/dashboard/mock-data";
 import RowStack from "@/components/row-stack";
 import { blue, error, success } from "@/theme/colors";
-import { StatisticFilter } from "./filter-config";
+import { CompanyJobStats } from "@/api/job-postings";
+import EmptyState from "@/components/empty-state";
 
 // Đăng ký các thành phần cần thiết của Chart.js
 ChartJS.register(
@@ -30,36 +30,32 @@ ChartJS.register(
 );
 
 interface TopCompaniesProps {
-  filter: StatisticFilter;
+  data: CompanyJobStats[];
 }
 
-export default function TopCompanies({ filter }: TopCompaniesProps) {
-  const filteredData = useMemo(() => {
-    return topCompaniesData; // Giả lập: dùng toàn bộ data không lọc
-  }, []);
-
+export default function TopCompanies({ data }: TopCompaniesProps) {
   const chartData: ChartData<"bar"> = useMemo(
     () => ({
-      labels: filteredData.map((item) => item.company),
+      labels: data.map((item) => item.name),
       datasets: [
         {
           label: "Số bài đăng trong 1 tháng",
-          data: filteredData.map((item) => item.junior),
+          data: data.map((item) => item.job_count),
           backgroundColor: blue.main,
         },
         {
           label: "Lương trung bình",
-          data: filteredData.map((item) => item.middle),
+          data: data.map((item) => item.average_salary),
           backgroundColor: error.main,
         },
         {
-          label: "Lương tối đa",
-          data: filteredData.map((item) => item.senior),
+          label: "Số lượng IT trung bình",
+          data: data.map((item) => item.average_it_count),
           backgroundColor: success.main,
         },
       ],
     }),
-    [filteredData],
+    [data],
   );
 
   const chartOptions = useMemo(
@@ -112,9 +108,21 @@ export default function TopCompanies({ filter }: TopCompaniesProps) {
           Tất cả
         </Link>
       </RowStack>
-      <Box sx={{ height: 300 }}>
-        <Bar data={chartData} options={chartOptions as ChartOptions<"bar">} />
-      </Box>
+      <Stack
+        justifyContent={"center"}
+        alignItems={"center"}
+        sx={{ height: 300 }}
+      >
+        {data.length === 0 ? (
+          <EmptyState
+            width={300}
+            height={200}
+            title="Hiện chưa có số liệu thống kê"
+          />
+        ) : (
+          <Bar data={chartData} options={chartOptions as ChartOptions<"bar">} />
+        )}
+      </Stack>
     </Stack>
   );
 }

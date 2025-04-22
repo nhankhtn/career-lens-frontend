@@ -18,16 +18,16 @@ export const getFormData = (data: { [name: string]: any }): FormData => {
 };
 
 export const removeUndefinedKeys = <T extends Record<string, any>>(
-  obj: T
+  obj: T,
 ): Partial<T> =>
   Object.entries(obj).reduce((acc, [key, value]) => {
-    if (value !== undefined) acc[key as keyof T] = value;
+    if (value !== undefined && value !== "") acc[key as keyof T] = value;
     return acc;
   }, {} as Partial<T>);
 
 const getRequestHeaders = async (
   method: string,
-  isFormData?: boolean
+  isFormData?: boolean,
 ): Promise<any> => {
   const token = CookieHelper.getItem("token");
 
@@ -64,7 +64,7 @@ const getRequestUrl = (query: string, body?: any) => {
 
 const apiFetch = async (
   input: RequestInfo | URL,
-  init?: RequestInit | undefined
+  init?: RequestInit | undefined,
 ) => {
   try {
     const response = await fetch(input, init);
@@ -74,7 +74,7 @@ const apiFetch = async (
         result = JSON.parse(result);
       } catch (error) {}
       const message = `Lỗi: ${getErrorString(
-        typeof result == "string" ? result : result.message || response.status
+        typeof result == "string" ? result : result.message || response.status,
       )}`;
       throw new Error(message);
     }

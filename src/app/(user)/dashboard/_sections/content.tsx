@@ -1,49 +1,31 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
-import {
-  Container,
-  Typography,
-  Box,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { Typography, Box, useMediaQuery, useTheme } from "@mui/material";
 import { Stack } from "@mui/material";
 import RecruitmentHeatmap from "./recruitment-heatmap";
 import TopPositions from "./top-positions";
 import TopCompanies from "./top-companies";
 import ExperienceLevelChart from "./experience-level-chart";
 import InDemandSkills from "./in-demand-skills";
-import DashboardFilters from "@/app/(user)/dashboard/_components/filter-time-region";
 import { neutral } from "@/theme/colors";
 import RowStack from "@/components/row-stack";
-import {
-  getStatsFilterConfig,
-  StatisticFilter,
-  statsOptions,
-} from "./filter-config";
+import { StatisticFilter } from "./filter-config";
 import CustomFilter from "@/components/custom-filter";
+import useDashboardSearch from "./use-dashboard-search";
 
 export default function DashboardContent() {
-  const pageTitle = useMemo(() => "Xu hướng tuyển dụng IT", []);
-  const [filter, setFilter] = useState<StatisticFilter>({
-    date: {
-      startDate: new Date("2023-01-01"),
-      endDate: new Date("2023-12-31"),
-    },
-    region: "all",
-  });
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-
-  const filterConfig = useMemo(
-    () =>
-      getStatsFilterConfig({
-        options: statsOptions,
-        isMobile,
-      }),
-    [],
-  );
+  const {
+    filter,
+    setFilter,
+    filterConfig,
+    positionStats,
+    topCompaniesByJobPostings,
+    jobPostingsByExperienceLevel,
+    topSkillsDemandStats,
+    jobPostingsHeatmap,
+  } = useDashboardSearch({ isMobile });
 
   return (
     <Stack sx={{ bgcolor: neutral[50], minHeight: "100vh", pb: 4 }}>
@@ -63,7 +45,7 @@ export default function DashboardContent() {
             fontWeight="bold"
             sx={{ fontSize: { xs: "1.5rem", sm: "2rem", md: "2.25rem" } }}
           >
-            {pageTitle}
+            Xu hướng tuyển dụng IT
           </Typography>
           <Box width={isMobile ? "100%" : 444}>
             <CustomFilter
@@ -114,7 +96,7 @@ export default function DashboardContent() {
               width: "100%",
             }}
           >
-            <TopPositions filter={filter} />
+            <TopPositions data={positionStats} />
           </Box>
           <Box
             sx={{
@@ -126,7 +108,7 @@ export default function DashboardContent() {
               width: "100%",
             }}
           >
-            <TopCompanies filter={filter} />
+            <TopCompanies data={topCompaniesByJobPostings} />
           </Box>
         </Box>
 
@@ -149,7 +131,7 @@ export default function DashboardContent() {
               width: "100%",
             }}
           >
-            <ExperienceLevelChart />
+            <ExperienceLevelChart data={jobPostingsByExperienceLevel} />
           </Box>
           <Box
             sx={{
