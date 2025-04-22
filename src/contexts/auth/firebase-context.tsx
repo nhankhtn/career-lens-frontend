@@ -28,7 +28,7 @@ import {
   useReducer,
   useState,
 } from "react";
-import { UsersApi } from "@/api/users";
+import UsersApi from "@/api/users";
 import useAppSnackbar from "@/hooks/use-app-snackbar";
 import { errorMap, firebaseApp } from "@/libs/firebase";
 import { paths } from "@/paths";
@@ -387,7 +387,6 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
-  console.log("user", state.user);
   const completeOnboarding = useCallback(async (values: UserOnboarding) => {
     try {
       await UsersApi.userOnboarding(values);

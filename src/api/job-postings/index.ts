@@ -1,72 +1,71 @@
-import { apiGet } from "@/utils/api-request";
+import { apiGet, removeUndefinedKeys } from "@/utils/api-request";
 
 export interface PositionStats {
-  name: string;
+  position: string;
   count: number;
 }
 
 export interface CompanyJobStats {
-  id: string;
   name: string;
   job_count: number;
-  industry: string;
-  location: string;
-  photo_url: string;
-  website_urls: string[];
-  size: string;
+  average_salary: number;
+  average_it_count: number;
 }
 
 export interface ExperienceLevelStats {
-  labels: string[];
-  data: number[];
-  total_jobs: number;
+  label: string;
+  value: number;
 }
 
 export interface SkillDemandStats {
-  skillName: string;
-  recruitmentDemandPercentage: number;
-  applicantPercentage: number;
+  name: string;
+  recruitment_demand: number;
+  applicant_percentage: number;
 }
 
-export interface JobPostingsHeatmap {
-  months: string[];
-  weeks: string[];
-  data: Array<{
-    count: number;
-    salaryRange: string;
-    color: string;
-  }>;
-  salaryRanges: Array<{
-    label: string;
-    color: string;
-  }>;
-  year: number;
-}
+export type JobPostingsStatsRequest = {
+  date_from?: Date;
+  date_to?: Date;
+  region?: string;
+};
 
 export class JobPostingsApi {
-  static async getPositionStats(limit?: number): Promise<PositionStats[]> {
-    return await apiGet("/job-postings/position-stats", { limit });
+  static async getPositionStats(
+    request: JobPostingsStatsRequest,
+  ): Promise<PositionStats[]> {
+    return await apiGet(
+      "/job-postings/position-stats",
+      removeUndefinedKeys(request),
+    );
   }
 
   static async getTopCompaniesByJobPostings(
-    limit?: number,
+    request: JobPostingsStatsRequest,
   ): Promise<CompanyJobStats[]> {
-    return await apiGet("/job-postings/company", { limit });
+    return await apiGet("/job-postings/company", removeUndefinedKeys(request));
   }
 
-  static async getJobPostingsByExperienceLevel(): Promise<ExperienceLevelStats> {
-    return await apiGet("/job-postings/experience-stats");
+  static async getJobPostingsByExperienceLevel(
+    request: JobPostingsStatsRequest,
+  ): Promise<ExperienceLevelStats[]> {
+    return await apiGet(
+      "/job-postings/experience-stats",
+      removeUndefinedKeys(request),
+    );
   }
 
   static async getTopSkillsDemandStats(
-    limit?: number,
+    request: JobPostingsStatsRequest,
   ): Promise<SkillDemandStats[]> {
-    return await apiGet("/job-postings/skills-demand-stats", { limit });
+    return await apiGet(
+      "/job-postings/skills-demand-stats",
+      removeUndefinedKeys(request),
+    );
   }
 
   static async getJobPostingsHeatmap(
-    year?: number,
-  ): Promise<JobPostingsHeatmap> {
-    return await apiGet("/job-postings/heatmap", { year });
+    request: JobPostingsStatsRequest,
+  ): Promise<number[][]> {
+    return await apiGet("/job-postings/heatmap", removeUndefinedKeys(request));
   }
 }

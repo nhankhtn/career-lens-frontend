@@ -1,5 +1,16 @@
-import type { User, UserOnboarding } from "@/types/user";
-import { apiDelete, apiGet, apiPatch, apiPost } from "@/utils/api-request";
+import type {
+  User,
+  UserOnboarding,
+  UserTopicProgress,
+  UserTopicStatus,
+} from "@/types/user";
+import {
+  apiDelete,
+  apiGet,
+  apiPatch,
+  apiPost,
+  apiPut,
+} from "@/utils/api-request";
 
 type SignInResponse = Promise<{
   data: User;
@@ -8,7 +19,7 @@ type SignInResponse = Promise<{
 
 type LoginFirebaseRequest = { id_token: string };
 
-export class UsersApi {
+export default class UsersApi {
   static async loginFirebase(request: LoginFirebaseRequest): SignInResponse {
     return await apiPost("/users/login", request);
   }
@@ -28,5 +39,51 @@ export class UsersApi {
     payload: UserOnboarding,
   ): Promise<UserOnboarding> {
     return await apiPost("/users/onboarding", payload);
+  }
+
+  static async updateProfile(payload: Partial<User>): Promise<User> {
+    return await apiPatch("/users/info", payload);
+  }
+
+  static async getUserTopics(): Promise<UserTopicStatus[]> {
+    return await apiGet("/users/topics");
+  }
+
+  static async getTopicProgressByTopicId(
+    topicId: string,
+  ): Promise<UserTopicProgress[]> {
+    return await apiGet(`/users/topics/${topicId}/progress`);
+  }
+
+  static async createTopicProgress({
+    topicId,
+    status,
+    notes,
+    rating,
+  }: {
+    topicId: string;
+    status: UserTopicStatus;
+    notes?: string;
+    rating?: number;
+  }): Promise<void> {
+    return await apiPut(`/users/topics/${topicId}/progress`, {
+      status,
+      notes,
+      rating,
+    });
+  }
+
+  static async deleteTopicProgress(topicId: string): Promise<{
+    message: string;
+  }> {
+    return await apiDelete(`/users/topics/${topicId}/progress`, {});
+  }
+
+  static async addOrUpdateSkills(payload: { skills: string[] }): Promise<User> {
+    return await apiPut("/users/skills", payload);
+  }
+
+  static async removeSkills(payload: { skills: string[] }): Promise<User> {
+    return await apiDelete("/users/skills", payload);
   }
 }

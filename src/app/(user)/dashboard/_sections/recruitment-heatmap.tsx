@@ -1,16 +1,16 @@
 "use client";
 
-import { useMemo } from "react"
-import { Box, Typography, useTheme } from "@mui/material"
-import { Stack } from "@mui/material"
-import RowStack from "@/components/row-stack"
-import { recruitmentData } from "@/types/dashboard/mock-data"
-import { blue, neutral } from "@/theme/colors"
-import React from "react"
+import { useMemo } from "react";
+import { Box, Typography, useTheme } from "@mui/material";
+import { Stack } from "@mui/material";
+import RowStack from "@/components/row-stack";
+import { blue, neutral } from "@/theme/colors";
+import React from "react";
 
-export default function RecruitmentHeatmap() {
-  const theme = useTheme();
-
+export interface RecruitmentHeatmapProps {
+  data: number[][];
+}
+export default function RecruitmentHeatmap({ data }: RecruitmentHeatmapProps) {
   const months = useMemo(
     () => [
       "Jan",
@@ -116,7 +116,7 @@ export default function RecruitmentHeatmap() {
             </Typography>
 
             {months.map((month, monthIndex) => {
-              const value = recruitmentData[weekIndex]?.[monthIndex] || 0;
+              const value = data[weekIndex]?.[monthIndex] || 0;
               return (
                 <Box
                   key={`${week}-${month}`}
