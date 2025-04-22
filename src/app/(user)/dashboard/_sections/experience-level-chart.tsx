@@ -99,7 +99,7 @@ export default function ExperienceLevelChart({
       <Stack height={"100%"} justifyContent={"center"} flex={1}>
         <RowStack
           justifyContent={"center"}
-          sx={{ height: 400, position: "relative" }}
+          sx={{ height: 300, position: "relative" }}
         >
           {data.length === 0 ? (
             <EmptyState

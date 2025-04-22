@@ -134,7 +134,7 @@ export default function DashboardContent() {
               bgcolor: "white",
               borderRadius: 2,
               p: { xs: 2, sm: 3 },
-              flex: 5,
+              flex: 4,
               boxShadow: `0 1px 3px ${neutral[300]}`,
               width: "100%",
             }}
@@ -146,7 +146,7 @@ export default function DashboardContent() {
               bgcolor: "white",
               borderRadius: 2,
               p: { xs: 2, sm: 3 },
-              flex: 7,
+              flex: 8,
               boxShadow: `0 1px 3px ${neutral[300]}`,
               width: "100%",
             }}
