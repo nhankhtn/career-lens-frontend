@@ -1,9 +1,8 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { Typography, IconButton, Tooltip, Box } from "@mui/material";
+import { Typography } from "@mui/material";
 import { Stack } from "@mui/material";
-import { FilterList as FilterIcon } from "@mui/icons-material";
 import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -13,38 +12,32 @@ import {
   Title,
   Tooltip as ChartTooltip,
 } from "chart.js";
-import { topPositionsData } from "@/types/dashboard/mock-data";
 import RowStack from "@/components/row-stack";
 import { warning } from "@/theme/colors";
-import { StatisticFilter } from "./filter-config";
+import { PositionStats } from "@/api/job-postings";
+import EmptyState from "@/components/empty-state";
 
 // Register ChartJS components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, ChartTooltip);
 
 interface TopPositionsProps {
-  filter: StatisticFilter;
+  data: PositionStats[];
 }
 
-export default function TopPositions({ filter }: TopPositionsProps) {
+export default function TopPositions({ data }: TopPositionsProps) {
   const [highlightedIndex, setHighlightedIndex] = useState<number | null>(null);
 
   const handleBarHover = useCallback((index: number | null) => {
     setHighlightedIndex(index);
   }, []);
 
-  // Filter data based on filters (in a real app, this would fetch from API)
-  const filteredData = useMemo(() => {
-    // This is a mock implementation - in a real app, you would filter the data based on the filters
-    return topPositionsData;
-  }, []);
-
   const chartData = useMemo(() => {
     return {
-      labels: filteredData.map((item) => item.position),
+      labels: data.map((item) => item.position),
       datasets: [
         {
-          data: filteredData.map((item) => item.count),
-          backgroundColor: filteredData.map((_, index) =>
+          data: data.map((item) => item.count),
+          backgroundColor: data.map((_, index) =>
             index === highlightedIndex ? warning.main : warning.light,
           ),
           borderColor: warning.main,
@@ -54,7 +47,7 @@ export default function TopPositions({ filter }: TopPositionsProps) {
         },
       ],
     };
-  }, [filteredData, highlightedIndex]);
+  }, [data, highlightedIndex]);
 
   const chartOptions = useMemo(() => {
     return {
@@ -102,7 +95,7 @@ export default function TopPositions({ filter }: TopPositionsProps) {
           5 vị trí vị trí có nhu cầu cao nhất
         </Typography>
         <RowStack>
-          <Tooltip title="Tất cả">
+          {/* <Tooltip title="Tất cả">
             <Typography
               variant="body2"
               color="primary"
@@ -110,7 +103,7 @@ export default function TopPositions({ filter }: TopPositionsProps) {
             >
               Tất cả
             </Typography>
-          </Tooltip>
+          </Tooltip> */}
           {/* <Tooltip title="Bộ lọc">
             <IconButton size="small">
               <FilterIcon fontSize="small" />
@@ -119,9 +112,17 @@ export default function TopPositions({ filter }: TopPositionsProps) {
         </RowStack>
       </RowStack>
 
-      <Box sx={{ height: 300 }}>
-        <Bar data={chartData} options={chartOptions} />
-      </Box>
+      <Stack justifyContent={"center"} sx={{ height: 300 }}>
+        {data.length === 0 ? (
+          <EmptyState
+            width={300}
+            height={200}
+            title="Hiện chưa có số liệu thống kê"
+          />
+        ) : (
+          <Bar data={chartData} options={chartOptions} />
+        )}
+      </Stack>
     </Stack>
   );
 }

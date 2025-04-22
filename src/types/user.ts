@@ -41,6 +41,23 @@ export interface UserOnboarding {
   }[];
 }
 
+export enum UserTopicStatus {
+  NOT_STARTED = "not_started",
+  IN_PROGRESS = "in_progress",
+  COMPLETED = "completed",
+}
+
+export interface UserTopicProgress {
+  user_id: string;
+  topic_id: string;
+
+  status: UserTopicStatus;
+  started_at?: Date;
+  completed_at?: Date;
+  notes?: string;
+  rating?: number;
+}
+
 export const initialValuesOnboarding: UserOnboarding = {
   full_name: "",
   date_of_birth: new Date(),
