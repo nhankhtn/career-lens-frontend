@@ -18,23 +18,17 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { paths } from "@/paths";
 import { useAuth } from "@/contexts/auth/firebase-context";
 import useFunction from "@/hooks/use-function";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const AuthRegisterContent = () => {
   const { signInWithGoogle } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   const signInWithGoogleHelper = useFunction(signInWithGoogle, {
     onSuccess: () => {
-      const returnTo = searchParams.get("returnTo");
-      if (returnTo) {
-        router.push(returnTo as string);
-      } else {
-        router.push(paths.onboarding);
-      }
+      router.push(paths.onboarding);
     },
   });
 
