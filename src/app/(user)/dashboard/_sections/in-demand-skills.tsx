@@ -10,12 +10,13 @@ import { CustomTable } from "@/components/custom-table";
 import { getSkillTableConfig } from "./get-table-config";
 import usePagination from "@/hooks/use-pagination";
 import CustomPagination from "@/components/custom-pagination";
+import { StatisticFilter } from "./filter-config";
 
 interface InDemandSkillsProps {
-  filters: { fromDate: string; toDate: string; region: string };
+  filter: StatisticFilter;
 }
 
-export default function InDemandSkills({ filters }: InDemandSkillsProps) {
+export default function InDemandSkills({ filter }: InDemandSkillsProps) {
   const pagination = usePagination({
     count: inDemandSkillsData.length,
     initialRowsPerPage: 5,
@@ -29,22 +30,22 @@ export default function InDemandSkills({ filters }: InDemandSkillsProps) {
     () =>
       filteredData.slice(
         pagination.page * pagination.rowsPerPage,
-        pagination.page * pagination.rowsPerPage + pagination.rowsPerPage
+        pagination.page * pagination.rowsPerPage + pagination.rowsPerPage,
       ),
-    [filteredData, pagination.page, pagination.rowsPerPage]
+    [filteredData, pagination.page, pagination.rowsPerPage],
   );
 
   return (
     <Paper elevation={1} sx={{ borderRadius: 2, overflow: "hidden" }}>
       <Box p={2}>
-        <RowStack justifyContent='space-between' mb={2}>
-          <Typography variant='h6' fontWeight='medium'>
+        <RowStack justifyContent="space-between" mb={2}>
+          <Typography variant="h6" fontWeight="medium">
             Những kỹ năng cứng hàng đầu đang được yêu cầu
           </Typography>
           <Link
-            href='#'
-            underline='hover'
-            color='primary'
+            href="#"
+            underline="hover"
+            color="primary"
             sx={{ fontSize: 14 }}
           >
             Tất cả

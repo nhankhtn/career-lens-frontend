@@ -16,15 +16,16 @@ import {
 import { topPositionsData } from "@/types/dashboard/mock-data";
 import RowStack from "@/components/row-stack";
 import { warning } from "@/theme/colors";
+import { StatisticFilter } from "./filter-config";
 
 // Register ChartJS components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, ChartTooltip);
 
 interface TopPositionsProps {
-  filters: { fromDate: string; toDate: string; region: string };
+  filter: StatisticFilter;
 }
 
-export default function TopPositions({ filters }: TopPositionsProps) {
+export default function TopPositions({ filter }: TopPositionsProps) {
   const [highlightedIndex, setHighlightedIndex] = useState<number | null>(null);
 
   const handleBarHover = useCallback((index: number | null) => {
@@ -44,7 +45,7 @@ export default function TopPositions({ filters }: TopPositionsProps) {
         {
           data: filteredData.map((item) => item.count),
           backgroundColor: filteredData.map((_, index) =>
-            index === highlightedIndex ? warning.main : warning.light
+            index === highlightedIndex ? warning.main : warning.light,
           ),
           borderColor: warning.main,
           borderWidth: 1,
@@ -96,15 +97,15 @@ export default function TopPositions({ filters }: TopPositionsProps) {
 
   return (
     <Stack>
-      <RowStack justifyContent='space-between' mb={2}>
-        <Typography variant='h6' fontWeight='medium'>
+      <RowStack justifyContent="space-between" mb={2}>
+        <Typography variant="h6" fontWeight="medium">
           5 vị trí vị trí có nhu cầu cao nhất
         </Typography>
         <RowStack>
-          <Tooltip title='Tất cả'>
+          <Tooltip title="Tất cả">
             <Typography
-              variant='body2'
-              color='primary'
+              variant="body2"
+              color="primary"
               sx={{ cursor: "pointer", textDecoration: "underline", mr: 1 }}
             >
               Tất cả

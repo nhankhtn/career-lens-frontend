@@ -129,13 +129,13 @@ export interface AuthContextType extends State {
   register: (value: RegisterValues) => Promise<any>;
   changePassword: (
     currentPassword: string,
-    newPassword: string
+    newPassword: string,
   ) => Promise<any>;
   completeOnboarding: (values: UserOnboarding) => Promise<void>;
 
   signInWithEmailAndPassword: (
     email: string,
-    password: string
+    password: string,
   ) => Promise<User | null>;
   signInWithGoogle: () => Promise<User | null>;
   signInAnonymously: () => Promise<User | null>;
@@ -220,7 +220,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
         throw error;
       }
     },
-    [dispatch]
+    [dispatch],
   );
 
   const _signInAnonymously = useCallback(async (): Promise<User> => {
@@ -374,7 +374,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
       initialize();
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [],
   );
 
   const initFb = useCallback((user: FirebaseUser | null) => {
@@ -385,25 +385,20 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
   useEffect(
     () => onAuthStateChanged(auth, initFb),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [],
   );
-
+  console.log("user", state.user);
   const completeOnboarding = useCallback(async (values: UserOnboarding) => {
     try {
-      // await UsersApi.userOnboarding({
-      //   ...values,
-      //   business_type: values.business_type || "0",
-      // });
-      // dispatch({
-      //   type: ActionType.UPDATE,
-      //   payload: {
-      //     user: {
-      //       tiktok_id: values.tiktok_id,
-      //       phone: values.phone,
-      //       onboarding_completed: true,
-      //     },
-      //   },
-      // });
+      await UsersApi.userOnboarding(values);
+      dispatch({
+        type: ActionType.UPDATE,
+        payload: {
+          user: {
+            onboarding_completed: true,
+          },
+        },
+      });
     } catch (error) {
       throw error;
     }
@@ -415,7 +410,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
         const { user } = await signInWithEmailAndPassword(
           auth,
           email,
-          password
+          password,
         );
         return await getToken(user);
       } catch (error) {
@@ -423,7 +418,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
         throw error;
       }
     },
-    [getToken]
+    [getToken],
   );
 
   const signInWithGoogle = useCallback(async (): Promise<User> => {
@@ -450,7 +445,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
         const { user } = await signInWithEmailAndPassword(
           auth,
           userInfo.email,
-          currentPassword
+          currentPassword,
         );
 
         await updatePassword(user, newPassword);
@@ -459,7 +454,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
         throw error;
       }
     },
-    [initialize, state.user]
+    [initialize, state.user],
   );
 
   /**
@@ -472,7 +467,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
-        password
+        password,
       );
       const user = userCredential.user;
       await updateProfile(user, { displayName: name });
@@ -530,7 +525,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
         throw error;
       }
     },
-    []
+    [],
   );
 
   /**
@@ -547,7 +542,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
         throw error;
       }
     },
-    [_signOut, _signOutAnonymously]
+    [_signOut, _signOutAnonymously],
   );
 
   const updateUser = useCallback(async (user: Partial<User>) => {
@@ -576,7 +571,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
         } catch (err) {}
         if (!window.location.pathname.startsWith("/auth")) {
           showSnackbarError(
-            "Thông tin xác thực không hợp lệ. Vui lòng đăng nhập lại"
+            "Thông tin xác thực không hợp lệ. Vui lòng đăng nhập lại",
           );
         }
         const returnTo = window.location.pathname + window.location.search;

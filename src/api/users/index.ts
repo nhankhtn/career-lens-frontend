@@ -1,4 +1,4 @@
-import type { User } from "@/types/user";
+import type { User, UserOnboarding } from "@/types/user";
 import { apiDelete, apiGet, apiPatch, apiPost } from "@/utils/api-request";
 
 type SignInResponse = Promise<{
@@ -22,5 +22,11 @@ export class UsersApi {
     new_password: string;
   }): Promise<User> {
     return await apiPost("/users/password", payload);
+  }
+
+  static async userOnboarding(
+    payload: UserOnboarding,
+  ): Promise<UserOnboarding> {
+    return await apiPost("/users/onboarding", payload);
   }
 }

@@ -17,6 +17,7 @@ import {
 import { topCompaniesData } from "@/types/dashboard/mock-data";
 import RowStack from "@/components/row-stack";
 import { blue, error, success } from "@/theme/colors";
+import { StatisticFilter } from "./filter-config";
 
 // Đăng ký các thành phần cần thiết của Chart.js
 ChartJS.register(
@@ -25,14 +26,14 @@ ChartJS.register(
   BarElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
 );
 
 interface TopCompaniesProps {
-  filters: { fromDate: string; toDate: string; region: string };
+  filter: StatisticFilter;
 }
 
-export default function TopCompanies({ filters }: TopCompaniesProps) {
+export default function TopCompanies({ filter }: TopCompaniesProps) {
   const filteredData = useMemo(() => {
     return topCompaniesData; // Giả lập: dùng toàn bộ data không lọc
   }, []);
@@ -58,7 +59,7 @@ export default function TopCompanies({ filters }: TopCompaniesProps) {
         },
       ],
     }),
-    [filteredData]
+    [filteredData],
   );
 
   const chartOptions = useMemo(
@@ -98,16 +99,16 @@ export default function TopCompanies({ filters }: TopCompaniesProps) {
         },
       },
     }),
-    []
+    [],
   );
 
   return (
     <Stack>
-      <RowStack justifyContent='space-between' mb={2}>
-        <Typography variant='h6' fontWeight='medium'>
+      <RowStack justifyContent="space-between" mb={2}>
+        <Typography variant="h6" fontWeight="medium">
           Top 5 công ty trong ngành IT
         </Typography>
-        <Link href='#' underline='hover' color='primary' sx={{ fontSize: 14 }}>
+        <Link href="#" underline="hover" color="primary" sx={{ fontSize: 14 }}>
           Tất cả
         </Link>
       </RowStack>
