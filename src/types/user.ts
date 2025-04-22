@@ -1,8 +1,11 @@
+import * as Yup from "yup";
+import { Skill } from "./skill";
+
 export interface User {
   id: string;
   name: string;
   email: string;
-  password?: string;
+  password: string;
   phone?: string;
   photo_url?: string;
   role: string;
@@ -23,21 +26,62 @@ export interface User {
 }
 
 export interface UserOnboarding {
-  user_id: string;
   full_name: string;
-  date_of_birth: string;
+  date_of_birth: Date;
   gender: "male" | "female" | "other" | null;
   education_level: string | null;
   major: string | null;
   school: string | null;
   current_goal: string | null;
-  skills_have: string[];
+  skills_have: Skill[];
   experience?: {
     job_title: string;
     field: string;
     years: number;
   }[];
-  career_orientation_result: string | null;
-  created_at?: string;
-  updated_at?: string;
 }
+
+export const initialValuesOnboarding: UserOnboarding = {
+  full_name: "",
+  date_of_birth: new Date(),
+  gender: null,
+  education_level: null,
+  major: null,
+  school: null,
+  current_goal: null,
+  skills_have: [],
+  experience: [{ job_title: "", field: "", years: 0 }],
+};
+
+export const validationSchema = [
+  // Step 1: Personal Info
+  Yup.object({
+    full_name: Yup.string().required("Vui lòng nhập họ tên"),
+    date_of_birth: Yup.date().required("Vui lòng chọn ngày sinh"),
+    gender: Yup.string().nullable(),
+  }),
+  // Step 2: Education
+  Yup.object({
+    education_level: Yup.string().nullable(),
+    major: Yup.string().nullable(),
+    school: Yup.string().nullable(),
+  }),
+  // Step 3: Career Goals
+  Yup.object({
+    current_goal: Yup.string().nullable(),
+  }),
+  // Step 4: Skills
+  Yup.object({
+    skills_have: Yup.array(),
+  }),
+  // Step 5: Experience
+  Yup.object({
+    experience: Yup.array().of(
+      Yup.object({
+        job_title: Yup.string(),
+        field: Yup.string(),
+        years: Yup.number().min(0, "Số năm không thể âm"),
+      }),
+    ),
+  }),
+];

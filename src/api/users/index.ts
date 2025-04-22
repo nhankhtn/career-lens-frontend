@@ -24,7 +24,7 @@ export class UsersApi {
     return await apiPost("/users/password", payload);
   }
 
-  static async createOnboarding(
+  static async userOnboarding(
     payload: UserOnboarding,
   ): Promise<UserOnboarding> {
     return await apiPost("/users/onboarding", payload);
