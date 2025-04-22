@@ -17,8 +17,8 @@ export const storeAuthData = (token: string, userData: User) => {
     domain: process.env.NEXT_PUBLIC_COOKIE_DOMAIN || undefined,
   });
   localStorage.setItem("user_data", JSON.stringify(userData));
-  if (userData.email) {
-    localStorage.setItem("tiktoday_user", "1");
+  if (userData?.email) {
+    localStorage.setItem("zenith_user", "1");
   }
 };
 

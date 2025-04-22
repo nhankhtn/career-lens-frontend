@@ -19,6 +19,7 @@ import { useState } from "react";
 import useFunction from "@/hooks/use-function";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { User } from "@/types/user";
 
 const AuthLoginContent = () => {
   const { signInWithGoogle } = useAuth();
@@ -27,13 +28,17 @@ const AuthLoginContent = () => {
   const searchParams = useSearchParams();
 
   const signInWithGoogleHelper = useFunction(signInWithGoogle, {
-    onSuccess: () => {
+    onSuccess: ({ result }: { result: User | null }) => {
       const returnTo = searchParams.get("returnTo");
+      if (!result?.onboarding_completed) {
+        router.push(paths.onboarding);
+        return;
+      }
       if (returnTo) {
         router.push(returnTo as string);
-      } else {
-        router.push(paths.dashboard);
+        return;
       }
+      router.push(paths.dashboard);
     },
   });
   return (
