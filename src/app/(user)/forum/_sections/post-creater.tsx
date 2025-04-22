@@ -1,15 +1,60 @@
-"use client"
-import { Avatar, Box, Button, Divider, InputBase, Stack } from "@mui/material"
-import { InsertPhoto, Event, Article } from "@mui/icons-material"
+"use client";
+
+import { useState } from "react";
+import {
+  Avatar,
+  Box,
+  Button,
+  Divider,
+  InputBase,
+  Stack,
+  TextareaAutosize,
+  Typography,
+} from "@mui/material";
+import { InsertPhoto, Event, Article } from "@mui/icons-material";
+import { usePostContext } from "@/contexts/forum/post-context";
+import useAppSnackbar from "@/hooks/use-app-snackbar";
 
 export default function PostCreator() {
+  const { createPostApi } = usePostContext();
+  const { showSnackbarSuccess, showSnackbarError } = useAppSnackbar();
+  const [open, setOpen] = useState(false);
+  const [content, setContent] = useState("");
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
+
+  const handleSubmit = async () => {
+    if (!content.trim()) {
+      showSnackbarError("Vui lòng nhập nội dung bài viết!");
+      return;
+    }
+
+    const response = await createPostApi.call({
+      content,
+      image_url: imageUrls.length > 0 ? imageUrls : undefined,
+    });
+
+    if (response.data) {
+      setOpen(false);
+      setContent("");
+      setImageUrls([]);
+      showSnackbarSuccess("Đăng bài viết thành công!");
+    } else {
+      showSnackbarError(`Đăng bài viết thất bại: ${response.error}`);
+    }
+  };
+
   return (
     <Box>
       <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
-        <Avatar src="/placeholder.svg?height=40&width=40" alt="User" sx={{ width: 60, height: 60 }} />
+        <Avatar
+          src="/placeholder.svg?height=40&width=40"
+          alt="User"
+          sx={{ width: 60, height: 60 }}
+        />
         <InputBase
           fullWidth
           placeholder="Hãy viết những thắc mắc của bạn..."
+          onClick={() => setOpen(true)}
           sx={{
             p: 1,
             border: "1px solid #e0e0e0",
@@ -18,6 +63,60 @@ export default function PostCreator() {
           }}
         />
       </Box>
+
+      {open && (
+        <Box sx={{ p: 2, border: "1px solid #e0e0e0", borderRadius: 2, mb: 2 }}>
+          <Typography variant="h6" gutterBottom>
+            Tạo bài viết mới
+          </Typography>
+          <TextareaAutosize
+            minRows={3}
+            placeholder="Nội dung bài viết..."
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            style={{
+              width: "100%",
+              padding: "8px",
+              borderRadius: "4px",
+              border: "1px solid #e0e0e0",
+              marginBottom: "8px",
+            }}
+          />
+          <InputBase
+            fullWidth
+            placeholder="URL hình ảnh (cách nhau bởi dấu phẩy)"
+            value={imageUrls.join(",")}
+            onChange={(e) =>
+              setImageUrls(e.target.value.split(",").filter(Boolean))
+            }
+            sx={{
+              p: 1,
+              border: "1px solid #e0e0e0",
+              borderRadius: 4,
+              mb: 2,
+            }}
+          />
+          <Stack direction="row" spacing={1} justifyContent="flex-end">
+            <Button
+              variant="outlined"
+              onClick={() => {
+                setOpen(false);
+                setContent("");
+                setImageUrls([]);
+              }}
+            >
+              Hủy
+            </Button>
+            <Button
+              variant="contained"
+              onClick={handleSubmit}
+              disabled={createPostApi.loading}
+            >
+              {createPostApi.loading ? "Đang đăng..." : "Đăng"}
+            </Button>
+          </Stack>
+        </Box>
+      )}
 
       <Divider />
 
@@ -33,5 +132,5 @@ export default function PostCreator() {
         </Button>
       </Stack>
     </Box>
-  )
+  );
 }

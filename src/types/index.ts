@@ -9,3 +9,4 @@ export type ResponseWithMessage<T = any> = {
   message: string;
   data: T;
 };
+
