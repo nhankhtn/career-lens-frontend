@@ -8,7 +8,7 @@ import BookmarkIcon from "@mui/icons-material/Bookmark"
 import Link from "next/link"
 import { useUserContext } from "@/contexts/user/user-context"
 import { UserTopicStatus } from "@/types/user"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 
 interface RoadmapCardProps {
   id: string
@@ -19,7 +19,7 @@ interface RoadmapCardProps {
 export default function RoadmapCard({ id, title, description }: RoadmapCardProps) {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
-  const { getTopicProgress, updateTopicProgress, removeTopicProgress, user } = useUserContext()
+  const { getTopicProgress, updateTopicProgress, removeTopicProgress, isAuthenticated } = useUserContext()
   const [isBookmarked, setIsBookmarked] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [snackbar, setSnackbar] = useState({
@@ -28,14 +28,20 @@ export default function RoadmapCard({ id, title, description }: RoadmapCardProps
     severity: "success" as "success" | "error" | "info" | "warning",
   })
 
+  // Use a ref to track if we've already loaded from localStorage
+  const loadedFromLocalStorage = useRef(false)
+
   // Check if the topic is bookmarked
   useEffect(() => {
+    // Get from API if available
     const topicProgress = getTopicProgress(id)
 
     if (topicProgress) {
-      // If we have progress data, it means the topic is bookmarked
       setIsBookmarked(true)
-    } else {
+    }
+    // Only load from localStorage once to prevent infinite loops
+    else if (!loadedFromLocalStorage.current) {
+      loadedFromLocalStorage.current = true
       // Fallback to localStorage if API data is not available yet
       const savedBookmarks = JSON.parse(localStorage.getItem("roadmap-bookmarks") || "[]")
       setIsBookmarked(savedBookmarks.includes(id))
@@ -79,7 +85,7 @@ export default function RoadmapCard({ id, title, description }: RoadmapCardProps
       localStorage.setItem("roadmap-bookmarks", JSON.stringify(bookmarks))
 
       // If user is logged in, update on the server
-      if (user) {
+      if (isAuthenticated) {
         if (!isBookmarked) {
           // Add bookmark
           await updateTopicProgress(id, UserTopicStatus.NOT_STARTED)
@@ -180,7 +186,7 @@ export default function RoadmapCard({ id, title, description }: RoadmapCardProps
                 fontWeight: 500,
               }}
             >
-              Xem lộ trình →
+              View Roadmap →
             </Link>
           </Box>
         </CardContent>

@@ -1,15 +1,17 @@
 "use client"
 
 import type React from "react"
-import { createContext, useContext, useEffect, useState } from "react"
+import { createContext, useContext, useEffect, useState, useCallback } from "react"
 import UsersApi from "@/api/users"
 import useFunction, { DEFAULT_FUNCTION_RETURN, type UseFunctionReturnType } from "@/hooks/use-function"
-import { User, UserTopicProgress, UserTopicStatus } from "@/types/user"
+import type { User, UserTopicProgress } from "@/types/user"
+import { UserTopicStatus } from "@/types/user"
 
 interface ContextValue {
   user: User | null
   loading: boolean
   error: Error | null
+  isAuthenticated: boolean
 
   // Topic progress related functions
   getTopicProgressApi: UseFunctionReturnType<string, UserTopicProgress[]>
@@ -32,12 +34,14 @@ interface ContextValue {
   // Cache management
   clearProgressCache: () => void
   refreshUserData: () => Promise<void>
+  refreshTopicProgress: (topicId: string) => Promise<void>
 }
 
 const UserContext = createContext<ContextValue>({
   user: null,
   loading: false,
   error: null,
+  isAuthenticated: false,
   getTopicProgressApi: DEFAULT_FUNCTION_RETURN,
   createTopicProgressApi: DEFAULT_FUNCTION_RETURN,
   deleteTopicProgressApi: DEFAULT_FUNCTION_RETURN,
@@ -46,13 +50,16 @@ const UserContext = createContext<ContextValue>({
   removeTopicProgress: async () => {},
   clearProgressCache: () => {},
   refreshUserData: async () => {},
+  refreshTopicProgress: async () => {},
 })
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<Error | null>(null)
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
   const [progressCache, setProgressCache] = useState<Record<string, UserTopicProgress>>({})
+  const [progressFetchAttempts, setProgressFetchAttempts] = useState<Record<string, boolean>>({})
 
   // API function hooks
   const getTopicProgressApi = useFunction(UsersApi.getTopicProgressByTopicId)
@@ -66,9 +73,15 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         setLoading(true)
         const userData = await UsersApi.me()
         setUser(userData)
+        setIsAuthenticated(true)
       } catch (err) {
         console.error("Error fetching user data:", err)
-        setError(err instanceof Error ? err : new Error("Failed to fetch user data"))
+        // Don't set error for unauthorized - this is expected for non-logged in users
+        if (err instanceof Error && err.message !== "Lỗi: Unauthorized access") {
+          setError(err)
+        }
+        setIsAuthenticated(false)
+        setUser(null)
       } finally {
         setLoading(false)
       }
@@ -78,94 +91,137 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   }, [])
 
   // Helper function to get progress for a specific topic
-  const getTopicProgress = (topicId: string): UserTopicProgress | undefined => {
-    // Check cache first
-    if (progressCache[topicId]) {
-      return progressCache[topicId]
-    }
+  const getTopicProgress = useCallback(
+    (topicId: string): UserTopicProgress | undefined => {
+      // Check cache first
+      if (progressCache[topicId]) {
+        return progressCache[topicId]
+      }
 
-    // If not in cache, trigger API call and return undefined for now
-    // The component will re-render when the API call completes
-    getTopicProgressApi.call(topicId).then((progressList) => {
-        if (Array.isArray(progressList)) {
-          const newCache = { ...progressCache }
-          progressList.forEach((progress) => {
-            newCache[progress.topic_id] = progress
+      // If not in cache and we're authenticated and haven't tried to fetch this topic yet,
+      // trigger API call and return undefined for now
+      if (isAuthenticated && !progressFetchAttempts[topicId]) {
+        // Mark that we've attempted to fetch this topic to prevent infinite loops
+        setProgressFetchAttempts((prev) => ({
+          ...prev,
+          [topicId]: true,
+        }))
+
+        // The component will re-render when the API call completes
+        refreshTopicProgress(topicId)
+      }
+
+      return undefined
+    },
+    [progressCache, isAuthenticated, progressFetchAttempts],
+  )
+
+  // Helper function to refresh topic progress from the API
+  const refreshTopicProgress = useCallback(
+    async (topicId: string): Promise<void> => {
+      if (!isAuthenticated) return
+
+      try {
+        const progressList = await getTopicProgressApi.call(topicId)
+
+        setProgressCache((prev) => {
+            const newCache = { ...prev }
+          
+            if (Array.isArray(progressList)) {
+              progressList.forEach((progress) => {
+                if (progress?.topic_id) {
+                  newCache[progress.topic_id] = progress
+                }
+              })
+            } else {
+              console.warn("⚠️ progressList không phải mảng:", progressList)
+            }
+          
+            return newCache
           })
-          setProgressCache(newCache)
-        } else {
-          console.error("Expected an array for progressList, got:", progressList)
-        }
-      })
-      
-
-    return undefined
-  }
+          
+      } catch (error) {
+        console.error("Error refreshing topic progress:", error)
+      }
+    },
+    [isAuthenticated, getTopicProgressApi],
+  )
 
   // Helper function to update topic progress
-  const updateTopicProgress = async (
-    topicId: string,
-    status: UserTopicStatus,
-    notes?: string,
-    rating?: number,
-  ): Promise<void> => {
-    try {
-      await createTopicProgressApi.call({ topicId, status, notes, rating })
+  const updateTopicProgress = useCallback(
+    async (topicId: string, status: UserTopicStatus, notes?: string, rating?: number): Promise<void> => {
+      try {
+        if (isAuthenticated) {
+          await createTopicProgressApi.call({ topicId, status, notes, rating })
+        }
 
-      // Update cache
-      setProgressCache((prev) => ({
-        ...prev,
-        [topicId]: {
-          user_id: user?.id || "",
-          topic_id: topicId,
-          status,
-          notes,
-          rating,
-          ...(status === UserTopicStatus.IN_PROGRESS ? { started_at: new Date() } : {}),
-          ...(status === UserTopicStatus.COMPLETED ? { completed_at: new Date() } : {}),
-        },
-      }))
-    } catch (err) {
-      console.error("Error updating topic progress:", err)
-      throw err
-    }
-  }
+        // Update cache
+        setProgressCache((prev) => ({
+          ...prev,
+          [topicId]: {
+            user_id: user?.id || "",
+            topic_id: topicId,
+            status,
+            notes,
+            rating,
+            ...(status === UserTopicStatus.IN_PROGRESS ? { started_at: new Date() } : {}),
+            ...(status === UserTopicStatus.COMPLETED ? { completed_at: new Date() } : {}),
+          },
+        }))
+      } catch (err) {
+        console.error("Error updating topic progress:", err)
+        throw err
+      }
+    },
+    [isAuthenticated, createTopicProgressApi, user],
+  )
 
   // Helper function to remove topic progress
-  const removeTopicProgress = async (topicId: string): Promise<void> => {
-    try {
-      await deleteTopicProgressApi.call(topicId)
+  const removeTopicProgress = useCallback(
+    async (topicId: string): Promise<void> => {
+      try {
+        if (isAuthenticated) {
+          await deleteTopicProgressApi.call(topicId)
+        }
 
-      // Update cache
-      setProgressCache((prev) => {
-        const newCache = { ...prev }
-        delete newCache[topicId]
-        return newCache
-      })
-    } catch (err) {
-      console.error("Error removing topic progress:", err)
-      throw err
-    }
-  }
+        // Update cache
+        setProgressCache((prev) => {
+          const newCache = { ...prev }
+          delete newCache[topicId]
+          return newCache
+        })
+      } catch (err) {
+        console.error("Error removing topic progress:", err)
+        throw err
+      }
+    },
+    [isAuthenticated, deleteTopicProgressApi],
+  )
 
   // Clear progress cache
-  const clearProgressCache = () => {
+  const clearProgressCache = useCallback(() => {
     setProgressCache({})
-  }
+    setProgressFetchAttempts({})
+  }, [])
 
   // Refresh user data
-  const refreshUserData = async () => {
+  const refreshUserData = useCallback(async () => {
     try {
       setLoading(true)
       const userData = await UsersApi.me()
       setUser(userData)
+      setIsAuthenticated(true)
     } catch (err) {
       console.error("Error refreshing user data:", err)
-      setError(err instanceof Error ? err : new Error("Failed to refresh user data"))
+      if (err instanceof Error && err.message !== "Lỗi: Unauthorized access") {
+        setError(err)
+      }
+      setIsAuthenticated(false)
+      setUser(null)
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   return (
     <UserContext.Provider
@@ -173,6 +229,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         user,
         loading,
         error,
+        isAuthenticated,
         getTopicProgressApi,
         createTopicProgressApi,
         deleteTopicProgressApi,
@@ -181,6 +238,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         removeTopicProgress,
         clearProgressCache,
         refreshUserData,
+        refreshTopicProgress,
       }}
     >
       {children}

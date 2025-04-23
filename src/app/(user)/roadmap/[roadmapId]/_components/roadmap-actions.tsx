@@ -8,7 +8,7 @@ import BookmarkIcon from "@mui/icons-material/Bookmark"
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday"
 import DownloadIcon from "@mui/icons-material/Download"
 import ShareIcon from "@mui/icons-material/Share"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useParams } from "next/navigation"
 import { useUserContext } from "@/contexts/user/user-context"
 import { UserTopicStatus } from "@/types/user"
@@ -16,7 +16,7 @@ import { UserTopicStatus } from "@/types/user"
 export default function RoadmapActions() {
   const params = useParams()
   const roadmapId = params.roadmapId as string
-  const { getTopicProgress, updateTopicProgress, removeTopicProgress, user } = useUserContext()
+  const { getTopicProgress, updateTopicProgress, removeTopicProgress, isAuthenticated } = useUserContext()
 
   const [bookmarked, setBookmarked] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -27,14 +27,20 @@ export default function RoadmapActions() {
     severity: "success" as "success" | "error" | "info" | "warning",
   })
 
+  // Use a ref to track if we've already loaded from localStorage
+  const loadedFromLocalStorage = useRef(false)
+
   // Check if the roadmap is bookmarked
   useEffect(() => {
+    // Get from API if available
     const topicProgress = getTopicProgress(roadmapId)
 
     if (topicProgress) {
-      // If we have progress data, it means the roadmap is bookmarked
       setBookmarked(true)
-    } else {
+    }
+    // Only load from localStorage once to prevent infinite loops
+    else if (!loadedFromLocalStorage.current) {
+      loadedFromLocalStorage.current = true
       // Fallback to localStorage if API data is not available yet
       const savedBookmarks = JSON.parse(localStorage.getItem("roadmap-bookmarks") || "[]")
       setBookmarked(savedBookmarks.includes(roadmapId))
@@ -65,7 +71,7 @@ export default function RoadmapActions() {
         })
 
         // If user is logged in, update on the server
-        if (user) {
+        if (isAuthenticated) {
           await updateTopicProgress(roadmapId, UserTopicStatus.NOT_STARTED)
         }
       } else {
@@ -81,7 +87,7 @@ export default function RoadmapActions() {
         })
 
         // If user is logged in, update on the server
-        if (user) {
+        if (isAuthenticated) {
           await removeTopicProgress(roadmapId)
         }
       }

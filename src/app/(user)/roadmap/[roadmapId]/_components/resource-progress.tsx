@@ -1,13 +1,12 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Box, Tooltip, IconButton, Snackbar, Alert } from "@mui/material"
 import CheckCircleIcon from "@mui/icons-material/CheckCircle"
 import AccessTimeIcon from "@mui/icons-material/AccessTime"
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked"
 import { useUserContext } from "@/contexts/user/user-context"
 import { UserTopicStatus } from "@/types/user"
-import { useTopicContext } from "@/contexts/topic/topic-context"
 import { useParams } from "next/navigation"
 
 interface ResourceProgressProps {
@@ -19,9 +18,7 @@ export default function ResourceProgress({ resourceId, topicId }: ResourceProgre
   const params = useParams()
   const roadmapId = params.roadmapId as string
 
-  const { getTopicProgress, updateTopicProgress, user } = useUserContext()
-  const { getTopicByIdApi } = useTopicContext()
-
+  const { getTopicProgress, updateTopicProgress, user, isAuthenticated } = useUserContext()
   const [progress, setProgress] = useState<UserTopicStatus>(UserTopicStatus.NOT_STARTED)
   const [isLoading, setIsLoading] = useState(false)
   const [snackbar, setSnackbar] = useState({
@@ -30,13 +27,20 @@ export default function ResourceProgress({ resourceId, topicId }: ResourceProgre
     severity: "success" as "success" | "error" | "info" | "warning",
   })
 
+  // Use a ref to track if we've already loaded from localStorage
+  const loadedFromLocalStorage = useRef(false)
+
   // Load progress from API or localStorage as fallback
   useEffect(() => {
+    // Get progress from API if available
     const topicProgress = getTopicProgress(topicId)
 
     if (topicProgress) {
       setProgress(topicProgress.status)
-    } else {
+    }
+    // Only load from localStorage once to prevent infinite loops
+    else if (!loadedFromLocalStorage.current) {
+      loadedFromLocalStorage.current = true
       // Fallback to localStorage if API data is not available yet
       const savedProgress = localStorage.getItem(`progress-${topicId}-${resourceId}`)
       if (savedProgress && Object.values(UserTopicStatus).includes(savedProgress as UserTopicStatus)) {
@@ -58,7 +62,7 @@ export default function ResourceProgress({ resourceId, topicId }: ResourceProgre
       localStorage.setItem(`progress-${topicId}-${resourceId}`, newStatus)
 
       // If user is logged in, update on the server
-      if (user) {
+      if (isAuthenticated) {
         // First, check if the parent roadmap is bookmarked
         const parentProgress = getTopicProgress(roadmapId)
 
@@ -72,6 +76,13 @@ export default function ResourceProgress({ resourceId, topicId }: ResourceProgre
             message: "Roadmap has been automatically bookmarked",
             severity: "info",
           })
+
+          // Also update localStorage for the roadmap bookmark
+          const bookmarks = JSON.parse(localStorage.getItem("roadmap-bookmarks") || "[]")
+          if (!bookmarks.includes(roadmapId)) {
+            bookmarks.push(roadmapId)
+            localStorage.setItem("roadmap-bookmarks", JSON.stringify(bookmarks))
+          }
         }
 
         // Then update the current topic progress
@@ -81,6 +92,13 @@ export default function ResourceProgress({ resourceId, topicId }: ResourceProgre
         setSnackbar({
           open: true,
           message: `Progress updated to ${getStatusLabel(newStatus)}`,
+          severity: "success",
+        })
+      } else {
+        // Show success notification even for non-authenticated users
+        setSnackbar({
+          open: true,
+          message: `Progress updated to ${getStatusLabel(newStatus)} (saved locally)`,
           severity: "success",
         })
       }
