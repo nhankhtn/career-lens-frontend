@@ -6,14 +6,16 @@ export type GetCareerRequest = {
   offset?: number;
   limit?: number;
   key?: string;
-  skill?: string | string[];
-  min_salary?: number;
-  max_salary?: number;
+  skills?: string | string[];
+  salary_min?: number;
+  salary_max?: number;
+  experience_min?: number;
+  experience_max?: number;
   major?: string;
 };
 
 export class CareerApi {
-  static async getCareer(
+  static async getCareers(
     request: GetCareerRequest,
   ): Promise<ResponseWithTotal<CareerList[]>> {
     return await apiGet("/careers", removeUndefinedKeys(request));

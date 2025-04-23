@@ -174,7 +174,7 @@ export default function InDemandSkills({ loading, data }: InDemandSkillsProps) {
 
         <Grid container spacing={2}>
           {data.map((skill, index) => (
-            <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
+            <Grid item xs={6} md={3} key={index}>
               <Card
                 sx={{
                   p: 2,
