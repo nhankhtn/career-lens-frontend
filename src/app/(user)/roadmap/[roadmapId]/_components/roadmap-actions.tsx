@@ -2,27 +2,24 @@
 
 import type React from "react"
 
-import {
-  Box, Button, IconButton, Menu, MenuItem, Snackbar, Alert, useMediaQuery,
-  useTheme,
-  ListItemIcon,
-  ListItemText,
-} from "@mui/material"
+import { Box, Button, IconButton, Menu, MenuItem, Snackbar, Alert } from "@mui/material"
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder"
 import BookmarkIcon from "@mui/icons-material/Bookmark"
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday"
 import DownloadIcon from "@mui/icons-material/Download"
 import ShareIcon from "@mui/icons-material/Share"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useParams } from "next/navigation"
-import MoreVertIcon from "@mui/icons-material/MoreVert"
-import CalendarMonthIcon from "@mui/icons-material/CalendarMonth"
+import { useUserContext } from "@/contexts/user/user-context"
+import { UserTopicStatus } from "@/types/user"
 
 export default function RoadmapActions() {
   const params = useParams()
   const roadmapId = params.roadmapId as string
+  const { getTopicProgress, updateTopicProgress, removeTopicProgress, user } = useUserContext()
 
   const [bookmarked, setBookmarked] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
   const [shareAnchorEl, setShareAnchorEl] = useState<null | HTMLElement>(null)
   const [snackbar, setSnackbar] = useState({
     open: false,
@@ -30,37 +27,78 @@ export default function RoadmapActions() {
     severity: "success" as "success" | "error" | "info" | "warning",
   })
 
-  // Handle bookmark toggle
-  const handleBookmarkToggle = () => {
-    setBookmarked(!bookmarked)
+  // Check if the roadmap is bookmarked
+  useEffect(() => {
+    const topicProgress = getTopicProgress(roadmapId)
 
-    // Save bookmark state to localStorage
-    const bookmarks = JSON.parse(localStorage.getItem("roadmap-bookmarks") || "[]")
-
-    if (!bookmarked) {
-      // Add to bookmarks
-      if (!bookmarks.includes(roadmapId)) {
-        bookmarks.push(roadmapId)
-      }
-      setSnackbar({
-        open: true,
-        message: "Roadmap added to bookmarks",
-        severity: "success",
-      })
+    if (topicProgress) {
+      // If we have progress data, it means the roadmap is bookmarked
+      setBookmarked(true)
     } else {
-      // Remove from bookmarks
-      const index = bookmarks.indexOf(roadmapId)
-      if (index > -1) {
-        bookmarks.splice(index, 1)
+      // Fallback to localStorage if API data is not available yet
+      const savedBookmarks = JSON.parse(localStorage.getItem("roadmap-bookmarks") || "[]")
+      setBookmarked(savedBookmarks.includes(roadmapId))
+    }
+  }, [roadmapId, getTopicProgress])
+
+  // Handle bookmark toggle
+  const handleBookmarkToggle = async () => {
+    if (isLoading) return
+
+    setIsLoading(true)
+    try {
+      // Update local state immediately for better UX
+      setBookmarked(!bookmarked)
+
+      // Save bookmark state to localStorage
+      const bookmarks = JSON.parse(localStorage.getItem("roadmap-bookmarks") || "[]")
+
+      if (!bookmarked) {
+        // Add to bookmarks
+        if (!bookmarks.includes(roadmapId)) {
+          bookmarks.push(roadmapId)
+        }
+        setSnackbar({
+          open: true,
+          message: "Roadmap added to bookmarks",
+          severity: "success",
+        })
+
+        // If user is logged in, update on the server
+        if (user) {
+          await updateTopicProgress(roadmapId, UserTopicStatus.NOT_STARTED)
+        }
+      } else {
+        // Remove from bookmarks
+        const index = bookmarks.indexOf(roadmapId)
+        if (index > -1) {
+          bookmarks.splice(index, 1)
+        }
+        setSnackbar({
+          open: true,
+          message: "Roadmap removed from bookmarks",
+          severity: "info",
+        })
+
+        // If user is logged in, update on the server
+        if (user) {
+          await removeTopicProgress(roadmapId)
+        }
       }
+
+      localStorage.setItem("roadmap-bookmarks", JSON.stringify(bookmarks))
+    } catch (error) {
+      console.error("Error toggling bookmark:", error)
+      // Revert to previous state on error
+      setBookmarked(!bookmarked)
       setSnackbar({
         open: true,
-        message: "Roadmap removed from bookmarks",
-        severity: "info",
+        message: "Error updating bookmark status",
+        severity: "error",
       })
+    } finally {
+      setIsLoading(false)
     }
-
-    localStorage.setItem("roadmap-bookmarks", JSON.stringify(bookmarks))
   }
 
   // Handle schedule learning time
@@ -141,128 +179,76 @@ export default function RoadmapActions() {
     })
   }
 
-  const theme = useTheme()
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
-
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
-  const open = Boolean(anchorEl)
-
-  const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget)
-  }
-
-  const handleClose = () => {
-    setAnchorEl(null)
-  }
-
   return (
     <>
-      {isMobile ? (
-        <>
-          <IconButton onClick={handleOpen}>
-            <MoreVertIcon />
-          </IconButton>
-          <Menu
-            anchorEl={anchorEl}
-            open={open}
-            onClose={handleClose}
-            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-            transformOrigin={{ vertical: "top", horizontal: "right" }}
-          >
-            <MenuItem onClick={handleClose}>
-              <ListItemIcon>
-                <BookmarkBorderIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText primary="Lưu lộ trình" />
-            </MenuItem>
-            <MenuItem onClick={handleClose}>
-              <ListItemIcon>
-                <CalendarMonthIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText primary="Lên lịch học" />
-            </MenuItem>
-            <MenuItem onClick={handleClose}>
-              <ListItemIcon>
-                <DownloadIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText primary="Tải xuống" />
-            </MenuItem>
-            <MenuItem onClick={handleClose}>
-              <ListItemIcon>
-                <ShareIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText primary="Chia sẻ" />
-            </MenuItem>
-          </Menu>
-        </>
-      ) : (
-        <Box sx={{ display: "flex", gap: 1 }}>
-          <IconButton
-            sx={{ color: bookmarked ? "primary.main" : "text.secondary" }}
-            onClick={handleBookmarkToggle}
-            aria-label={bookmarked ? "Remove bookmark" : "Add bookmark"}
-          >
-            {bookmarked ? <BookmarkIcon /> : <BookmarkBorderIcon />}
-          </IconButton>
+      <Box sx={{ display: "flex", gap: 1 }}>
+        <IconButton
+          sx={{ color: bookmarked ? "primary.main" : "text.secondary" }}
+          onClick={handleBookmarkToggle}
+          aria-label={bookmarked ? "Remove bookmark" : "Add bookmark"}
+          disabled={isLoading}
+        >
+          {bookmarked ? <BookmarkIcon /> : <BookmarkBorderIcon />}
+        </IconButton>
 
-          <Button
-            startIcon={<CalendarTodayIcon />}
-            variant="outlined"
-            onClick={handleScheduleLearning}
-            sx={{
-              color: "text.secondary",
-              borderColor: "divider",
-              "&:hover": {
-                borderColor: "text.secondary",
-                bgcolor: "action.hover",
-              },
-            }}
-          >
-            Lên lịch học
-          </Button>
+        <Button
+          startIcon={<CalendarTodayIcon />}
+          variant="outlined"
+          onClick={handleScheduleLearning}
+          sx={{
+            color: "text.secondary",
+            borderColor: "divider",
+            "&:hover": {
+              borderColor: "text.secondary",
+              bgcolor: "action.hover",
+            },
+          }}
+        >
+          Schedule Learning Time
+        </Button>
 
-          <Button
-            startIcon={<DownloadIcon />}
-            variant="contained"
-            onClick={handleDownload}
-            sx={{
-              bgcolor: "warning.main",
-              color: "text.primary",
-              "&:hover": {
-                bgcolor: "warning.dark",
-              },
-            }}
-          >
-            Tải xuống
-          </Button>
+        <Button
+          startIcon={<DownloadIcon />}
+          variant="contained"
+          onClick={handleDownload}
+          sx={{
+            bgcolor: "warning.main",
+            color: "text.primary",
+            "&:hover": {
+              bgcolor: "warning.dark",
+            },
+          }}
+        >
+          Download
+        </Button>
 
-          <Button
-            startIcon={<ShareIcon />}
-            variant="outlined"
-            onClick={handleShareClick}
-            sx={{
-              color: "text.secondary",
-              borderColor: "divider",
-              "&:hover": {
-                borderColor: "text.secondary",
-                bgcolor: "action.hover",
-              },
-            }}
-          >
-            Chia sẻ
-          </Button>
+        <Button
+          startIcon={<ShareIcon />}
+          variant="outlined"
+          onClick={handleShareClick}
+          sx={{
+            color: "text.secondary",
+            borderColor: "divider",
+            "&:hover": {
+              borderColor: "text.secondary",
+              bgcolor: "action.hover",
+            },
+          }}
+        >
+          Share
+        </Button>
 
-          <Menu anchorEl={shareAnchorEl} open={Boolean(shareAnchorEl)} onClose={handleShareClose}>
-            <MenuItem onClick={() => handleShare("twitter")}>Twitter</MenuItem>
-            <MenuItem onClick={() => handleShare("facebook")}>Facebook</MenuItem>
-            <MenuItem onClick={() => handleShare("linkedin")}>LinkedIn</MenuItem>
-            <MenuItem onClick={() => handleShare("copy")}>Copy Link</MenuItem>
-          </Menu>
-        </Box>
-      )}
+        <Menu anchorEl={shareAnchorEl} open={Boolean(shareAnchorEl)} onClose={handleShareClose}>
+          <MenuItem onClick={() => handleShare("twitter")}>Twitter</MenuItem>
+          <MenuItem onClick={() => handleShare("facebook")}>Facebook</MenuItem>
+          <MenuItem onClick={() => handleShare("linkedin")}>LinkedIn</MenuItem>
+          <MenuItem onClick={() => handleShare("copy")}>Copy Link</MenuItem>
+        </Menu>
+      </Box>
+
       <Snackbar
         open={snackbar.open}
-        autoHideDuration={6000}
+        autoHideDuration={4000}
         onClose={handleSnackbarClose}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
