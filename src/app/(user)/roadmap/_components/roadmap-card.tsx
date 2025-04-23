@@ -186,7 +186,7 @@ export default function RoadmapCard({ id, title, description }: RoadmapCardProps
                 fontWeight: 500,
               }}
             >
-              View Roadmap →
+              Xem lộ trình →
             </Link>
           </Box>
         </CardContent>

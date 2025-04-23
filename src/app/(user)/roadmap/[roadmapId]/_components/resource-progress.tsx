@@ -91,19 +91,19 @@ export default function ResourceProgress({ resourceId, topicId }: ResourceProgre
         // Show success notification
         setSnackbar({
           open: true,
-          message: `Progress updated to ${getStatusLabel(newStatus)}`,
+          message: `Tiến độ được cập nhật thành ${getStatusLabel(newStatus)}`,
           severity: "success",
         })
       } else {
         // Show success notification even for non-authenticated users
         setSnackbar({
           open: true,
-          message: `Progress updated to ${getStatusLabel(newStatus)} (saved locally)`,
+          message: `Tiến độ được cập nhật thành ${getStatusLabel(newStatus)} (saved locally)`,
           severity: "success",
         })
       }
     } catch (error) {
-      console.error("Error updating progress:", error)
+      console.error("Lỗi cập nhật tiến độ:", error)
       // Revert to previous state on error
       const topicProgress = getTopicProgress(topicId)
       if (topicProgress) {
@@ -113,7 +113,7 @@ export default function ResourceProgress({ resourceId, topicId }: ResourceProgre
       // Show error notification
       setSnackbar({
         open: true,
-        message: "Failed to update progress",
+        message: "Cập nhật tiến độ không thành công",
         severity: "error",
       })
     } finally {

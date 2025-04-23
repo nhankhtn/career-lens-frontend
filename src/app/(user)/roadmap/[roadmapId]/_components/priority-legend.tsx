@@ -35,7 +35,7 @@ export default function PriorityLegend() {
           >
             <CheckCircleIcon fontSize="small" />
           </Box>
-          <Typography variant="body2">Personal Recommendation / Opinion</Typography>
+          <Typography variant="body2"> Gợi ý cá nhân / Ý kiến cá nhân</Typography>
         </Box>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
@@ -53,7 +53,7 @@ export default function PriorityLegend() {
           >
             <CheckCircleIcon fontSize="small" />
           </Box>
-          <Typography variant="body2">Alternative Option / Pick this or purple</Typography>
+          <Typography variant="body2"> Lựa chọn thay thế / Chọn cái này hoặc màu xanh</Typography>
         </Box>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
@@ -71,7 +71,7 @@ export default function PriorityLegend() {
           >
             <CheckCircleIcon fontSize="small" />
           </Box>
-          <Typography variant="body2">Order not strict / Learn anytime</Typography>
+          <Typography variant="body2">Thứ tự không bắt buộc / Học lúc nào cũng được</Typography>
         </Box>
       </Box>
     </Paper>

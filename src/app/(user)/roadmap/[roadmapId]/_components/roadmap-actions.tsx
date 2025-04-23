@@ -66,7 +66,7 @@ export default function RoadmapActions() {
         }
         setSnackbar({
           open: true,
-          message: "Roadmap added to bookmarks",
+          message: "Lộ trình đã được lưu",
           severity: "success",
         })
 
@@ -82,7 +82,7 @@ export default function RoadmapActions() {
         }
         setSnackbar({
           open: true,
-          message: "Roadmap removed from bookmarks",
+          message: "Lộ trình đã bị gỡ",
           severity: "info",
         })
 
@@ -99,7 +99,7 @@ export default function RoadmapActions() {
       setBookmarked(!bookmarked)
       setSnackbar({
         open: true,
-        message: "Error updating bookmark status",
+        message: "Lỗi cập nhật tình trạng roadmap",
         severity: "error",
       })
     } finally {
@@ -112,8 +112,8 @@ export default function RoadmapActions() {
     // Open calendar or scheduling interface
     setSnackbar({
       open: true,
-      message: "Learning time scheduled",
-      severity: "success",
+      message: "Chức năng đang được phát triển",
+      severity: "info",
     })
   }
 
@@ -122,18 +122,18 @@ export default function RoadmapActions() {
     // Download roadmap as PDF or other format
     setSnackbar({
       open: true,
-      message: "Downloading roadmap...",
+      message: "Chức năng đang được phát triển",
       severity: "info",
     })
 
     // Simulate download delay
-    setTimeout(() => {
-      setSnackbar({
-        open: true,
-        message: "Roadmap downloaded successfully",
-        severity: "success",
-      })
-    }, 2000)
+    // setTimeout(() => {
+    //   setSnackbar({
+    //     open: true,
+    //     message: "Roadmap downloaded successfully",
+    //     severity: "success",
+    //   })
+    // }, 2000)
   }
 
   // Handle share menu
@@ -163,7 +163,7 @@ export default function RoadmapActions() {
         navigator.clipboard.writeText(url)
         setSnackbar({
           open: true,
-          message: "Link copied to clipboard",
+          message: "Sao chép đường dẫn thành công",
           severity: "success",
         })
         handleShareClose()
@@ -210,7 +210,7 @@ export default function RoadmapActions() {
             },
           }}
         >
-          Schedule Learning Time
+          Lên lịch học
         </Button>
 
         <Button
@@ -225,7 +225,7 @@ export default function RoadmapActions() {
             },
           }}
         >
-          Download
+          Tải xuống
         </Button>
 
         <Button
@@ -241,14 +241,14 @@ export default function RoadmapActions() {
             },
           }}
         >
-          Share
+          Chia sẻ
         </Button>
 
         <Menu anchorEl={shareAnchorEl} open={Boolean(shareAnchorEl)} onClose={handleShareClose}>
           <MenuItem onClick={() => handleShare("twitter")}>Twitter</MenuItem>
           <MenuItem onClick={() => handleShare("facebook")}>Facebook</MenuItem>
           <MenuItem onClick={() => handleShare("linkedin")}>LinkedIn</MenuItem>
-          <MenuItem onClick={() => handleShare("copy")}>Copy Link</MenuItem>
+          <MenuItem onClick={() => handleShare("copy")}>Sao chép liên kết</MenuItem>
         </Menu>
       </Box>
 

@@ -114,18 +114,18 @@ export default function TopicNode({ topic, level, expanded, onToggle, fetchChild
       case 1:
         priorityColor = priority.high.main
         priorityBgColor = priority.high.light
-        priorityText = "Personal Recommendation / Opinion"
+        priorityText = " Gợi ý cá nhân / Ý kiến cá nhân"
         break
       case 2:
         priorityColor = priority.medium.main
         priorityBgColor = priority.medium.light
-        priorityText = "Alternative Option / Pick this or purple"
+        priorityText = " Lựa chọn thay thế / Chọn cái này hoặc màu xanh"
         break
       case 3:
       default:
         priorityColor = priority.low.main
         priorityBgColor = priority.low.light
-        priorityText = "Order not strict / Learn anytime"
+        priorityText = "Thứ tự không bắt buộc / Học lúc nào cũng được"
         break
     }
 
