@@ -6,6 +6,7 @@ import {
   Paper,
   Stack,
   Theme,
+  Tooltip,
   Typography,
   useMediaQuery,
 } from "@mui/material";
@@ -16,9 +17,12 @@ import { CareerList } from "@/types/career";
 import { useRouter } from "next/navigation";
 import RowStack from "@/components/row-stack";
 import DevelopmentTooltip from "@/components/development-tooltip";
+import { useAuth } from "@/contexts/auth/firebase-context";
+import CustomTooltip from "@/components/custom-tooltip";
 
 const CareerItem = ({ career }: { career: CareerList }) => {
   const router = useRouter();
+  const { user } = useAuth();
   const isMobile = useMediaQuery((theme: Theme) =>
     theme.breakpoints.down("md"),
   );
@@ -46,7 +50,18 @@ const CareerItem = ({ career }: { career: CareerList }) => {
         <Stack flex={1}>
           <RowStack justifyContent={"space-between"}>
             <Typography fontWeight="bold">{career.name}</Typography>
-            <Chip label={`Mức độ phù hợp: ${career.skill_match_percentage}%`} />
+            {user?.email ? (
+              <Chip
+                label={`Mức độ phù hợp: ${career.skill_match_percentage}%`}
+              />
+            ) : (
+              <Tooltip
+                title="Hãy đăng nhập để xem mức độ phù hợp với công việc này"
+                placement="top"
+              >
+                <Chip label={`Mức độ phù hợp: --`} />
+              </Tooltip>
+            )}
           </RowStack>
           <Typography
             variant="body2"
@@ -72,15 +87,23 @@ const CareerItem = ({ career }: { career: CareerList }) => {
             )}
             {career.skills.slice(0, maxVisibleSkills).map(({ name, id }) => (
               <Chip key={id} label={name} size="small" />
-            ))}{" "}
+            ))}
             {career.skills.length > maxVisibleSkills && (
-              <Chip
-                label={`+${career.skills.length - maxVisibleSkills}`}
-                size="small"
-                color="primary"
-                variant="outlined"
-                sx={{ flexShrink: 0 }}
-              />
+              <Tooltip
+                title={career.skills
+                  .slice(maxVisibleSkills)
+                  .map((s) => s.name)
+                  .join(", ")}
+                placement="top"
+              >
+                <Chip
+                  label={`+${career.skills.length - maxVisibleSkills}`}
+                  size="small"
+                  color="primary"
+                  variant="outlined"
+                  sx={{ flexShrink: 0 }}
+                />
+              </Tooltip>
             )}
           </Stack>
           {career.topic_count ? (
@@ -104,20 +127,28 @@ const CareerItem = ({ career }: { career: CareerList }) => {
               Thêm vào ưu thích
             </Button>
           </DevelopmentTooltip> */}
-          <Button
-            variant="contained"
-            endIcon={<ArrowForwardIcon />}
-            onClick={() =>
-              router.push(paths.career.detail.replace(":careerId", career.id))
-            }
-            sx={{
-              backgroundColor: "#6366F1",
-              fontWeight: "bold",
-              "&:hover": { backgroundColor: "#4F46E5" },
-            }}
+          <CustomTooltip
+            title="Hãy đăng nhập để xem chi tiết nghề nghiệp và lộ trình học tập phù hợp"
+            placement="top"
           >
-            Xem chi tiết hơn
-          </Button>
+            <Button
+              variant="contained"
+              endIcon={<ArrowForwardIcon />}
+              onClick={() => {
+                if (user?.email)
+                  router.push(
+                    paths.career.detail.replace(":careerId", career.id),
+                  );
+              }}
+              sx={{
+                backgroundColor: "#6366F1",
+                fontWeight: "bold",
+                "&:hover": { backgroundColor: "#4F46E5" },
+              }}
+            >
+              Xem chi tiết hơn
+            </Button>
+          </CustomTooltip>
         </RowStack>
       </Stack>
     </Paper>

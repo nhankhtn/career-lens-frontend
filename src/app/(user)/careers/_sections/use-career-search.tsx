@@ -15,6 +15,7 @@ const useCareerSearch = () => {
     salary: [undefined, undefined],
     major: "",
     experience: [undefined, undefined],
+    key: "",
   });
   const skills = useMemo(() => getSkillsApi.data || [], [getSkillsApi.data]);
 
@@ -23,7 +24,7 @@ const useCareerSearch = () => {
       getFilterConfig({
         options: {
           skills: skills.map((skill) => ({
-            value: skill.name,
+            value: skill.id,
             label: skill.name,
           })),
           experience: [
@@ -56,6 +57,7 @@ const useCareerSearch = () => {
   );
 
   const handleSubmitFilter = useCallback((filter: any) => {
+    console.log("filter", filter);
     setFilter(filter);
   }, []);
 

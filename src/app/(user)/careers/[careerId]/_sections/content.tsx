@@ -11,12 +11,14 @@ import {
 } from "@mui/material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
-import { useRouter } from "next/navigation";
-import { paths } from "@/paths"; // Đảm bảo file paths.ts có key learningPath.detail
+import { redirect, useRouter } from "next/navigation";
+import { paths } from "@/paths";
 import useCareerDetailSearch from "./use-career-detail-search";
 import CareerDetailInfo from "./career-detail-info";
 import LoadingState from "@/components/loading-state";
 import CustomBreadcrumbs from "@/components/custom-breadcrumbs";
+import EmptyState from "@/components/empty-state";
+import NotFound from "@/app/not-found";
 
 const CareerDetailContent = () => {
   const router = useRouter();
@@ -28,9 +30,7 @@ const CareerDetailContent = () => {
     return <LoadingState />;
   }
   if (!career) {
-    return (
-      <Typography color="text.secondary">Không tìm thấy thông tin</Typography>
-    );
+    return <NotFound />;
   }
 
   return (

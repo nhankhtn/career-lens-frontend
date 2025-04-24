@@ -19,6 +19,7 @@ import CustomFilter from "@/components/custom-filter";
 import CareerItem from "../_components/career-item";
 import CustomPagination from "@/components/custom-pagination";
 import DevelopmentTooltip from "@/components/development-tooltip";
+import CustomSearchInput from "@/components/custom-search-input";
 
 const CareerContent = () => {
   const {
@@ -29,29 +30,57 @@ const CareerContent = () => {
     handleSubmitFilter,
     careers,
   } = useCareerSearch();
+
   const handleAnalyze = useCallback(() => {
     getCareersApi.call({
       salary_min: filter.salary[0],
       salary_max: filter.salary[1],
       experience_min: filter.experience[0],
       experience_max: filter.experience[1],
-      skills: filter.skills,
+      skills: filter.skills.length > 0 ? filter.skills : undefined,
       major: filter.major,
       offset: pagination.page * pagination.rowsPerPage,
       limit: pagination.rowsPerPage,
+      key: filter.key,
     });
   }, [filter, getCareersApi]);
+
+  const handleClickSearch = useCallback((value: string) => {
+    handleSubmitFilter({
+      ...filter,
+      key: value,
+    });
+    getCareersApi.call({
+      salary_min: filter.salary[0],
+      salary_max: filter.salary[1],
+      experience_min: filter.experience[0],
+      experience_max: filter.experience[1],
+      skills: filter.skills.length > 0 ? filter.skills : undefined,
+      major: filter.major,
+      offset: pagination.page * pagination.rowsPerPage,
+      limit: pagination.rowsPerPage,
+      key: value,
+    });
+  }, []);
+
   return (
     <Stack spacing={6} py={4}>
-      <Typography
-        variant={"h5"}
-        component="h1"
-        fontWeight="bold"
-        sx={{ fontSize: { xs: "1.5rem", sm: "2rem", md: "2.25rem" } }}
-      >
-        Phân tích nghề
-      </Typography>
+      <Grid2 container>
+        <Grid2 size={6}>
+          <Typography
+            variant={"h5"}
+            component="h1"
+            fontWeight="bold"
+            sx={{ fontSize: { xs: "1.5rem", sm: "2rem", md: "2.25rem" } }}
+          >
+            Phân tích nghề
+          </Typography>
+        </Grid2>
 
+        <Grid2 size={6}>
+          <CustomSearchInput onSearch={handleClickSearch} />
+        </Grid2>
+      </Grid2>
       <Paper
         sx={{
           borderRadius: 3,
