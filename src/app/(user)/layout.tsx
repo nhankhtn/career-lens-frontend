@@ -9,6 +9,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useDialog } from "@/hooks/use-dialog";
 import RequiredOnboardingDialog from "./_components/required-onboarding-dialog";
+import { UserProvider } from "@/contexts/user/user-context";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const theme = useTheme();
@@ -22,7 +23,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     }
   }, [user]);
   return (
-    <>
+    <UserProvider>
       <Stack>
         <TopNav />
 
@@ -57,7 +58,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         open={dialogRequireOnboarding.open}
         onClose={dialogRequireOnboarding.handleClose}
       />
-    </>
+    </UserProvider>
   );
 };
 
