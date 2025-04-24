@@ -1,8 +1,7 @@
-// profile/[username]/_sections/content.tsx
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Avatar,
   Box,
@@ -14,86 +13,127 @@ import {
   Tab,
   Tabs,
   Typography,
-  Badge,
   Stack,
 } from "@mui/material";
 import {
-  Edit,
   Email,
   LocationOn,
   Message,
-  Share,
   Phone,
-  Visibility,
-  Star,
-  Search,
+  Share,
+  Edit,
+  Delete,
+  Verified,
+  School,
+  FormatQuote,
+  Description,
 } from "@mui/icons-material";
 import FacebookIcon from "@mui/icons-material/Facebook";
+import InstagramIcon from "@mui/icons-material/Instagram";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
+import LanguageIcon from "@mui/icons-material/Language"; // For social_media.other
 import RowStack from "@/components/row-stack";
 import Grid from "@mui/material/Grid";
-import { BarChart } from "@mui/x-charts/BarChart";
-import VerifiedIcon from "@mui/icons-material/Verified";
-import WorkspacePremiumIcon from "@mui/icons-material/WorkspacePremium";
 
-// Import hooks
+// Import hooks and forms
 import { useDialog } from "@/hooks/use-dialog";
-
-// Import form components
-import EditIntroductionForm from "@/app/(user)/profile/[username]/_sections/edit-introduction-form";
 import EditCoursesForm from "@/app/(user)/profile/[username]/_sections/edit-courses-form";
 import EditSkillsForm from "@/app/(user)/profile/[username]/_sections/edit-skills-form";
-import EditCertificationsForm from "@/app/(user)/profile/[username]/_sections/edit-certifications-form";
+import EditProfileForm from "@/app/(user)/profile/[username]/_sections/edit-profile-form";
+
+// Import API and types
+import UsersApi from "@/api/users";
+import type { User, UserTopicProgress } from "@/types/user";
+
+const isValidObjectId = (id: string): boolean => {
+  return /^[0-9a-fA-F]{24}$/.test(id);
+};
 
 const ProfileContent = () => {
+  const [user, setUser] = useState<User | null>(null);
+  const [courses, setCourses] = useState<UserTopicProgress[]>([]);
   const [tabValue, setTabValue] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
 
-  // Sử dụng useDialog cho từng form
-  const introductionDialog = useDialog();
+  // Dialog hooks for skills and courses
   const coursesDialog = useDialog();
   const skillsDialog = useDialog();
-  const certificationsDialog = useDialog();
 
-  // Dữ liệu ban đầu
-  const [introduction, setIntroduction] = useState(
-    "Tôi đang là sinh viên năm 3 tại trường đại học Công Nghệ Thông Tin ĐHQG TPHCM..."
-  );
-  const [courses, setCourses] = useState([
-    { title: "UX UI Designer", description: "Lộ trình đã trở thành một ux ui designer chuyên nghiệp..." },
-    { title: "Backend Developer", description: "Lộ trình đã trở thành một backend developer chuyên nghiệp..." },
-    { title: "Data Analyst", description: "Lộ trình đã trở thành một data analyst chuyên nghiệp..." },
-  ]);
-  const [skills, setSkills] = useState([
-    { skill: "MySQL", duration: "4 thang" },
-    { skill: "Python", duration: "3 thang" },
-    { skill: "C++", duration: "4 thang" },
-    { skill: "User Interface Design", duration: "1 thang" },
-  ]);
-  const [certifications, setCertifications] = useState([
-    { cert: "IELTS 9.0", color: "yellow" },
-    { cert: "JLPT N1", color: "red" },
-  ]);
+  // Fetch user data and topics on mount
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [userData, topics] = await Promise.all([
+          UsersApi.me(),
+          UsersApi.getUserTopics(),
+        ]);
+        setUser(userData);
+        setCourses(topics.filter((topic) => isValidObjectId(topic.topic_id)));
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
+  // Handle tab change for skills section
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
 
-  // Hàm xử lý submit từ các form
-  const handleIntroductionSubmit = (newIntroduction: string) => {
-    setIntroduction(newIntroduction);
+  // Handle courses submit
+  const handleCoursesSubmit = (newCourses: UserTopicProgress[]) => {
+    setCourses(newCourses.filter((course) => isValidObjectId(course.topic_id)));
   };
 
-  const handleCoursesSubmit = (newCourses: { title: string; description: string }[]) => {
-    setCourses(newCourses);
+  // Handle skills submit
+  const handleSkillsSubmit = async (newSkills: string[]) => {
+    try {
+      const updatedUser = await UsersApi.addOrUpdateSkills({ skills: newSkills });
+      setUser((prev) => (prev ? { ...prev, skills: updatedUser.skills || [] } : prev));
+    } catch (error) {
+      console.error("Error updating skills:", error);
+    }
   };
 
-  const handleSkillsSubmit = (newSkills: { skill: string; duration: string }[]) => {
-    setSkills(newSkills);
+  // Handle profile submit
+  const handleProfileSubmit = async (updatedProfile: Partial<User>) => {
+    try {
+      const updatedUser = await UsersApi.updateProfile(updatedProfile);
+      setUser((prev) => (prev ? { ...prev, ...updatedUser } : prev));
+      setIsEditingProfile(false);
+    } catch (error) {
+      console.error("Error updating profile:", error);
+    }
   };
 
-  const handleCertificationsSubmit = (newCertifications: { cert: string; color: string }[]) => {
-    setCertifications(newCertifications);
+  // Handle delete topic progress
+  const handleDeleteTopicProgress = async (topicId: string) => {
+    if (!isValidObjectId(topicId)) {
+      console.error("Invalid topicId:", topicId);
+      return;
+    }
+    const confirmDelete = window.confirm("Bạn có chắc muốn xóa lộ trình này?");
+    if (!confirmDelete) return;
+    try {
+      await UsersApi.deleteTopicProgress(topicId);
+      setCourses(courses.filter((course) => course.topic_id !== topicId));
+    } catch (error) {
+      console.error("Error deleting topic progress:", error);
+    }
   };
+
+  if (loading) {
+    return <Typography>Loading...</Typography>;
+  }
+
+  if (!user) {
+    return <Typography>Error loading user data</Typography>;
+  }
 
   return (
     <Stack sx={{ minHeight: "100vh", bgcolor: "background.default" }}>
@@ -107,20 +147,15 @@ const ProfileContent = () => {
                   <Stack alignItems="center" spacing={2}>
                     <Avatar
                       sx={{ width: 120, height: 120, border: 4, borderColor: "white" }}
+                      src={user.photo_url || "/default-avatar.png"}
+                      alt={user.name || "Unknown User"}
                     >
-                      <Image
-                        src="/placeholder.svg?height=120&width=120"
-                        alt="Profile picture"
-                        width={120}
-                        height={120}
-                        style={{ borderRadius: "50%", objectFit: "cover" }}
-                      />
                     </Avatar>
                     <Typography variant="h6" fontWeight="bold">
-                      Nhân Duy
+                      {user.name || "Unknown User"}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      Sinh viên năm 3
+                      Năm học: {user.year || "Chưa cập nhật"}
                     </Typography>
                     <RowStack spacing={1}>
                       <IconButton color="primary">
@@ -145,144 +180,139 @@ const ProfileContent = () => {
                   <Stack spacing={2}>
                     <RowStack spacing={2}>
                       <Box sx={{ p: 1, bgcolor: "primary.light", borderRadius: "50%" }}>
-                        <Phone sx={{ fontSize: 18, color: "primary.main" }} />
-                      </Box>
-                      <Typography variant="body2">(123) 456-7890</Typography>
-                    </RowStack>
-                    <RowStack spacing={2}>
-                      <Box sx={{ p: 1, bgcolor: "primary.light", borderRadius: "50%" }}>
                         <Email sx={{ fontSize: 18, color: "primary.main" }} />
                       </Box>
-                      <Typography variant="body2">nhanduy@gm.com</Typography>
+                      <Typography variant="body2">{user.email}</Typography>
                     </RowStack>
+                    {user.phone && (
+                      <RowStack spacing={2}>
+                        <Box sx={{ p: 1, bgcolor: "primary.light", borderRadius: "50%" }}>
+                          <Phone sx={{ fontSize: 18, color: "primary.main" }} />
+                        </Box>
+                        <Typography variant="body2">{user.phone}</Typography>
+                      </RowStack>
+                    )}
                     <RowStack spacing={2}>
                       <Box sx={{ p: 1, bgcolor: "primary.light", borderRadius: "50%" }}>
                         <LocationOn sx={{ fontSize: 18, color: "primary.main" }} />
                       </Box>
-                      <Stack>
-                        <Typography variant="body2">99 Washington Ave.</Typography>
-                        <Typography variant="body2">Manchester, Kentucky 99</Typography>
-                      </Stack>
+                      <Typography variant="body2">
+                        {user.address || "Chưa cập nhật địa chỉ"}
+                      </Typography>
                     </RowStack>
+                    <RowStack spacing={2}>
+                      <Box sx={{ p: 1, bgcolor: "primary.light", borderRadius: "50%" }}>
+                        <School sx={{ fontSize: 18, color: "primary.main" }} />
+                      </Box>
+                      <Typography variant="body2">
+                        {user.school || "Chưa cập nhật trường học"}
+                      </Typography>
+                    </RowStack>
+                    {user.bio && (
+                      <RowStack spacing={2}>
+                        <Box sx={{ p: 1, bgcolor: "primary.light", borderRadius: "50%" }}>
+                          <Description sx={{ fontSize: 18, color: "primary.main" }} />
+                        </Box>
+                        <Typography variant="body2">{user.bio}</Typography>
+                      </RowStack>
+                    )}
+                    {user.quote && (
+                      <RowStack spacing={2}>
+                        <Box sx={{ p: 1, bgcolor: "primary.light", borderRadius: "50%" }}>
+                          <FormatQuote sx={{ fontSize: 18, color: "primary.main" }} />
+                        </Box>
+                        <Typography variant="body2">{user.quote}</Typography>
+                      </RowStack>
+                    )}
                   </Stack>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardContent>
-                  <Typography variant="subtitle1" fontWeight="medium" mb={2}>
-                    Tài khoản mạng xã hội
-                  </Typography>
-                  <Stack spacing={2}>
-                    <RowStack justifyContent="space-between">
-                      <RowStack spacing={2}>
-                        <FacebookIcon sx={{ color: "primary.main", fontSize: 20 }} />
-                        <Typography>Ngô Nguyễn Duy Nhân</Typography>
-                      </RowStack>
-                      <Typography color="text.secondary">›</Typography>
-                    </RowStack>
-                    <RowStack justifyContent="space-between">
-                      <RowStack spacing={2}>
-                        <LinkedInIcon sx={{ color: "primary.main", fontSize: 20 }} />
-                        <Typography>awish</Typography>
-                      </RowStack>
-                      <Typography color="text.secondary">›</Typography>
-                    </RowStack>
-                  </Stack>
-                </CardContent>
-              </Card>
+              {(user.social_media?.facebook ||
+                user.social_media?.instagram ||
+                user.social_media?.other) && (
+                  <Card>
+                    <CardContent>
+                      <Typography variant="subtitle1" fontWeight="medium" mb={2}>
+                        Tài khoản mạng xã hội
+                      </Typography>
+                      <Stack spacing={2}>
+                        {user.social_media?.facebook && (
+                          <RowStack justifyContent="space-between">
+                            <RowStack spacing={2}>
+                              <FacebookIcon sx={{ color: "primary.main", fontSize: 20 }} />
+                              <Typography>{user.social_media.facebook}</Typography>
+                            </RowStack>
+                            <Typography color="text.secondary">›</Typography>
+                          </RowStack>
+                        )}
+                        {user.social_media?.instagram && (
+                          <RowStack justifyContent="space-between">
+                            <RowStack spacing={2}>
+                              <InstagramIcon sx={{ color: "primary.main", fontSize: 20 }} />
+                              <Typography>{user.social_media.instagram}</Typography>
+                            </RowStack>
+                            <Typography color="text.secondary">›</Typography>
+                          </RowStack>
+                        )}
+                        {user.social_media?.other && (
+                          <RowStack justifyContent="space-between">
+                            <RowStack spacing={2}>
+                              <LanguageIcon sx={{ color: "primary.main", fontSize: 20 }} />
+                              <Typography>{user.social_media.other}</Typography>
+                            </RowStack>
+                            <Typography color="text.secondary">›</Typography>
+                          </RowStack>
+                        )}
+                      </Stack>
+                    </CardContent>
+                  </Card>
+                )}
 
               <Button
                 variant="contained"
                 startIcon={<Edit sx={{ fontSize: 16 }} />}
                 fullWidth
+                onClick={() => setIsEditingProfile(!isEditingProfile)}
               >
-                Edit profile
+                {isEditingProfile ? "Ẩn chỉnh sửa" : "Edit profile"}
               </Button>
+
+              {isEditingProfile && (
+                <EditProfileForm
+                  onClose={() => setIsEditingProfile(false)}
+                  initialProfile={{
+                    name: user.name,
+                    email: user.email,
+                    phone: user.phone,
+                    photo_url: user.photo_url,
+                    address: user.address,
+                    year: user.year,
+                    school: user.school,
+                    bio: user.bio,
+                    quote: user.quote,
+                    social_media: user.social_media,
+                  }}
+                  onSubmit={handleProfileSubmit}
+                />
+              )}
             </Stack>
           </Grid>
 
-          {/* Right content - Analytics and details */}
+          {/* Right content - Courses and Skills */}
           <Grid item xs={12} md={8}>
             <Stack spacing={4}>
-              {/* Analytics section */}
-              <Card>
-                <CardContent>
-                  <RowStack justifyContent="space-between" mb={2}>
-                    <Typography variant="h6" fontWeight="bold">
-                      Phân tích tuần qua
-                    </Typography>
-                  </RowStack>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} sm={3}>
-                      <Typography color="text.secondary">
-                        Lượt xem profile
-                      </Typography>
-                      <RowStack sx={{ height: 80 }} spacing={0.5}>
-                        <BarChart
-                          series={[{ data: [60, 40, 50, 30, 70] }]}
-                          height={80}
-                          xAxis={[{ data: ["w1", "w2", "w3", "w4", "w5"], scaleType: "band" }]}
-                          margin={{ top: 10, bottom: 20, left: 0, right: 0 }}
-                        />
-                      </RowStack>
-                    </Grid>
-                    <Grid item xs={12} sm={9}>
-                      <RowStack spacing={2} justifyContent="space-around">
-                        <Stack alignItems="center" spacing={1}>
-                          <Visibility sx={{ fontSize: 24, color: "primary.main" }} />
-                          <Typography fontWeight="bold">200 người xem</Typography>
-                        </Stack>
-                        <Stack alignItems="center" spacing={1}>
-                          <Star sx={{ fontSize: 24, color: "primary.main" }} />
-                          <Typography fontWeight="bold">100 sao</Typography>
-                        </Stack>
-                        <Stack alignItems="center" spacing={1}>
-                          <Search sx={{ fontSize: 24, color: "primary.main" }} />
-                          <Typography fontWeight="bold">70 tìm kiếm</Typography>
-                        </Stack>
-                      </RowStack>
-                    </Grid>
-                  </Grid>
-                </CardContent>
-              </Card>
-
-              {/* Introduction section */}
-              <Card>
-                <CardContent>
-                  <RowStack justifyContent="space-between" mb={2}>
-                    <Typography variant="h6" fontWeight="bold">
-                      Giới thiệu
-                    </Typography>
-                    <IconButton onClick={() => introductionDialog.handleOpen()}>
-                      <Edit sx={{ fontSize: 16 }} />
-                    </IconButton>
-                  </RowStack>
-                  {introductionDialog.open ? (
-                    <EditIntroductionForm
-                      onClose={introductionDialog.handleClose}
-                      initialValue={introduction}
-                      onSubmit={handleIntroductionSubmit}
-                    />
-                  ) : (
-                    <Typography variant="body2" color="text.secondary">
-                      {introduction}
-                    </Typography>
-                  )}
-                </CardContent>
-              </Card>
-
               {/* Courses section */}
               <Card>
                 <CardContent>
-                  <RowStack justifyContent="space-between" mb={2}>
+                  <Stack direction="row" justifyContent="space-between" mb={2}>
                     <Typography variant="h6" fontWeight="bold">
                       Các lộ trình đang theo học
                     </Typography>
                     <IconButton onClick={() => coursesDialog.handleOpen()}>
                       <Edit sx={{ fontSize: 16 }} />
                     </IconButton>
-                  </RowStack>
+                  </Stack>
                   {coursesDialog.open ? (
                     <EditCoursesForm
                       onClose={coursesDialog.handleClose}
@@ -291,20 +321,37 @@ const ProfileContent = () => {
                     />
                   ) : (
                     <Stack spacing={3}>
-                      {courses.map((course, index) => (
-                        <RowStack key={index} spacing={2}>
-                          <Box sx={{ width: 48, height: 48, bgcolor: "primary.light", borderRadius: 1 }} />
-                          <Stack>
-                            <Typography fontWeight="bold">{course.title}</Typography>
-                            <Typography variant="body2" color="text.secondary">
-                              {course.description}
-                            </Typography>
-                            <Typography variant="body2" color="primary">
-                              See more
-                            </Typography>
-                          </Stack>
-                        </RowStack>
-                      ))}
+                      {courses.length === 0 ? (
+                        <Typography>Chưa có lộ trình nào</Typography>
+                      ) : (
+                        courses.map((course) => (
+                          <RowStack key={course.topic_id} spacing={2}>
+                            <Box sx={{ width: 48, height: 48, bgcolor: "primary.light", borderRadius: 1 }} />
+                            <Stack flexGrow={1}>
+                              <Typography fontWeight="bold">{course.title || "Unknown Topic"}</Typography>
+                              <Typography variant="body2" color="text.secondary">
+                                Status: {course.status}
+                              </Typography>
+                              {course.notes && (
+                                <Typography variant="body2" color="text.secondary">
+                                  Notes: {course.notes}
+                                </Typography>
+                              )}
+                              {course.rating && (
+                                <Typography variant="body2" color="text.secondary">
+                                  Rating: {course.rating}/5
+                                </Typography>
+                              )}
+                            </Stack>
+                            <IconButton
+                              color="error"
+                              onClick={() => handleDeleteTopicProgress(course.topic_id)}
+                            >
+                              <Delete sx={{ fontSize: 20 }} />
+                            </IconButton>
+                          </RowStack>
+                        ))
+                      )}
                     </Stack>
                   )}
                 </CardContent>
@@ -313,14 +360,14 @@ const ProfileContent = () => {
               {/* Skills section */}
               <Card>
                 <CardContent>
-                  <RowStack justifyContent="space-between" mb={2}>
+                  <Stack direction="row" justifyContent="space-between" mb={2}>
                     <Typography variant="h6" fontWeight="bold">
-                      Skill
+                      Kỹ năng
                     </Typography>
                     <IconButton onClick={() => skillsDialog.handleOpen()}>
                       <Edit sx={{ fontSize: 16 }} />
                     </IconButton>
-                  </RowStack>
+                  </Stack>
                   <Tabs value={tabValue} onChange={handleTabChange}>
                     <Tab label="All" value={0} />
                     <Tab label="Industry knowledge" value={1} />
@@ -329,22 +376,25 @@ const ProfileContent = () => {
                   {skillsDialog.open ? (
                     <EditSkillsForm
                       onClose={skillsDialog.handleClose}
-                      initialSkills={skills}
+                      initialSkills={user.skills || []}
                       onSubmit={handleSkillsSubmit}
                     />
                   ) : (
                     <>
                       {tabValue === 0 && (
                         <Stack spacing={2} mt={2}>
-                          {skills.map((item, index) => (
-                            <RowStack key={index} justifyContent="space-between">
-                              <RowStack spacing={1}>
-                                <VerifiedIcon sx={{ color: "primary.main" }} />
-                                <Typography>{item.skill}</Typography>
+                          {user.skills && user.skills.length > 0 ? (
+                            user.skills.map((skill, index) => (
+                              <RowStack key={index} justifyContent="space-between">
+                                <RowStack spacing={1}>
+                                  <Verified sx={{ color: "primary.main" }} />
+                                  <Typography>{skill}</Typography>
+                                </RowStack>
                               </RowStack>
-                              <Typography color="success.main">{item.duration}</Typography>
-                            </RowStack>
-                          ))}
+                            ))
+                          ) : (
+                            <Typography>Chưa có kỹ năng nào</Typography>
+                          )}
                         </Stack>
                       )}
                       {tabValue === 1 && (
@@ -361,90 +411,10 @@ const ProfileContent = () => {
                   )}
                 </CardContent>
               </Card>
-
-              {/* Certifications section */}
-              <Card>
-                <CardContent>
-                  <RowStack justifyContent="space-between" mb={2}>
-                    <Typography variant="h6" fontWeight="bold">
-                      Các chứng chỉ đạt được
-                    </Typography>
-                    <IconButton onClick={() => certificationsDialog.handleOpen()}>
-                      <Edit sx={{ fontSize: 16 }} />
-                    </IconButton>
-                  </RowStack>
-                  {certificationsDialog.open ? (
-                    <EditCertificationsForm
-                      onClose={certificationsDialog.handleClose}
-                      initialCertifications={certifications}
-                      onSubmit={handleCertificationsSubmit}
-                    />
-                  ) : (
-                    <Stack spacing={2}>
-                      {certifications.map((item, index) => (
-                        <RowStack key={index} spacing={2}>
-                          <WorkspacePremiumIcon sx={{ color: `${item.color}.main`, fontSize: 24 }} />
-                          <Typography>{item.cert}</Typography>
-                        </RowStack>
-                      ))}
-                    </Stack>
-                  )}
-                </CardContent>
-              </Card>
             </Stack>
           </Grid>
         </Grid>
       </Container>
-
-      {/* Footer */}
-      <Box sx={{ bgcolor: "grey.900", color: "white", py: 6 }}>
-        <Container maxWidth="lg">
-          <Grid container spacing={4}>
-            <Grid item xs={12} md={3}>
-              <RowStack spacing={2}>
-                <Box sx={{ width: 32, height: 32, bgcolor: "primary.main", borderRadius: 1 }} />
-                <Typography variant="h6" fontWeight="bold">
-                  LOGO
-                </Typography>
-              </RowStack>
-            </Grid>
-            {["Product", "Resources", "Company"].map((section, index) => (
-              <Grid item xs={12} md={3} key={index}>
-                <Typography variant="subtitle1" fontWeight="bold" mb={2}>
-                  {section}
-                </Typography>
-                <Stack spacing={1}>
-                  {["All Jobs", "Companies", "Candidates"].map((item, i) => (
-                    <Typography key={i} variant="body2" color="grey.400">
-                      {item}
-                    </Typography>
-                  ))}
-                </Stack>
-              </Grid>
-            ))}
-            <Grid item xs={12}>
-              <RowStack spacing={2}>
-                <Stack>
-                  <Typography variant="subtitle1" fontWeight="bold">
-                    Subscribe to our newsletter
-                  </Typography>
-                  <Typography variant="body2" color="grey.400">
-                    For product announcements and exclusive insights
-                  </Typography>
-                </Stack>
-                <RowStack spacing={1}>
-                  <input
-                    type="email"
-                    placeholder="Input your email"
-                    style={{ padding: 8, borderRadius: 4, background: "#1F2937", color: "white" }}
-                  />
-                  <Button variant="contained">Subscribe</Button>
-                </RowStack>
-              </RowStack>
-            </Grid>
-          </Grid>
-        </Container>
-      </Box>
     </Stack>
   );
 };
