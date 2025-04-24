@@ -27,4 +27,5 @@ export const paths = {
       create: "/admin/roadmap/create",
     },
   },
+  404: "/not-found",
 };

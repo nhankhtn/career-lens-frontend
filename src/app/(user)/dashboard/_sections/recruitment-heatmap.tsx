@@ -35,8 +35,8 @@ export default function RecruitmentHeatmap({ data }: RecruitmentHeatmapProps) {
   );
 
   const getColorIntensity = (value: number) => {
-    if (value < 2000) return neutral[200];
-    if (value < 10000) return blue.light;
+    if (value < 500) return neutral[200];
+    if (value < 2000) return blue.light;
     return blue.dark;
   };
 
@@ -53,7 +53,7 @@ export default function RecruitmentHeatmap({ data }: RecruitmentHeatmapProps) {
               mr: 0.5,
             }}
           />
-          <Typography variant="caption">Dưới 1,999</Typography>
+          <Typography variant="caption">Dưới 499</Typography>
         </RowStack>
         <RowStack>
           <Box
@@ -65,7 +65,7 @@ export default function RecruitmentHeatmap({ data }: RecruitmentHeatmapProps) {
               mr: 0.5,
             }}
           />
-          <Typography variant="caption">Từ 2,000 đến 9,999</Typography>
+          <Typography variant="caption">Từ 500 đến 1,999</Typography>
         </RowStack>
         <RowStack>
           <Box
@@ -77,7 +77,7 @@ export default function RecruitmentHeatmap({ data }: RecruitmentHeatmapProps) {
               mr: 0.5,
             }}
           />
-          <Typography variant="caption">10,000+</Typography>
+          <Typography variant="caption">2,000+</Typography>
         </RowStack>
       </RowStack>
 

@@ -100,22 +100,7 @@ export default function TopPositions({ data, loading }: TopPositionsProps) {
         <Typography variant="h6" fontWeight="medium">
           5 vị trí vị trí có nhu cầu cao nhất
         </Typography>
-        <RowStack>
-          {/* <Tooltip title="Tất cả">
-            <Typography
-              variant="body2"
-              color="primary"
-              sx={{ cursor: "pointer", textDecoration: "underline", mr: 1 }}
-            >
-              Tất cả
-            </Typography>
-          </Tooltip> */}
-          {/* <Tooltip title="Bộ lọc">
-            <IconButton size="small">
-              <FilterIcon fontSize="small" />
-            </IconButton>
-          </Tooltip> */}
-        </RowStack>
+        <RowStack></RowStack>
       </RowStack>
 
       <Stack justifyContent={"center"} sx={{ height: 300 }}>

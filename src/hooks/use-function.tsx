@@ -29,6 +29,7 @@ export interface UseFunctionReturnType<P, T> {
   error: Error | null;
   data: T | undefined;
   setData: (_: T | undefined) => void;
+  callCount: number;
 }
 
 export const DEFAULT_FUNCTION_RETURN: UseFunctionReturnType<any, any> = {
@@ -37,11 +38,12 @@ export const DEFAULT_FUNCTION_RETURN: UseFunctionReturnType<any, any> = {
   error: null,
   data: undefined,
   setData: () => {},
+  callCount: 0,
 };
 
 function useFunction<P, T>(
   apiFunction: ApiFunction<P, T>,
-  options?: UseFunctionOptions<P, T>
+  options?: UseFunctionOptions<P, T>,
 ): UseFunctionReturnType<P, T> {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
@@ -52,7 +54,7 @@ function useFunction<P, T>(
   const onRequestSuccess = useCallback(
     async (
       { payload, result }: { payload: P; result: T },
-      option?: { noSave?: boolean }
+      option?: { noSave?: boolean },
     ) => {
       if (options?.successMessage) {
         showSnackbarSuccess(options?.successMessage);
@@ -68,13 +70,13 @@ function useFunction<P, T>(
         await set(
           options.cacheKey,
           JSON.stringify(
-            Array.isArray(result) ? result.slice(0, MAX_CACHED_ARRAY) : result
-          )
+            Array.isArray(result) ? result.slice(0, MAX_CACHED_ARRAY) : result,
+          ),
         );
       }
       return { data: result };
     },
-    [options, showSnackbarSuccess]
+    [options, showSnackbarSuccess],
   );
 
   const call = useCallback(
@@ -94,14 +96,14 @@ function useFunction<P, T>(
                 ...payload,
                 ...options?.fixedPayload,
               }
-            : payload
+            : payload,
         );
 
         return await onRequestSuccess(
           { payload, result },
           {
             noSave: callCount != callCountRef.current,
-          }
+          },
         );
       } catch (error) {
         if (options?.cacheKey) {
@@ -129,7 +131,7 @@ function useFunction<P, T>(
         setLoading(false);
       }
     },
-    [apiFunction, onRequestSuccess, options, showSnackbarError]
+    [apiFunction, onRequestSuccess, options, showSnackbarError],
   );
 
   const setData = useCallback(
@@ -139,8 +141,8 @@ function useFunction<P, T>(
           set(
             options.cacheKey,
             JSON.stringify(
-              Array.isArray(data) ? data.slice(0, MAX_CACHED_ARRAY) : data
-            )
+              Array.isArray(data) ? data.slice(0, MAX_CACHED_ARRAY) : data,
+            ),
           );
         } else {
           del(options.cacheKey);
@@ -148,10 +150,17 @@ function useFunction<P, T>(
       }
       setStateData(data);
     },
-    [options?.cacheKey]
+    [options?.cacheKey],
   );
 
-  return { call, loading, error, data, setData };
+  return {
+    call,
+    loading,
+    error,
+    data,
+    setData,
+    callCount: callCountRef.current,
+  };
 }
 
 export default useFunction;

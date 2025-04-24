@@ -5,6 +5,7 @@ import {
   applyActionCode,
   confirmPasswordReset,
   createUserWithEmailAndPassword,
+  FacebookAuthProvider,
   getAuth,
   GoogleAuthProvider,
   onAuthStateChanged,
@@ -138,6 +139,7 @@ export interface AuthContextType extends State {
     password: string,
   ) => Promise<User | null>;
   signInWithGoogle: () => Promise<User | null>;
+  signInWithFacebook: () => Promise<User | null>;
   signInAnonymously: () => Promise<User | null>;
 
   sendPasswordResetEmail: (email: string) => Promise<any>;
@@ -161,6 +163,7 @@ export const AuthContext = createContext<AuthContextType>({
 
   signInWithEmailAndPassword: () => Promise.resolve(null),
   signInWithGoogle: () => Promise.resolve(null),
+  signInWithFacebook: () => Promise.resolve(null),
   signInAnonymously: () => Promise.resolve(null),
 
   sendPasswordResetEmail: () => Promise.resolve(),
@@ -193,6 +196,8 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     pathname.includes("/careers") ||
     pathname.includes("/profle") ||
     pathname.includes("/roadmap");
+
+  const isAuth = pathname.includes("/auth");
 
   const getToken = useCallback(
     async (user: FirebaseUser): Promise<User> => {
@@ -252,6 +257,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
         payload: { isAuthenticated: false, user: null },
       });
       clearAuthData();
+      _signInAnonymously();
     } catch (error) {
       handleAuthError(error);
       throw error;
@@ -275,7 +281,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
       if (!accessToken) {
         try {
           await _signOut();
-          if (isDashboard) {
+          if (isDashboard && !isAuth) {
             router.push(paths.auth.login);
             showSnackbarError("Vui lòng đăng nhập lại.");
           }
@@ -306,7 +312,9 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
       return user;
     } catch (error) {
       await _signOut();
-      router.push(paths.auth.login);
+      if (isDashboard && !isAuth) {
+        router.push(paths.auth.login);
+      }
       throw new Error("Vui lòng đăng nhập lại");
     }
   }, [_signOut, router]);
@@ -431,6 +439,17 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     }
   }, [getToken]);
 
+  const signInWithFacebook = useCallback(async (): Promise<User> => {
+    try {
+      const provider = new FacebookAuthProvider();
+      const { user } = await signInWithPopup(auth, provider);
+      return await getToken(user);
+    } catch (error) {
+      handleAuthError(error);
+      throw error;
+    }
+  }, [getToken]);
+
   const changePassword = useCallback(
     async (currentPassword: string, newPassword: string): Promise<void> => {
       try {
@@ -470,9 +489,10 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
       );
       const user = userCredential.user;
       await updateProfile(user, { displayName: name });
-      await sendEmailVerification(user, {
-        url: window.location.origin + paths.auth.login,
-      });
+      await getToken(user);
+      // await sendEmailVerification(user, {
+      //   url: window.location.origin + paths.auth.login,
+      // });
     } catch (error) {
       handleAuthError(error);
       throw error;
@@ -599,6 +619,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
         signInWithEmailAndPassword: _signInWithEmailAndPassword,
         signInAnonymously: _signInAnonymously,
         signInWithGoogle,
+        signInWithFacebook,
 
         sendPasswordResetEmail: _sendPasswordResetEmail,
         verifyPasswordResetCode: _verifyPasswordResetCode,
