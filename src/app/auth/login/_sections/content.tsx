@@ -54,10 +54,10 @@ const AuthLoginContent = () => {
         spacing={3}
       >
         <Image
-          src="/images/logo.png"
+          src="/images/logo-transparent.png"
           alt="Logo CareerLens"
           width={140}
-          height={40}
+          height={140}
         />
 
         <Box textAlign="center">
