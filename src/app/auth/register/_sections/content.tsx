@@ -45,10 +45,10 @@ const AuthRegisterContent = () => {
         spacing={3}
       >
         <Image
-          src="/images/logo.png"
+          src="/images/logo-transparent.png"
           alt="Logo CareerLens"
-          width={140}
-          height={40}
+          width={100}
+          height={100}
         />
 
         <Box textAlign="center">

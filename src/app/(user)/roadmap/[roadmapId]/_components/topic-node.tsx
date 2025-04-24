@@ -25,7 +25,6 @@ import { priority } from "@/theme/colors"
 import type { Topic } from "@/types/topic"
 import { getResourceIcon } from "@/utils/icon-helper"
 
-
 interface TopicNodeProps {
   topic: Topic
   level: number
@@ -107,30 +106,26 @@ export default function TopicNode({ topic, level, expanded, onToggle, fetchChild
       return null
     }
 
-    let priorityIcon
     let priorityColor
     let priorityBgColor
     let priorityText
 
     switch (topic.priority) {
       case 1:
-        priorityIcon = <CheckCircleIcon fontSize="small" />
         priorityColor = priority.high.main
         priorityBgColor = priority.high.light
-        priorityText = "High Priority"
+        priorityText = " Gợi ý cá nhân / Ý kiến cá nhân"
         break
       case 2:
-        priorityIcon = <CheckCircleIcon fontSize="small" />
         priorityColor = priority.medium.main
         priorityBgColor = priority.medium.light
-        priorityText = "Medium Priority"
+        priorityText = " Lựa chọn thay thế / Chọn cái này hoặc màu xanh"
         break
       case 3:
       default:
-        priorityIcon = <CheckCircleIcon fontSize="small" />
         priorityColor = priority.low.main
         priorityBgColor = priority.low.light
-        priorityText = "Low Priority"
+        priorityText = "Thứ tự không bắt buộc / Học lúc nào cũng được"
         break
     }
 
@@ -148,7 +143,7 @@ export default function TopicNode({ topic, level, expanded, onToggle, fetchChild
             height: 24,
           }}
         >
-          {priorityIcon}
+          <CheckCircleIcon fontSize="small" />
         </Box>
       </Tooltip>
     )
@@ -169,13 +164,16 @@ export default function TopicNode({ topic, level, expanded, onToggle, fetchChild
   // Only show if we have children or if we haven't determined yet (hasChildrenToFetch is true)
   const hasChildren = topic.order !== null && topic.order !== undefined
 
+  // Only show progress for topics with order
+  const showProgress = topic.order !== null && topic.order !== undefined
+
   return (
     <Box>
       {/* Topic Header */}
       <Box
         sx={{
           display: "flex",
-          alignItems: "center",
+          alignItems: "flex-start", // Changed from center to flex-start to align items at the top
           p: 2,
           bgcolor: level === 0 ? "background.default" : "background.paper",
           borderLeft:
@@ -207,6 +205,7 @@ export default function TopicNode({ topic, level, expanded, onToggle, fetchChild
                 bgcolor: "primary.light",
                 color: "primary.contrastText",
               },
+              mt: 0.5, // Added margin top to align with the first line of text
             }}
             onClick={(e) => {
               e.stopPropagation()
@@ -220,35 +219,44 @@ export default function TopicNode({ topic, level, expanded, onToggle, fetchChild
         )}
 
         <Box sx={{ flex: 1 }}>
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <Typography
-              variant={level === 0 ? "h6" : "subtitle1"}
-              sx={{
-                fontWeight: level === 0 ? 600 : 500,
-                fontSize: level === 0 ? "1.125rem" : level === 1 ? "1rem" : level === 2 ? "0.95rem" : "0.9rem",
-              }}
-            >
-              {topic.title}
-            </Typography>
+          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <Box sx={{ display: "flex", alignItems: "center", flex: 1 }}>
+              <Typography
+                variant={level === 0 ? "h6" : "subtitle1"}
+                sx={{
+                  fontWeight: level === 0 ? 600 : 500,
+                  fontSize: level === 0 ? "1.125rem" : level === 1 ? "1rem" : level === 2 ? "0.95rem" : "0.9rem",
+                }}
+              >
+                {topic.title}
+              </Typography>
 
-            {/* Display order number only if order is not null */}
-            {topic.order !== null && topic.order !== undefined && (
-              <Tooltip title={`Order: ${topic.order}`}>
-                <Chip
-                  label={`Bài ${topic.order}`}
-                  size="small"
-                  sx={{
-                    ml: 1,
-                    height: 20,
-                    fontSize: "0.7rem",
-                    bgcolor: "info.light",
-                    color: "info.dark",
-                    fontWeight: 500,
-                    border: 1,
-                    borderColor: "info.main",
-                  }}
-                />
-              </Tooltip>
+              {/* Display order number only if order is not null */}
+              {topic.order !== null && topic.order !== undefined && (
+                <Tooltip title={`Order: ${topic.order}`}>
+                  <Chip
+                    label={`Bài ${topic.order}`}
+                    size="small"
+                    sx={{
+                      ml: 1,
+                      height: 20,
+                      fontSize: "0.7rem",
+                      bgcolor: "info.light",
+                      color: "info.dark",
+                      fontWeight: 500,
+                      border: 1,
+                      borderColor: "info.main",
+                    }}
+                  />
+                </Tooltip>
+              )}
+            </Box>
+
+            {/* Topic Progress Component - Only for topics with order */}
+            {showProgress && (
+              <Box sx={{ display: "flex", alignItems: "center", ml: 2 }} onClick={(e) => e.stopPropagation()}>
+                <ResourceProgress resourceId={`topic-${topic.id}`} topicId={topic.id} />
+              </Box>
             )}
           </Box>
 
@@ -276,22 +284,28 @@ export default function TopicNode({ topic, level, expanded, onToggle, fetchChild
               )}
             </Box>
           )}
+
+          {/* Footer section with resources and priority indicator */}
+          <Box sx={{ display: "flex", alignItems: "center", mt: 1, justifyContent: "space-between" }}>
+            {/* Resources chip */}
+            <Box>
+              {hasResources && (
+                <Chip
+                  label={`${resources.length} resource${resources.length > 1 ? "s" : ""}`}
+                  size="small"
+                  sx={{ mr: 1 }}
+                  onClick={handleResourcesToggle}
+                />
+              )}
+            </Box>
+
+            {/* Priority indicator */}
+            {renderPriorityIndicator()}
+          </Box>
         </Box>
-
-        {hasResources && (
-          <Chip
-            label={`${resources.length} resource${resources.length > 1 ? "s" : ""}`}
-            size="small"
-            sx={{ mr: 1 }}
-            onClick={handleResourcesToggle}
-          />
-        )}
-
-        {/* Display priority indicator on the right side only if priority is not null */}
-        {renderPriorityIndicator()}
       </Box>
 
-      {/* Resources Collapse */}
+      {/* Resources Collapse - Now appears directly under the topic node */}
       {hasResources && (
         <Collapse in={resourcesExpanded}>
           <Box sx={{ px: 2, py: 1, bgcolor: "background.default" }}>
@@ -312,7 +326,6 @@ export default function TopicNode({ topic, level, expanded, onToggle, fetchChild
                     border: "1px solid",
                     borderColor: "divider",
                   }}
-                  secondaryAction={<ResourceProgress resourceId={`${topic.id}-resource-${index}`} topicId={topic.id} />}
                 >
                   <Box sx={{ mr: 1.5, display: "flex", alignItems: "center" }}>{getResourceIcon(resource.type)}</Box>
                   <ListItemText

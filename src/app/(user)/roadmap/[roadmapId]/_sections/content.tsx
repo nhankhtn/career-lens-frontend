@@ -6,6 +6,7 @@ import Link from "next/link"
 import RoadmapHeader from "../_components/roadmap-header"
 import RoadmapActions from "../_components/roadmap-actions"
 import TopicTree from "../_components/topic-tree"
+import PriorityLegend from "../_components/priority-legend"
 // import PartnerBanner from "../_components/partner-banner"
 import useRoadmapDetail from "./use-roadmap-detail-search"
 import { useEffect, useState } from "react"
@@ -51,7 +52,7 @@ export default function RoadmapDetailContent() {
   if (!topic) {
     return (
       <Container maxWidth="lg" sx={{ py: 8 }}>
-        <Typography variant="h4">Lộ trình không được tìm thấy</Typography>
+        <Typography variant="h4">Roadmap not found</Typography>
         <Button component={Link} href="/roadmap" startIcon={<ArrowBackIcon />} sx={{ mt: 2 }}>
           Quay lại
         </Button>
@@ -78,6 +79,9 @@ export default function RoadmapDetailContent() {
 
         <Divider sx={{ my: 4 }} />
 
+        {/* Priority Legend */}
+        <PriorityLegend />
+
         {/* Roadmap Content */}
         <Box sx={{ mb: 6 }}>
           <Typography variant="h5" sx={{ mb: 4, fontWeight: "bold" }}>
@@ -88,7 +92,7 @@ export default function RoadmapDetailContent() {
             <TopicTree topics={rootTopics} />
           ) : (
             <Typography variant="body1" color="text.secondary">
-              Lộ trình này không có bài học nào.
+              Lộ trình này chưa có chủ đề nào.
             </Typography>
           )}
         </Box>
