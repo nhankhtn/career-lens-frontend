@@ -1,5 +1,11 @@
 import { Post } from "@/types/post";
-import { apiGet, apiPost, apiPut, apiDelete, removeUndefinedKeys } from "@/utils/api-request";
+import {
+  apiGet,
+  apiPost,
+  apiPut,
+  apiDelete,
+  removeUndefinedKeys,
+} from "@/utils/api-request";
 
 export interface PostResponse {
   data: Post[];
@@ -28,16 +34,22 @@ export class PostApi {
     return await apiGet(`/posts/${id}`);
   }
 
-  static async createPost(post: { content: string; image_url?: string[] }): Promise<Post> {
+  static async createPost(post: {
+    content: string;
+    image_url?: string[];
+  }): Promise<Post> {
     return await apiPost("/posts", post);
   }
 
-  static async updatePost(id: string, post: { content: string; image_url?: string[] }): Promise<Post> {
+  static async updatePost(
+    id: string,
+    post: { content: string; image_url?: string[] },
+  ): Promise<Post> {
     return await apiPut(`/posts/${id}`, post);
   }
 
   static async removePost(id: string): Promise<void> {
-    return await apiDelete(`/posts/${id}`);
+    return await apiDelete(`/posts/${id}`, {});
   }
 
   static async likePost(id: string): Promise<void> {

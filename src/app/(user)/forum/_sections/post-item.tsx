@@ -13,13 +13,19 @@ import {
   TextField,
   IconButton,
 } from "@mui/material";
-import { ThumbUp, ChatBubbleOutline, Save, Visibility, Send } from "@mui/icons-material";
+import {
+  ThumbUp,
+  ChatBubbleOutline,
+  Save,
+  Visibility,
+  Send,
+} from "@mui/icons-material";
 import { blue } from "@mui/material/colors";
 import { Post } from "@/types/post";
 import { Comment } from "@/types/comment";
 import { usePostContext } from "@/contexts/forum/post-context";
 import { useCommentContext } from "@/contexts/forum/comment-context";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { SocketClient } from "@/api/forum/socket";
 import useAppSnackbar from "@/hooks/use-app-snackbar";
 
@@ -37,7 +43,11 @@ function CommentItem({ comment }: CommentItemProps) {
   return (
     <Box sx={{ display: "flex", gap: 1, mb: 1 }}>
       {user.photo_url ? (
-        <Avatar src={user.photo_url} alt={user.name} sx={{ width: 32, height: 32 }} />
+        <Avatar
+          src={user.photo_url}
+          alt={user.name}
+          sx={{ width: 32, height: 32 }}
+        />
       ) : (
         <Avatar sx={{ bgcolor: blue[500], width: 32, height: 32 }}>
           {user.name.charAt(0)}
@@ -72,10 +82,14 @@ export default function PostItem({ post }: PostItemProps) {
   const [hasMoreComments, setHasMoreComments] = useState(true);
   const limit = 5;
 
-  const loadComments = async () => {
+  const loadComments = useCallback(async () => {
     if (!hasMoreComments) return;
 
-    const response = await getCommentsApi.call({ post_id: post.id, offset, limit });
+    const response = await getCommentsApi.call({
+      post_id: post.id,
+      offset,
+      limit,
+    });
     if (response.data) {
       const newComments = response.data.data || [];
       setComments((prev) => [...prev, ...newComments]);
@@ -84,16 +98,16 @@ export default function PostItem({ post }: PostItemProps) {
     } else {
       showSnackbarError(`Không thể tải bình luận: ${response.error}`);
     }
-  };
+  }, [post.id, offset, limit, hasMoreComments]);
 
-  const handleToggleComments = async () => {
+  const handleToggleComments = useCallback(async () => {
     if (!showComments) {
       await loadComments();
     }
     setShowComments(!showComments);
-  };
+  }, [showComments, loadComments]);
 
-  const handleCreateComment = async () => {
+  const handleCreateComment = useCallback(async () => {
     if (!newComment.trim()) {
       showSnackbarError("Vui lòng nhập nội dung bình luận!");
       return;
@@ -113,20 +127,26 @@ export default function PostItem({ post }: PostItemProps) {
     } else {
       showSnackbarError(`Đăng bình luận thất bại: ${response.error}`);
     }
-  };
+  }, [post.id, newComment]);
 
   useEffect(() => {
-    SocketClient.on("postLiked", (data: { postId: string; like_count: number }) => {
-      if (data.postId === post.id) {
-        setLikes(data.like_count);
-      }
-    });
+    SocketClient.on(
+      "postLiked",
+      (data: { postId: string; like_count: number }) => {
+        if (data.postId === post.id) {
+          setLikes(data.like_count);
+        }
+      },
+    );
 
-    SocketClient.on("postUnliked", (data: { postId: string; like_count: number }) => {
-      if (data.postId === post.id) {
-        setLikes(data.like_count);
-      }
-    });
+    SocketClient.on(
+      "postUnliked",
+      (data: { postId: string; like_count: number }) => {
+        if (data.postId === post.id) {
+          setLikes(data.like_count);
+        }
+      },
+    );
 
     SocketClient.on("newComment", (data: Comment) => {
       if (data.post_id === post.id) {
@@ -191,9 +211,7 @@ export default function PostItem({ post }: PostItemProps) {
           {user.photo_url ? (
             <Avatar src={user.photo_url} alt={user.name} />
           ) : (
-            <Avatar sx={{ bgcolor: blue[500] }}>
-              {user.name.charAt(0)}
-            </Avatar>
+            <Avatar sx={{ bgcolor: blue[500] }}>{user.name.charAt(0)}</Avatar>
           )}
 
           <Box>
@@ -202,7 +220,9 @@ export default function PostItem({ post }: PostItemProps) {
             </Typography>
             <Typography variant="body2" color="text.secondary">
               {new Date(post.created_at).toLocaleString()} •{" "}
-              <Visibility sx={{ fontSize: 14, verticalAlign: "middle", mr: 0.5 }} />
+              <Visibility
+                sx={{ fontSize: 14, verticalAlign: "middle", mr: 0.5 }}
+              />
             </Typography>
           </Box>
         </Box>
@@ -238,7 +258,7 @@ export default function PostItem({ post }: PostItemProps) {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-           
+
             color: "text.secondary",
             mb: 1,
           }}
@@ -326,11 +346,7 @@ export default function PostItem({ post }: PostItemProps) {
                   <CommentItem key={comment.id} comment={comment} />
                 ))}
                 {hasMoreComments && (
-                  <Button
-                    onClick={loadComments}
-                    variant="text"
-                    sx={{ mt: 1 }}
-                  >
+                  <Button onClick={loadComments} variant="text" sx={{ mt: 1 }}>
                     Tải thêm bình luận
                   </Button>
                 )}
