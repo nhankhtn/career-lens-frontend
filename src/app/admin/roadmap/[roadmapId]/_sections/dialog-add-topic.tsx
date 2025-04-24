@@ -63,8 +63,8 @@ const DialogAddTopic = ({
   const formik = useFormik({
     initialValues: initialValuesTopic,
     validationSchema: topicValidateSchema,
-    onSubmit: (values) => {
-      createTopicApi.call({
+    onSubmit: async (values) => {
+      await createTopicApi.call({
         ...values,
         resources: values.resources.filter((r) => r.title),
         order:
@@ -259,7 +259,11 @@ const DialogAddTopic = ({
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Hủy</Button>
-        <Button onClick={() => formik.handleSubmit()} variant="contained">
+        <Button
+          onClick={() => formik.handleSubmit()}
+          variant="contained"
+          disabled={createTopicApi.loading}
+        >
           Lưu
         </Button>
       </DialogActions>

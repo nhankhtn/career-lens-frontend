@@ -55,8 +55,13 @@ const CareerContent = () => {
   };
 
   return (
-    <Stack spacing={6} px={4} py={6}>
-      <Typography variant="h5" fontWeight="bold">Phân tích nghề</Typography>
+    <Stack spacing={6} py={4}>
+      <Typography
+        variant={"h5"}
+        component="h1"
+        fontWeight="bold"
+        sx={{ fontSize: { xs: "1.5rem", sm: "2rem", md: "2.25rem" } }}
+      >Phân tích nghề</Typography>
 
       <Paper
         sx={{

@@ -239,7 +239,7 @@ const CreateTopic = () => {
                 onClick={() => formik.handleSubmit()}
                 variant="contained"
                 startIcon={<SaveIcon />}
-                // disabled={formik.isSubmitting}
+                disabled={createTopicApi.loading}
               >
                 Lưu
               </Button>

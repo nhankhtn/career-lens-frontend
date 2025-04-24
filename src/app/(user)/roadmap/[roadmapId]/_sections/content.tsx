@@ -1,81 +1,94 @@
 "use client"
 
-import { useParams } from "next/navigation"
-import { Container, Typography, Box, Button, Divider, useMediaQuery, useTheme } from "@mui/material"
+import { Box, Button, Container, Divider, Typography, CircularProgress, Alert } from "@mui/material"
 import ArrowBackIcon from "@mui/icons-material/ArrowBack"
 import Link from "next/link"
-import { getRoadmapData } from "../../_data/roadmap-details"
 import RoadmapHeader from "../_components/roadmap-header"
 import RoadmapActions from "../_components/roadmap-actions"
 import TopicTree from "../_components/topic-tree"
+// import PartnerBanner from "../_components/partner-banner"
+import useRoadmapDetail from "./use-roadmap-detail-search"
+import { useEffect, useState } from "react"
+import type { Topic } from "@/types/topic"
 
 export default function RoadmapDetailContent() {
-  const params = useParams()
-  const roadmapId = params.roadmapId as string
-  const roadmapData = getRoadmapData(roadmapId)
-  const theme = useTheme()
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
+  const { topic, childTopics, loading, error } = useRoadmapDetail()
+  const [rootTopics, setRootTopics] = useState<Topic[]>([])
 
-  if (!roadmapData) {
+  // Process child topics to get only the root topics (direct children of the roadmap)
+  useEffect(() => {
+    if (!topic || !childTopics || childTopics.length === 0) {
+      setRootTopics([])
+      return
+    }
+
+    // Get only the direct children of the roadmap
+    const directChildren = childTopics.filter((child) => child.parent_id === topic.id)
+    setRootTopics(directChildren)
+  }, [topic, childTopics])
+
+  if (loading) {
+    return (
+      <Container maxWidth="lg" sx={{ py: 8, display: "flex", justifyContent: "center" }}>
+        <CircularProgress />
+      </Container>
+    )
+  }
+
+  if (error) {
     return (
       <Container maxWidth="lg" sx={{ py: 8 }}>
-        <Typography variant="h4">Roadmap not found</Typography>
+        <Alert severity="error" sx={{ mb: 4 }}>
+          Lỗi tải lộ trình: {error.message || "Unknown error"}
+        </Alert>
+        <Button component={Link} href="/roadmap" startIcon={<ArrowBackIcon />}>
+          Quay lại
+        </Button>
+      </Container>
+    )
+  }
+
+  if (!topic) {
+    return (
+      <Container maxWidth="lg" sx={{ py: 8 }}>
+        <Typography variant="h4">Lộ trình không được tìm thấy</Typography>
         <Button component={Link} href="/roadmap" startIcon={<ArrowBackIcon />} sx={{ mt: 2 }}>
-          Back to Roadmaps
+          Quay lại
         </Button>
       </Container>
     )
   }
 
   return (
-    <Box sx={{ bgcolor: "background.default", minHeight: "100vh", pt: isMobile ? 1 : 2 }}>
+    <Box sx={{ bgcolor: "background.default", minHeight: "100vh", pt: 2 }}>
+      {/* <PartnerBanner title={topic.title} /> */}
 
-      <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
+      <Container maxWidth="lg">
         {/* Breadcrumb and Actions */}
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: isMobile ? "column" : "row",
-            gap: isMobile ? 2 : 0,
-            justifyContent: "space-between",
-            alignItems: isMobile ? "flex-start" : "center",
-            mb: isMobile ? 3 : 4,
-          }}
-        >
-          <Button
-            component={Link}
-            href="/roadmap"
-            startIcon={<ArrowBackIcon />}
-            sx={{
-              color: "text.secondary",
-              fontSize: isMobile ? "0.8125rem" : "0.875rem",
-            }}
-          >
-            All Roadmaps
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 4 }}>
+          <Button component={Link} href="/roadmap" startIcon={<ArrowBackIcon />} sx={{ color: "text.secondary" }}>
+            Quay lại
           </Button>
 
           <RoadmapActions />
         </Box>
 
         {/* Title and Description */}
-        <RoadmapHeader title={roadmapData.title} description={roadmapData.description} />
+        <RoadmapHeader title={topic.title} description={topic.description || ""} />
 
-        <Divider sx={{ my: { xs: 3, sm: 4 } }} />
+        <Divider sx={{ my: 4 }} />
 
         {/* Roadmap Content */}
-        <Box sx={{ mb: { xs: 4, sm: 6 } }}>
-          <Typography
-            variant="h5"
-            sx={{ mb: { xs: 3, sm: 4 }, fontWeight: "bold", fontSize: { xs: "1.25rem", sm: "1.5rem" } }}
-          >
-            Learning Path
+        <Box sx={{ mb: 6 }}>
+          <Typography variant="h5" sx={{ mb: 4, fontWeight: "bold" }}>
+            Lộ trình
           </Typography>
 
-          {roadmapData.children && roadmapData.children.length > 0 ? (
-            <TopicTree topics={roadmapData.children} />
+          {rootTopics.length > 0 ? (
+            <TopicTree topics={rootTopics} />
           ) : (
             <Typography variant="body1" color="text.secondary">
-              This roadmap doesn't have any topics yet.
+              Lộ trình này không có bài học nào.
             </Typography>
           )}
         </Box>

@@ -1,9 +1,8 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { Typography, IconButton, Tooltip, Box } from "@mui/material";
+import { alpha, Box, keyframes, Typography, useTheme } from "@mui/material";
 import { Stack } from "@mui/material";
-import { FilterList as FilterIcon } from "@mui/icons-material";
 import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -13,38 +12,35 @@ import {
   Title,
   Tooltip as ChartTooltip,
 } from "chart.js";
-import { topPositionsData } from "@/types/dashboard/mock-data";
 import RowStack from "@/components/row-stack";
 import { warning } from "@/theme/colors";
+import { PositionStats } from "@/api/job-postings";
+import EmptyState from "@/components/empty-state";
+import LoadingBarChart from "@/components/loading-bar-chart";
 
 // Register ChartJS components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, ChartTooltip);
 
 interface TopPositionsProps {
-  filters: { fromDate: string; toDate: string; region: string };
+  data: PositionStats[];
+  loading: boolean;
 }
 
-export default function TopPositions({ filters }: TopPositionsProps) {
+export default function TopPositions({ data, loading }: TopPositionsProps) {
   const [highlightedIndex, setHighlightedIndex] = useState<number | null>(null);
 
   const handleBarHover = useCallback((index: number | null) => {
     setHighlightedIndex(index);
   }, []);
 
-  // Filter data based on filters (in a real app, this would fetch from API)
-  const filteredData = useMemo(() => {
-    // This is a mock implementation - in a real app, you would filter the data based on the filters
-    return topPositionsData;
-  }, []);
-
   const chartData = useMemo(() => {
     return {
-      labels: filteredData.map((item) => item.position),
+      labels: data.map((item) => item.position),
       datasets: [
         {
-          data: filteredData.map((item) => item.count),
-          backgroundColor: filteredData.map((_, index) =>
-            index === highlightedIndex ? warning.main : warning.light
+          data: data.map((item) => item.count),
+          backgroundColor: data.map((_, index) =>
+            index === highlightedIndex ? warning.main : warning.light,
           ),
           borderColor: warning.main,
           borderWidth: 1,
@@ -53,7 +49,7 @@ export default function TopPositions({ filters }: TopPositionsProps) {
         },
       ],
     };
-  }, [filteredData, highlightedIndex]);
+  }, [data, highlightedIndex]);
 
   const chartOptions = useMemo(() => {
     return {
@@ -94,22 +90,26 @@ export default function TopPositions({ filters }: TopPositionsProps) {
     };
   }, [handleBarHover]);
 
+  // if (loading || data.length === 0) {
+  //   return <LoadingBarChart />;
+  // }
+
   return (
     <Stack>
-      <RowStack justifyContent='space-between' mb={2}>
-        <Typography variant='h6' fontWeight='medium'>
+      <RowStack justifyContent="space-between" mb={2}>
+        <Typography variant="h6" fontWeight="medium">
           5 vị trí vị trí có nhu cầu cao nhất
         </Typography>
         <RowStack>
-          <Tooltip title='Tất cả'>
+          {/* <Tooltip title="Tất cả">
             <Typography
-              variant='body2'
-              color='primary'
+              variant="body2"
+              color="primary"
               sx={{ cursor: "pointer", textDecoration: "underline", mr: 1 }}
             >
               Tất cả
             </Typography>
-          </Tooltip>
+          </Tooltip> */}
           {/* <Tooltip title="Bộ lọc">
             <IconButton size="small">
               <FilterIcon fontSize="small" />
@@ -118,9 +118,17 @@ export default function TopPositions({ filters }: TopPositionsProps) {
         </RowStack>
       </RowStack>
 
-      <Box sx={{ height: 300 }}>
-        <Bar data={chartData} options={chartOptions} />
-      </Box>
+      <Stack justifyContent={"center"} sx={{ height: 300 }}>
+        {data.length === 0 ? (
+          <EmptyState
+            width={300}
+            height={200}
+            title="Hiện chưa có số liệu thống kê"
+          />
+        ) : (
+          <Bar data={chartData} options={chartOptions} />
+        )}
+      </Stack>
     </Stack>
   );
 }

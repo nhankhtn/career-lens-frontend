@@ -6,6 +6,8 @@ import "@/theme/global.css";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { AuthProvider } from "@/contexts/auth/firebase-context";
 import { SnackbarProvider } from "./_components/snackbar-provider";
+import Layout from "./_layout";
+import { MainProvider } from "@/contexts/main/main-context";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,7 +34,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang='vi'>
+    <html lang="vi">
       <body
         suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable}`}
@@ -41,7 +43,11 @@ export default function RootLayout({
           <CssBaseline />
           <SnackbarProvider>
             <ThemeProvider theme={theme}>
-              <AuthProvider>{children}</AuthProvider>
+              <AuthProvider>
+                <MainProvider>
+                  <Layout>{children}</Layout>
+                </MainProvider>
+              </AuthProvider>
             </ThemeProvider>
           </SnackbarProvider>
         </AppRouterCacheProvider>

@@ -18,69 +18,63 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { paths } from "@/paths";
 import { useAuth } from "@/contexts/auth/firebase-context";
 import useFunction from "@/hooks/use-function";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const AuthRegisterContent = () => {
   const { signInWithGoogle } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   const signInWithGoogleHelper = useFunction(signInWithGoogle, {
     onSuccess: () => {
-      const returnTo = searchParams.get("returnTo");
-      if (returnTo) {
-        router.push(returnTo as string);
-      } else {
-        router.push(paths.dashboard);
-      }
+      router.push(paths.onboarding);
     },
   });
 
   return (
-    <Box display='flex' minHeight='100vh'>
+    <Box display="flex" minHeight="100vh">
       {/* Bên trái - Form Đăng ký */}
       <Stack
         flex={1}
         px={6}
         py={8}
-        alignItems='center'
-        justifyContent='center'
-        bgcolor='white'
+        alignItems="center"
+        justifyContent="center"
+        bgcolor="white"
         spacing={3}
       >
         <Image
-          src='/images/logo.png'
-          alt='Logo CareerLens'
+          src="/images/logo.png"
+          alt="Logo CareerLens"
           width={140}
           height={40}
         />
 
-        <Box textAlign='center'>
-          <Typography variant='h5' fontWeight='bold'>
+        <Box textAlign="center">
+          <Typography variant="h5" fontWeight="bold">
             Tạo tài khoản mới
           </Typography>
-          <Typography variant='body2' mt={1} color='text.secondary'>
+          <Typography variant="body2" mt={1} color="text.secondary">
             Bằng cách đăng ký, bạn đồng ý với{" "}
-            <MuiLink href='#' underline='hover'>
+            <MuiLink href="#" underline="hover">
               Điều khoản
             </MuiLink>{" "}
             và{" "}
-            <MuiLink href='#' underline='hover'>
+            <MuiLink href="#" underline="hover">
               Chính sách quyền riêng tư
             </MuiLink>
             .
           </Typography>
         </Box>
 
-        <Stack spacing={1.5} width='100%' maxWidth={320}>
+        <Stack spacing={1.5} width="100%" maxWidth={320}>
           <Button
-            variant='outlined'
+            variant="outlined"
             startIcon={
               <Image
-                src='/icons/google-icon.svg'
-                alt='Google'
+                src="/icons/google-icon.svg"
+                alt="Google"
                 width={20}
                 height={20}
               />
@@ -102,11 +96,11 @@ const AuthRegisterContent = () => {
           </Button>
 
           <Button
-            variant='outlined'
+            variant="outlined"
             startIcon={
               <Image
-                src='/icons/facebook-icon.svg'
-                alt='Facebook'
+                src="/icons/facebook-icon.svg"
+                alt="Facebook"
                 width={20}
                 height={20}
               />
@@ -127,15 +121,15 @@ const AuthRegisterContent = () => {
           </Button>
         </Stack>
 
-        <Box width='100%' maxWidth={320}>
+        <Box width="100%" maxWidth={320}>
           <Divider sx={{ my: 3 }}>
-            <Typography variant='caption' color='text.secondary'>
+            <Typography variant="caption" color="text.secondary">
               HOẶC ĐĂNG KÝ BẰNG EMAIL
             </Typography>
           </Divider>
         </Box>
 
-        <Stack spacing={2} width='100%' maxWidth={320}>
+        <Stack spacing={2} width="100%" maxWidth={320}>
           {[
             {
               label: "Tên người dùng",
@@ -154,7 +148,7 @@ const AuthRegisterContent = () => {
               placeholder={placeholder}
               type={type}
               fullWidth
-              variant='outlined'
+              variant="outlined"
               sx={{
                 "& .MuiOutlinedInput-root": {
                   borderRadius: "12px",
@@ -170,11 +164,11 @@ const AuthRegisterContent = () => {
 
           {/* Mật khẩu */}
           <TextField
-            label='Mật khẩu'
+            label="Mật khẩu"
             type={showPassword ? "text" : "password"}
-            placeholder='Ít nhất 8 ký tự'
+            placeholder="Ít nhất 8 ký tự"
             fullWidth
-            variant='outlined'
+            variant="outlined"
             sx={{
               "& .MuiOutlinedInput-root": {
                 borderRadius: "12px",
@@ -187,10 +181,10 @@ const AuthRegisterContent = () => {
             }}
             InputProps={{
               endAdornment: (
-                <InputAdornment position='end'>
+                <InputAdornment position="end">
                   <IconButton
                     onClick={() => setShowPassword(!showPassword)}
-                    edge='end'
+                    edge="end"
                   >
                     {showPassword ? <VisibilityOff /> : <Visibility />}
                   </IconButton>
@@ -201,11 +195,11 @@ const AuthRegisterContent = () => {
 
           {/* Xác nhận mật khẩu */}
           <TextField
-            label='Xác nhận mật khẩu'
+            label="Xác nhận mật khẩu"
             type={showConfirmPassword ? "text" : "password"}
-            placeholder='Nhập lại mật khẩu'
+            placeholder="Nhập lại mật khẩu"
             fullWidth
-            variant='outlined'
+            variant="outlined"
             sx={{
               "& .MuiOutlinedInput-root": {
                 borderRadius: "12px",
@@ -218,10 +212,10 @@ const AuthRegisterContent = () => {
             }}
             InputProps={{
               endAdornment: (
-                <InputAdornment position='end'>
+                <InputAdornment position="end">
                   <IconButton
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    edge='end'
+                    edge="end"
                   >
                     {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
                   </IconButton>
@@ -231,7 +225,7 @@ const AuthRegisterContent = () => {
           />
 
           <Button
-            variant='contained'
+            variant="contained"
             fullWidth
             sx={{
               py: 1.5,
@@ -248,9 +242,9 @@ const AuthRegisterContent = () => {
           </Button>
         </Stack>
 
-        <Typography variant='body2' mt={3}>
+        <Typography variant="body2" mt={3}>
           Đã có tài khoản?{" "}
-          <MuiLink component={Link} href={paths.auth.login} underline='hover'>
+          <MuiLink component={Link} href={paths.auth.login} underline="hover">
             Đăng nhập
           </MuiLink>
         </Typography>
@@ -259,20 +253,20 @@ const AuthRegisterContent = () => {
       {/* Bên phải - Minh họa */}
       <Stack
         flex={1}
-        bgcolor='#F9FAFB'
-        alignItems='center'
-        justifyContent='center'
+        bgcolor="#F9FAFB"
+        alignItems="center"
+        justifyContent="center"
         spacing={2}
       >
-        <Typography variant='h5' fontWeight='bold'>
+        <Typography variant="h5" fontWeight="bold">
           Chào mừng đến với CareerLens
         </Typography>
-        <Typography variant='body2' color='text.secondary'>
+        <Typography variant="body2" color="text.secondary">
           Hãy bắt đầu hành trình nghề nghiệp của bạn 👋🏼
         </Typography>
         <Image
-          src='/images/welcome-illustration.png'
-          alt='Minh họa đăng ký'
+          src="/images/welcome-illustration.png"
+          alt="Minh họa đăng ký"
           width={300}
           height={300}
           suppressHydrationWarning
