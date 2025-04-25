@@ -1,15 +1,6 @@
 import { io, Socket } from "socket.io-client";
 import { ServerToClientEvents, ClientToServerEvents } from "@/types/socket";
 import CookieHelper from "@/utils/cookie-helper";
-import { HOST } from "@/utils/api-request";
-import { Post } from "@/types/post";
-
-type CustomEventNames =
-  | "newPost"
-  | "newComment"
-  | "postLiked"
-  | "postUnliked"
-  | "newNotification";
 
 // Khai báo kiểu Socket với các sự kiện tùy chỉnh
 type AppSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
@@ -20,7 +11,7 @@ export class SocketClient {
   static getInstance(): AppSocket {
     if (!this.socket) {
       const token = CookieHelper.getItem("token") as string;
-      this.socket = io(HOST, {
+      this.socket = io(process.env.NEXT_PUBLIC_HOST || "http://localhost:8000", {
         auth: {
           token: token,
         },
@@ -37,25 +28,10 @@ export class SocketClient {
     return this.socket;
   }
 
-  // static on<Event extends CustomEventNames>(
-  //   event: Event,
-  //   callback: ServerToClientEvents[Event],
-  // ): void {
-  //   this.getInstance().on(event, callback);
-  // }
-
-  static on(event: "newPost", callback: (post: Post) => void): void;
-  static on(event: "newComment", callback: (comment: Comment) => void): void;
-  static on(
-    event: "postLiked" | "postUnliked",
-    callback: (data: { postId: string; like_count: number }) => void,
-  ): void;
-  static on(
-    event: "newNotification",
-    callback: (notification: Notification) => void,
-  ): void;
-
-  static on(event: CustomEventNames, callback: (...args: any[]) => void): void {
+  static on<Event extends keyof ServerToClientEvents>(
+    event: Event,
+    callback: ServerToClientEvents[Event]
+  ): void {
     this.getInstance().on(event, callback);
   }
 
