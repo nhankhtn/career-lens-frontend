@@ -22,6 +22,31 @@ export default function PostList({ tab }: PostListProps) {
     const [offset, setOffset] = useState(0);
     const [hasMore, setHasMore] = useState(true);
     const limit = 10;
+    // Track loaded post IDs to prevent duplicates
+    const [loadedPostIds, setLoadedPostIds] = useState<Set<string>>(new Set());
+
+    // Helper function to add posts without duplicates
+    const addUniquePosts = (newPosts: Post[]) => {
+        setPosts(prevPosts => {
+            // Create a map of existing posts by ID for quick lookup
+            const existingPostsMap = new Map(prevPosts.map(post => [post.id, post]));
+
+            // Add new posts to the map, overwriting any duplicates
+            newPosts.forEach(post => {
+                existingPostsMap.set(post.id, post);
+            });
+
+            // Convert map values back to array
+            return Array.from(existingPostsMap.values());
+        });
+
+        // Update the set of loaded post IDs
+        setLoadedPostIds(prevIds => {
+            const newIds = new Set(prevIds);
+            newPosts.forEach(post => newIds.add(post.id));
+            return newIds;
+        });
+    };
 
     const loadPosts = async () => {
         if (!hasMore) return;
@@ -40,7 +65,7 @@ export default function PostList({ tab }: PostListProps) {
 
         if (response.data) {
             const newPosts = response.data.data || [];
-            setPosts((prev) => [...prev, ...newPosts]);
+            addUniquePosts(newPosts);
             setOffset(offset + limit);
             setHasMore(newPosts.length === limit);
         } else {
@@ -49,32 +74,37 @@ export default function PostList({ tab }: PostListProps) {
     };
 
     useEffect(() => {
-        // Reset danh sách bài viết khi chuyển tab
+        // Reset state when tab changes
         setPosts([]);
         setOffset(0);
         setHasMore(true);
+        setLoadedPostIds(new Set());
         loadPosts();
     }, [tab]);
 
     useEffect(() => {
-        // Lắng nghe bài viết mới từ Socket.IO
-        SocketClient.on("newPost", (newPost: Post) => {
-            if (tab === "default") {
-                // Chỉ thêm bài viết mới vào tab "Đề xuất"
-                setPosts((prev) => [newPost, ...prev]);
-            } else if (tab === "followed") {
-                // Kiểm tra xem bài viết mới có thuộc người mà người dùng đang theo dõi không
-                // (Logic này cần backend hỗ trợ, tạm thời bỏ qua)
-            } else if (tab === "my-posts" && user && newPost.user_id?.id === user.id) {
-                // Thêm bài viết mới vào tab "Bài viết đã đăng" nếu là của người dùng
-                setPosts((prev) => [newPost, ...prev]);
+        // Socket event handler for new posts
+        const handleNewPost = (newPost: Post) => {
+            // Only add if we don't already have this post
+            if (!loadedPostIds.has(newPost.id)) {
+                if (tab === "default") {
+                    addUniquePosts([newPost]);
+                } else if (tab === "my-posts" && user && newPost.user_id?.id === user.id) {
+                    addUniquePosts([newPost]);
+                }
             }
-        });
+        };
 
+        // Set up socket listener
+        SocketClient.on("newPost", handleNewPost);
+
+        // Clean up socket connection
         return () => {
+            // We can't remove individual event listeners with SocketClient
+            // So we'll just disconnect the socket when the component unmounts
             SocketClient.disconnect();
         };
-    }, [tab, user]);
+    }, [tab, user, loadedPostIds]);
 
     return (
         <Box>
