@@ -89,7 +89,12 @@ export const validationSchema = [
   }),
   // Step 4: Skills
   Yup.object({
-    skills_have: Yup.array(),
+    skills_have: Yup.array().of(
+      Yup.object({
+        id: Yup.string().required("Vui lòng chọn kỹ năng"),
+        name: Yup.string().required("Vui lòng nhập tên kỹ năng"),
+      }),
+    ),
   }),
   // Step 5: Experience
   Yup.object({

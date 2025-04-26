@@ -1,149 +1,135 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useRef } from "react"
-import { Box, Tooltip, IconButton, Snackbar, Alert } from "@mui/material"
-import CheckCircleIcon from "@mui/icons-material/CheckCircle"
-import AccessTimeIcon from "@mui/icons-material/AccessTime"
-import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked"
-import { useUserContext } from "@/contexts/user/user-context"
-import { UserTopicStatus } from "@/types/user"
-import { useParams } from "next/navigation"
+import { useState, useEffect, useRef } from "react";
+import { Box, Tooltip, IconButton, Snackbar, Alert } from "@mui/material";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
+import { useUserContext } from "@/contexts/user/user-context";
+import { UserTopicStatus } from "@/types/user";
+import { useParams } from "next/navigation";
+import { useAuth } from "@/contexts/auth/firebase-context";
+import useAppSnackbar from "@/hooks/use-app-snackbar";
 
 interface ResourceProgressProps {
-  resourceId: string
-  topicId: string
+  resourceId: string;
+  topicId: string;
 }
 
-export default function ResourceProgress({ resourceId, topicId }: ResourceProgressProps) {
-  const params = useParams()
-  const roadmapId = params.roadmapId as string
-
-  const { getTopicProgress, updateTopicProgress, user, isAuthenticated } = useUserContext()
-  const [progress, setProgress] = useState<UserTopicStatus>(UserTopicStatus.NOT_STARTED)
-  const [isLoading, setIsLoading] = useState(false)
+export default function ResourceProgress({
+  resourceId,
+  topicId,
+}: ResourceProgressProps) {
+  const { showSnackbarSuccess, showSnackbarError } = useAppSnackbar();
+  const params = useParams();
+  const roadmapId = params.roadmapId as string;
+  const { user } = useAuth();
+  const { getTopicProgress, updateTopicProgress } = useUserContext();
+  const [progress, setProgress] = useState<UserTopicStatus>(
+    UserTopicStatus.NOT_STARTED,
+  );
+  const [isLoading, setIsLoading] = useState(false);
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
     severity: "success" as "success" | "error" | "info" | "warning",
-  })
+  });
 
-  // Use a ref to track if we've already loaded from localStorage
-  const loadedFromLocalStorage = useRef(false)
+  const loadedFromLocalStorage = useRef(false);
 
-  // Load progress from API or localStorage as fallback
   useEffect(() => {
-    // Get progress from API if available
-    const topicProgress = getTopicProgress(topicId)
+    const topicProgress = getTopicProgress(topicId);
 
     if (topicProgress) {
-      setProgress(topicProgress.status)
-    }
-    // Only load from localStorage once to prevent infinite loops
-    else if (!loadedFromLocalStorage.current) {
-      loadedFromLocalStorage.current = true
-      // Fallback to localStorage if API data is not available yet
-      const savedProgress = localStorage.getItem(`progress-${topicId}-${resourceId}`)
-      if (savedProgress && Object.values(UserTopicStatus).includes(savedProgress as UserTopicStatus)) {
-        setProgress(savedProgress as UserTopicStatus)
+      setProgress(topicProgress.status);
+    } else if (!loadedFromLocalStorage.current) {
+      loadedFromLocalStorage.current = true;
+      const savedProgress = localStorage.getItem(
+        `progress-${topicId}-${resourceId}`,
+      );
+      if (
+        savedProgress &&
+        Object.values(UserTopicStatus).includes(
+          savedProgress as UserTopicStatus,
+        )
+      ) {
+        setProgress(savedProgress as UserTopicStatus);
       }
     }
-  }, [topicId, resourceId, getTopicProgress])
+  }, [topicId, resourceId, getTopicProgress]);
 
-  // Handle progress change
   const handleProgressChange = async (newStatus: UserTopicStatus) => {
-    if (isLoading) return
+    if (isLoading) return;
 
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      // Update local state immediately for better UX
-      setProgress(newStatus)
+      setProgress(newStatus);
 
-      // Save to localStorage as fallback
-      localStorage.setItem(`progress-${topicId}-${resourceId}`, newStatus)
+      localStorage.setItem(`progress-${topicId}-${resourceId}`, newStatus);
 
-      // If user is logged in, update on the server
-      if (isAuthenticated) {
-        // First, check if the parent roadmap is bookmarked
-        const parentProgress = getTopicProgress(roadmapId)
+      if (user?.email) {
+        const parentProgress = getTopicProgress(roadmapId);
 
-        // If parent is not bookmarked, bookmark it first
         if (!parentProgress) {
-          await updateTopicProgress(roadmapId, UserTopicStatus.NOT_STARTED)
+          await updateTopicProgress(roadmapId, UserTopicStatus.NOT_STARTED);
 
-          // Show notification that parent was bookmarked
-          setSnackbar({
-            open: true,
-            message: "Roadmap has been automatically bookmarked",
-            severity: "info",
-          })
+          showSnackbarSuccess("Lưu lộ trình thành công");
 
-          // Also update localStorage for the roadmap bookmark
-          const bookmarks = JSON.parse(localStorage.getItem("roadmap-bookmarks") || "[]")
+          const bookmarks = JSON.parse(
+            localStorage.getItem("roadmap-bookmarks") || "[]",
+          );
           if (!bookmarks.includes(roadmapId)) {
-            bookmarks.push(roadmapId)
-            localStorage.setItem("roadmap-bookmarks", JSON.stringify(bookmarks))
+            bookmarks.push(roadmapId);
+            localStorage.setItem(
+              "roadmap-bookmarks",
+              JSON.stringify(bookmarks),
+            );
           }
         }
 
-        // Then update the current topic progress
-        await updateTopicProgress(topicId, newStatus)
+        await updateTopicProgress(topicId, newStatus);
 
-        // Show success notification
-        setSnackbar({
-          open: true,
-          message: `Tiến độ được cập nhật thành ${getStatusLabel(newStatus)}`,
-          severity: "success",
-        })
+        showSnackbarSuccess(
+          `Tiến độ được cập nhật thành ${getStatusLabel(newStatus)}`,
+        );
       } else {
-        // Show success notification even for non-authenticated users
-        setSnackbar({
-          open: true,
-          message: `Tiến độ được cập nhật thành ${getStatusLabel(newStatus)} (saved locally)`,
-          severity: "success",
-        })
+        showSnackbarSuccess(
+          `Tiến độ được cập nhật thành ${getStatusLabel(newStatus)}`,
+        );
       }
     } catch (error) {
-      console.error("Lỗi cập nhật tiến độ:", error)
-      // Revert to previous state on error
-      const topicProgress = getTopicProgress(topicId)
+      console.error("Lỗi cập nhật tiến độ:", error);
+      const topicProgress = getTopicProgress(topicId);
       if (topicProgress) {
-        setProgress(topicProgress.status)
+        setProgress(topicProgress.status);
       }
 
-      // Show error notification
-      setSnackbar({
-        open: true,
-        message: "Cập nhật tiến độ không thành công",
-        severity: "error",
-      })
+      showSnackbarError("Đã xảy ra lỗi khi cập nhật tiến độ");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
-  // Helper function to get status label
   const getStatusLabel = (status: UserTopicStatus): string => {
     switch (status) {
       case UserTopicStatus.NOT_STARTED:
-        return "Chưa học"
+        return "Chưa học";
       case UserTopicStatus.IN_PROGRESS:
-        return "Đang học"
+        return "Đang học";
       case UserTopicStatus.COMPLETED:
-        return "Hoàn thành"
+        return "Hoàn thành";
       default:
-        return "Unknown"
+        return "Unknown";
     }
-  }
+  };
 
-  // Handle snackbar close
   const handleSnackbarClose = () => {
     setSnackbar({
       ...snackbar,
       open: false,
-    })
-  }
+    });
+  };
 
-  // Define the status configurations
   const statusConfig = {
     [UserTopicStatus.NOT_STARTED]: {
       icon: <RadioButtonUncheckedIcon fontSize="small" />,
@@ -166,9 +152,9 @@ export default function ResourceProgress({ resourceId, topicId }: ResourceProgre
       bgColor: "success.light",
       borderColor: "success.main",
     },
-  }
+  };
 
-  const currentStatus = statusConfig[progress]
+  const currentStatus = statusConfig[progress];
 
   return (
     <>
@@ -183,7 +169,8 @@ export default function ResourceProgress({ resourceId, topicId }: ResourceProgre
                 color: status === progress ? config.color : "text.disabled",
                 bgcolor: status === progress ? config.bgColor : "transparent",
                 border: "1px solid",
-                borderColor: status === progress ? config.borderColor : "transparent",
+                borderColor:
+                  status === progress ? config.borderColor : "transparent",
                 p: 0.5,
                 "&:hover": {
                   bgcolor: config.bgColor,
@@ -209,17 +196,20 @@ export default function ResourceProgress({ resourceId, topicId }: ResourceProgre
         </Box>
       </Box>
 
-      {/* Notification Snackbar */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={4000}
         onClose={handleSnackbarClose}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
-        <Alert onClose={handleSnackbarClose} severity={snackbar.severity} sx={{ width: "100%" }}>
+        <Alert
+          onClose={handleSnackbarClose}
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>
     </>
-  )
+  );
 }

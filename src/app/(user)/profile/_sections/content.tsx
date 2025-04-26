@@ -37,13 +37,13 @@ import Grid from "@mui/material/Grid";
 
 // Import hooks and forms
 import { useDialog } from "@/hooks/use-dialog";
-import EditCoursesForm from "@/app/(user)/profile/[username]/_sections/edit-courses-form";
-import EditSkillsForm from "@/app/(user)/profile/[username]/_sections/edit-skills-form";
-import EditProfileForm from "@/app/(user)/profile/[username]/_sections/edit-profile-form";
 
 // Import API and types
 import UsersApi from "@/api/users";
 import type { User, UserTopicProgress } from "@/types/user";
+import EditProfileForm from "./edit-profile-form";
+import EditCoursesForm from "./edit-courses-form";
+import EditSkillsForm from "./edit-skills-form";
 
 const isValidObjectId = (id: string): boolean => {
   return /^[0-9a-fA-F]{24}$/.test(id);
@@ -75,9 +75,13 @@ const ProfileContent = () => {
             .filter((topic) => isValidObjectId(topic.topic_id))
             .map((topic) => ({
               ...topic,
-              started_at: topic.started_at ? new Date(topic.started_at) : undefined,
-              completed_at: topic.completed_at ? new Date(topic.completed_at) : undefined
-            }))
+              started_at: topic.started_at
+                ? new Date(topic.started_at)
+                : undefined,
+              completed_at: topic.completed_at
+                ? new Date(topic.completed_at)
+                : undefined,
+            })),
         );
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -101,8 +105,12 @@ const ProfileContent = () => {
   // Handle skills submit
   const handleSkillsSubmit = async (newSkills: string[]) => {
     try {
-      const updatedUser = await UsersApi.addOrUpdateSkills({ skills: newSkills });
-      setUser((prev) => (prev ? { ...prev, skills: updatedUser.skills || [] } : prev));
+      const updatedUser = await UsersApi.addOrUpdateSkills({
+        skills: newSkills,
+      });
+      setUser((prev) =>
+        prev ? { ...prev, skills: updatedUser.skills || [] } : prev,
+      );
     } catch (error) {
       console.error("Error updating skills:", error);
     }
@@ -111,11 +119,11 @@ const ProfileContent = () => {
   // Handle profile submit
   const handleProfileSubmit = (profile: Partial<User>) => {
     UsersApi.updateProfile(profile)
-      .then(updatedUser => {
-        setUser(prev => (prev ? { ...prev, ...updatedUser } : prev));
+      .then((updatedUser) => {
+        setUser((prev) => (prev ? { ...prev, ...updatedUser } : prev));
         setIsEditingProfile(false);
       })
-      .catch(error => {
+      .catch((error) => {
         console.error("Error updating profile:", error);
       });
   };
@@ -155,11 +163,15 @@ const ProfileContent = () => {
                 <CardContent>
                   <Stack alignItems="center" spacing={2}>
                     <Avatar
-                      sx={{ width: 120, height: 120, border: 4, borderColor: "white" }}
+                      sx={{
+                        width: 120,
+                        height: 120,
+                        border: 4,
+                        borderColor: "white",
+                      }}
                       src={user.photo_url || "/default-avatar.png"}
                       alt={user.name || "Unknown User"}
-                    >
-                    </Avatar>
+                    ></Avatar>
                     <Typography variant="h6" fontWeight="bold">
                       {user.name || "Unknown User"}
                     </Typography>
@@ -188,29 +200,55 @@ const ProfileContent = () => {
                 <CardContent>
                   <Stack spacing={2}>
                     <RowStack spacing={2}>
-                      <Box sx={{ p: 1, bgcolor: "primary.light", borderRadius: "50%" }}>
+                      <Box
+                        sx={{
+                          p: 1,
+                          bgcolor: "primary.light",
+                          borderRadius: "50%",
+                        }}
+                      >
                         <Email sx={{ fontSize: 18, color: "primary.main" }} />
                       </Box>
                       <Typography variant="body2">{user.email}</Typography>
                     </RowStack>
                     {user.phone && (
                       <RowStack spacing={2}>
-                        <Box sx={{ p: 1, bgcolor: "primary.light", borderRadius: "50%" }}>
+                        <Box
+                          sx={{
+                            p: 1,
+                            bgcolor: "primary.light",
+                            borderRadius: "50%",
+                          }}
+                        >
                           <Phone sx={{ fontSize: 18, color: "primary.main" }} />
                         </Box>
                         <Typography variant="body2">{user.phone}</Typography>
                       </RowStack>
                     )}
                     <RowStack spacing={2}>
-                      <Box sx={{ p: 1, bgcolor: "primary.light", borderRadius: "50%" }}>
-                        <LocationOn sx={{ fontSize: 18, color: "primary.main" }} />
+                      <Box
+                        sx={{
+                          p: 1,
+                          bgcolor: "primary.light",
+                          borderRadius: "50%",
+                        }}
+                      >
+                        <LocationOn
+                          sx={{ fontSize: 18, color: "primary.main" }}
+                        />
                       </Box>
                       <Typography variant="body2">
                         {user.address || "Chưa cập nhật địa chỉ"}
                       </Typography>
                     </RowStack>
                     <RowStack spacing={2}>
-                      <Box sx={{ p: 1, bgcolor: "primary.light", borderRadius: "50%" }}>
+                      <Box
+                        sx={{
+                          p: 1,
+                          bgcolor: "primary.light",
+                          borderRadius: "50%",
+                        }}
+                      >
                         <School sx={{ fontSize: 18, color: "primary.main" }} />
                       </Box>
                       <Typography variant="body2">
@@ -219,16 +257,32 @@ const ProfileContent = () => {
                     </RowStack>
                     {user.bio && (
                       <RowStack spacing={2}>
-                        <Box sx={{ p: 1, bgcolor: "primary.light", borderRadius: "50%" }}>
-                          <Description sx={{ fontSize: 18, color: "primary.main" }} />
+                        <Box
+                          sx={{
+                            p: 1,
+                            bgcolor: "primary.light",
+                            borderRadius: "50%",
+                          }}
+                        >
+                          <Description
+                            sx={{ fontSize: 18, color: "primary.main" }}
+                          />
                         </Box>
                         <Typography variant="body2">{user.bio}</Typography>
                       </RowStack>
                     )}
                     {user.quote && (
                       <RowStack spacing={2}>
-                        <Box sx={{ p: 1, bgcolor: "primary.light", borderRadius: "50%" }}>
-                          <FormatQuote sx={{ fontSize: 18, color: "primary.main" }} />
+                        <Box
+                          sx={{
+                            p: 1,
+                            bgcolor: "primary.light",
+                            borderRadius: "50%",
+                          }}
+                        >
+                          <FormatQuote
+                            sx={{ fontSize: 18, color: "primary.main" }}
+                          />
                         </Box>
                         <Typography variant="body2">{user.quote}</Typography>
                       </RowStack>
@@ -240,43 +294,53 @@ const ProfileContent = () => {
               {(user.social_media?.facebook ||
                 user.social_media?.instagram ||
                 user.social_media?.other) && (
-                  <Card>
-                    <CardContent>
-                      <Typography variant="subtitle1" fontWeight="medium" mb={2}>
-                        Tài khoản mạng xã hội
-                      </Typography>
-                      <Stack spacing={2}>
-                        {user.social_media?.facebook && (
-                          <RowStack justifyContent="space-between">
-                            <RowStack spacing={2}>
-                              <FacebookIcon sx={{ color: "primary.main", fontSize: 20 }} />
-                              <Typography>{user.social_media.facebook}</Typography>
-                            </RowStack>
-                            <Typography color="text.secondary">›</Typography>
+                <Card>
+                  <CardContent>
+                    <Typography variant="subtitle1" fontWeight="medium" mb={2}>
+                      Tài khoản mạng xã hội
+                    </Typography>
+                    <Stack spacing={2}>
+                      {user.social_media?.facebook && (
+                        <RowStack justifyContent="space-between">
+                          <RowStack spacing={2}>
+                            <FacebookIcon
+                              sx={{ color: "primary.main", fontSize: 20 }}
+                            />
+                            <Typography>
+                              {user.social_media.facebook}
+                            </Typography>
                           </RowStack>
-                        )}
-                        {user.social_media?.instagram && (
-                          <RowStack justifyContent="space-between">
-                            <RowStack spacing={2}>
-                              <InstagramIcon sx={{ color: "primary.main", fontSize: 20 }} />
-                              <Typography>{user.social_media.instagram}</Typography>
-                            </RowStack>
-                            <Typography color="text.secondary">›</Typography>
+                          <Typography color="text.secondary">›</Typography>
+                        </RowStack>
+                      )}
+                      {user.social_media?.instagram && (
+                        <RowStack justifyContent="space-between">
+                          <RowStack spacing={2}>
+                            <InstagramIcon
+                              sx={{ color: "primary.main", fontSize: 20 }}
+                            />
+                            <Typography>
+                              {user.social_media.instagram}
+                            </Typography>
                           </RowStack>
-                        )}
-                        {user.social_media?.other && (
-                          <RowStack justifyContent="space-between">
-                            <RowStack spacing={2}>
-                              <LanguageIcon sx={{ color: "primary.main", fontSize: 20 }} />
-                              <Typography>{user.social_media.other}</Typography>
-                            </RowStack>
-                            <Typography color="text.secondary">›</Typography>
+                          <Typography color="text.secondary">›</Typography>
+                        </RowStack>
+                      )}
+                      {user.social_media?.other && (
+                        <RowStack justifyContent="space-between">
+                          <RowStack spacing={2}>
+                            <LanguageIcon
+                              sx={{ color: "primary.main", fontSize: 20 }}
+                            />
+                            <Typography>{user.social_media.other}</Typography>
                           </RowStack>
-                        )}
-                      </Stack>
-                    </CardContent>
-                  </Card>
-                )}
+                          <Typography color="text.secondary">›</Typography>
+                        </RowStack>
+                      )}
+                    </Stack>
+                  </CardContent>
+                </Card>
+              )}
 
               <Button
                 variant="contained"
@@ -335,26 +399,46 @@ const ProfileContent = () => {
                       ) : (
                         courses.map((course) => (
                           <RowStack key={course.topic_id} spacing={2}>
-                            <Box sx={{ width: 48, height: 48, bgcolor: "primary.light", borderRadius: 1 }} />
+                            <Box
+                              sx={{
+                                width: 48,
+                                height: 48,
+                                bgcolor: "primary.light",
+                                borderRadius: 1,
+                              }}
+                            />
                             <Stack flexGrow={1}>
-                              <Typography fontWeight="bold">{course.title || "Unknown Topic"}</Typography>
-                              <Typography variant="body2" color="text.secondary">
+                              <Typography fontWeight="bold">
+                                {course.title || "Unknown Topic"}
+                              </Typography>
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                              >
                                 Status: {course.status}
                               </Typography>
                               {course.notes && (
-                                <Typography variant="body2" color="text.secondary">
+                                <Typography
+                                  variant="body2"
+                                  color="text.secondary"
+                                >
                                   Notes: {course.notes}
                                 </Typography>
                               )}
                               {course.rating && (
-                                <Typography variant="body2" color="text.secondary">
+                                <Typography
+                                  variant="body2"
+                                  color="text.secondary"
+                                >
                                   Rating: {course.rating}/5
                                 </Typography>
                               )}
                             </Stack>
                             <IconButton
                               color="error"
-                              onClick={() => handleDeleteTopicProgress(course.topic_id)}
+                              onClick={() =>
+                                handleDeleteTopicProgress(course.topic_id)
+                              }
                             >
                               <Delete sx={{ fontSize: 20 }} />
                             </IconButton>
@@ -394,7 +478,10 @@ const ProfileContent = () => {
                         <Stack spacing={2} mt={2}>
                           {user.skills && user.skills.length > 0 ? (
                             user.skills.map((skill, index) => (
-                              <RowStack key={index} justifyContent="space-between">
+                              <RowStack
+                                key={index}
+                                justifyContent="space-between"
+                              >
                                 <RowStack spacing={1}>
                                   <Verified sx={{ color: "primary.main" }} />
                                   <Typography>{skill}</Typography>
@@ -408,12 +495,16 @@ const ProfileContent = () => {
                       )}
                       {tabValue === 1 && (
                         <Stack spacing={2} mt={2}>
-                          <Typography>Industry knowledge content goes here...</Typography>
+                          <Typography>
+                            Industry knowledge content goes here...
+                          </Typography>
                         </Stack>
                       )}
                       {tabValue === 2 && (
                         <Stack spacing={2} mt={2}>
-                          <Typography>Tools & Technologies content goes here...</Typography>
+                          <Typography>
+                            Tools & Technologies content goes here...
+                          </Typography>
                         </Stack>
                       )}
                     </>

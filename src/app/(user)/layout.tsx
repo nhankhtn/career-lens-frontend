@@ -6,22 +6,21 @@ import { HEIGHT_HEADER_ADMIN } from "@/constants";
 import { Container } from "@mui/material";
 import { useAuth } from "@/contexts/auth/firebase-context";
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { useDialog } from "@/hooks/use-dialog";
 import RequiredOnboardingDialog from "./_components/required-onboarding-dialog";
 import { UserProvider } from "@/contexts/user/user-context";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const theme = useTheme();
-  const router = useRouter();
   const { user } = useAuth();
   const dialogRequireOnboarding = useDialog();
 
-  // useEffect(() => {
-  //   if (user?.email && !user.onboarding_completed) {
-  //     dialogRequireOnboarding.handleOpen();
-  //   }
-  // }, [user]);
+  useEffect(() => {
+    if (user?.email && !user.onboarding_completed) {
+      dialogRequireOnboarding.handleOpen();
+    }
+  }, [user]);
+
   return (
     <UserProvider>
       <Stack>
