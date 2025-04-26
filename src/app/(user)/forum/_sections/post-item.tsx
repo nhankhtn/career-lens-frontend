@@ -119,8 +119,8 @@ export default function PostItem({ post }: PostItemProps) {
       image_url: [],
     });
 
-    if (response.data) {
-      setComments((prev) => [response.data, ...prev]);
+    if (response.data && typeof response.data === 'object' && 'id' in response.data) {
+      setComments((prev) => [response.data as Comment, ...prev]);
       setCommentCount((prev) => prev + 1);
       setNewComment("");
       showSnackbarSuccess("Đã đăng bình luận!");
@@ -241,7 +241,7 @@ export default function PostItem({ post }: PostItemProps) {
           <Box sx={{ mt: 1, mb: 2 }}>
             <Box
               component="img"
-              src={post.image_url[0] || "/placeholder.svg"}
+              src={post.image_url[0]}
               alt="Post image"
               sx={{
                 width: "100%",

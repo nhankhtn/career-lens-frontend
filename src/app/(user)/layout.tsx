@@ -17,11 +17,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
   const dialogRequireOnboarding = useDialog();
 
-  useEffect(() => {
-    if (user?.email && !user.onboarding_completed) {
-      dialogRequireOnboarding.handleOpen();
-    }
-  }, [user]);
+  // useEffect(() => {
+  //   if (user?.email && !user.onboarding_completed) {
+  //     dialogRequireOnboarding.handleOpen();
+  //   }
+  // }, [user]);
   return (
     <UserProvider>
       <Stack>

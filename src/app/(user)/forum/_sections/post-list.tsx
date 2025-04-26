@@ -33,7 +33,9 @@ export default function PostList({ tab }: PostListProps) {
 
             // Add new posts to the map, overwriting any duplicates
             newPosts.forEach(post => {
-                existingPostsMap.set(post.id, post);
+                if (post && post.id) {
+                    existingPostsMap.set(post.id, post);
+                }
             });
 
             // Convert map values back to array
@@ -43,7 +45,11 @@ export default function PostList({ tab }: PostListProps) {
         // Update the set of loaded post IDs
         setLoadedPostIds(prevIds => {
             const newIds = new Set(prevIds);
-            newPosts.forEach(post => newIds.add(post.id));
+            newPosts.forEach(post => {
+                if (post && post.id) {
+                    newIds.add(post.id);
+                }
+            });
             return newIds;
         });
     };

@@ -62,7 +62,7 @@ export default function PostCreator() {
     <Box>
       <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
         <Avatar
-          src={user?.photo_url || "/placeholder.svg?height=40&width=40"}
+          src={user?.photo_url}
           alt={user?.name || "User"}
           sx={{ width: 55, height: 55 }}
         />

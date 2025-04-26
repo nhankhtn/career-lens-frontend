@@ -46,7 +46,7 @@ export default function ProfileSidebar() {
                     }}
                 >
                     <Avatar
-                        src={user?.photo_url || "/placeholder.svg?height=80&width=80"}
+                        src={user?.photo_url}
                         alt={user?.name || "Unknown User"}
                         sx={{
                             width: { xs: 50, md: 80 },
@@ -71,7 +71,7 @@ export default function ProfileSidebar() {
                             fontSize: { xs: "0.75rem", md: "1rem" },
                         }}
                     >
-                        {user?.address || "Chưa cập nhật địa chỉ"}
+                        {user?.address}
                     </Typography>
 
                     <Button

@@ -32,7 +32,8 @@ export class SocketClient {
     event: Event,
     callback: ServerToClientEvents[Event]
   ): void {
-    this.getInstance().on(event, callback);
+    // Sử dụng any để bỏ qua kiểm tra kiểu dữ liệu
+    (this.getInstance() as any).on(event, callback);
   }
 
   static emit<Event extends keyof ClientToServerEvents>(
