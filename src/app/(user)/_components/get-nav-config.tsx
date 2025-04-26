@@ -16,7 +16,7 @@ export const getNavConfig = (): NavConfigProps[] => [
   },
   {
     title: "Lộ trình",
-    href: paths.roadmap,
+    href: paths.roadmap.index,
   },
   {
     title: "Diễn đàn",

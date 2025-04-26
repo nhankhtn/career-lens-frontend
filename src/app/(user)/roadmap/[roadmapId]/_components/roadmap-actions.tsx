@@ -1,189 +1,138 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { Box, Button, IconButton, Menu, MenuItem, Snackbar, Alert } from "@mui/material"
-import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder"
-import BookmarkIcon from "@mui/icons-material/Bookmark"
-import CalendarTodayIcon from "@mui/icons-material/CalendarToday"
-import DownloadIcon from "@mui/icons-material/Download"
-import ShareIcon from "@mui/icons-material/Share"
-import { useState, useEffect, useRef } from "react"
-import { useParams } from "next/navigation"
-import { useUserContext } from "@/contexts/user/user-context"
-import { UserTopicStatus } from "@/types/user"
+import {
+  Box,
+  Button,
+  IconButton,
+  Menu,
+  MenuItem,
+  Snackbar,
+  Alert,
+} from "@mui/material";
+import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
+import BookmarkIcon from "@mui/icons-material/Bookmark";
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+import DownloadIcon from "@mui/icons-material/Download";
+import ShareIcon from "@mui/icons-material/Share";
+import { useState, useEffect, useRef } from "react";
+import { useParams } from "next/navigation";
+import { useUserContext } from "@/contexts/user/user-context";
+import { UserTopicStatus } from "@/types/user";
+import { useAuth } from "@/contexts/auth/firebase-context";
+import DevelopmentTooltip from "@/components/development-tooltip";
+import useAppSnackbar from "@/hooks/use-app-snackbar";
 
 export default function RoadmapActions() {
-  const params = useParams()
-  const roadmapId = params.roadmapId as string
-  const { getTopicProgress, updateTopicProgress, removeTopicProgress, isAuthenticated } = useUserContext()
+  const params = useParams();
+  const { showSnackbarSuccess } = useAppSnackbar();
+  const roadmapId = params.roadmapId as string;
+  const { getTopicProgress, updateTopicProgress, removeTopicProgress } =
+    useUserContext();
+  const { user } = useAuth();
+  const [bookmarked, setBookmarked] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [shareAnchorEl, setShareAnchorEl] = useState<null | HTMLElement>(null);
 
-  const [bookmarked, setBookmarked] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [shareAnchorEl, setShareAnchorEl] = useState<null | HTMLElement>(null)
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    severity: "success" as "success" | "error" | "info" | "warning",
-  })
+  const loadedFromLocalStorage = useRef(false);
 
-  // Use a ref to track if we've already loaded from localStorage
-  const loadedFromLocalStorage = useRef(false)
-
-  // Check if the roadmap is bookmarked
   useEffect(() => {
-    // Get from API if available
-    const topicProgress = getTopicProgress(roadmapId)
+    const topicProgress = getTopicProgress(roadmapId);
 
     if (topicProgress) {
-      setBookmarked(true)
+      setBookmarked(true);
+    } else if (!loadedFromLocalStorage.current) {
+      loadedFromLocalStorage.current = true;
+      const savedBookmarks = JSON.parse(
+        localStorage.getItem("roadmap-bookmarks") || "[]",
+      );
+      setBookmarked(savedBookmarks.includes(roadmapId));
     }
-    // Only load from localStorage once to prevent infinite loops
-    else if (!loadedFromLocalStorage.current) {
-      loadedFromLocalStorage.current = true
-      // Fallback to localStorage if API data is not available yet
-      const savedBookmarks = JSON.parse(localStorage.getItem("roadmap-bookmarks") || "[]")
-      setBookmarked(savedBookmarks.includes(roadmapId))
-    }
-  }, [roadmapId, getTopicProgress])
+  }, [roadmapId, getTopicProgress]);
 
-  // Handle bookmark toggle
   const handleBookmarkToggle = async () => {
-    if (isLoading) return
+    if (isLoading) return;
 
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      // Update local state immediately for better UX
-      setBookmarked(!bookmarked)
+      setBookmarked(!bookmarked);
 
-      // Save bookmark state to localStorage
-      const bookmarks = JSON.parse(localStorage.getItem("roadmap-bookmarks") || "[]")
+      const bookmarks = JSON.parse(
+        localStorage.getItem("roadmap-bookmarks") || "[]",
+      );
 
       if (!bookmarked) {
-        // Add to bookmarks
         if (!bookmarks.includes(roadmapId)) {
-          bookmarks.push(roadmapId)
+          bookmarks.push(roadmapId);
         }
-        setSnackbar({
-          open: true,
-          message: "Lộ trình đã được lưu",
-          severity: "success",
-        })
+        showSnackbarSuccess("Đã lưu lộ trình thành công");
 
-        // If user is logged in, update on the server
-        if (isAuthenticated) {
-          await updateTopicProgress(roadmapId, UserTopicStatus.NOT_STARTED)
+        if (user?.email) {
+          await updateTopicProgress(roadmapId, UserTopicStatus.NOT_STARTED);
         }
       } else {
-        // Remove from bookmarks
-        const index = bookmarks.indexOf(roadmapId)
+        const index = bookmarks.indexOf(roadmapId);
         if (index > -1) {
-          bookmarks.splice(index, 1)
+          bookmarks.splice(index, 1);
         }
-        setSnackbar({
-          open: true,
-          message: "Lộ trình đã bị gỡ",
-          severity: "info",
-        })
+        showSnackbarSuccess("Đã gỡ lộ trình thành công");
 
-        // If user is logged in, update on the server
-        if (isAuthenticated) {
-          await removeTopicProgress(roadmapId)
+        if (user?.email) {
+          await removeTopicProgress(roadmapId);
         }
       }
 
-      localStorage.setItem("roadmap-bookmarks", JSON.stringify(bookmarks))
+      localStorage.setItem("roadmap-bookmarks", JSON.stringify(bookmarks));
     } catch (error) {
-      console.error("Error toggling bookmark:", error)
-      // Revert to previous state on error
-      setBookmarked(!bookmarked)
-      setSnackbar({
-        open: true,
-        message: "Lỗi cập nhật tình trạng roadmap",
-        severity: "error",
-      })
+      setBookmarked(!bookmarked);
+      showSnackbarSuccess("Đã xảy ra lỗi khi cập nhật tình trạng roadmap");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
-  // Handle schedule learning time
-  const handleScheduleLearning = () => {
-    // Open calendar or scheduling interface
-    setSnackbar({
-      open: true,
-      message: "Chức năng đang được phát triển",
-      severity: "info",
-    })
-  }
-
-  // Handle download
-  const handleDownload = () => {
-    // Download roadmap as PDF or other format
-    setSnackbar({
-      open: true,
-      message: "Chức năng đang được phát triển",
-      severity: "info",
-    })
-
-    // Simulate download delay
-    // setTimeout(() => {
-    //   setSnackbar({
-    //     open: true,
-    //     message: "Roadmap downloaded successfully",
-    //     severity: "success",
-    //   })
-    // }, 2000)
-  }
-
-  // Handle share menu
   const handleShareClick = (event: React.MouseEvent<HTMLElement>) => {
-    setShareAnchorEl(event.currentTarget)
-  }
+    setShareAnchorEl(event.currentTarget);
+  };
 
   const handleShareClose = () => {
-    setShareAnchorEl(null)
-  }
+    setShareAnchorEl(null);
+  };
 
   const handleShare = (platform: string) => {
-    const url = window.location.href
-    let shareUrl = ""
+    const url = window.location.href;
+    let shareUrl = "";
 
     switch (platform) {
       case "twitter":
-        shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=Check out this roadmap!`
-        break
+        shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(
+          url,
+        )}&text=Check out this roadmap!`;
+        break;
       case "facebook":
-        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`
-        break
+        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+          url,
+        )}`;
+        break;
       case "linkedin":
-        shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`
-        break
+        shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
+          url,
+        )}`;
+        break;
       case "copy":
-        navigator.clipboard.writeText(url)
-        setSnackbar({
-          open: true,
-          message: "Sao chép đường dẫn thành công",
-          severity: "success",
-        })
-        handleShareClose()
-        return
+        navigator.clipboard.writeText(url);
+        showSnackbarSuccess("Sao chép đường dẫn thành công");
+        handleShareClose();
+        return;
     }
 
     if (shareUrl) {
-      window.open(shareUrl, "_blank")
+      window.open(shareUrl, "_blank");
     }
 
-    handleShareClose()
-  }
-
-  // Handle snackbar close
-  const handleSnackbarClose = () => {
-    setSnackbar({
-      ...snackbar,
-      open: false,
-    })
-  }
+    handleShareClose();
+  };
 
   return (
     <>
@@ -197,36 +146,38 @@ export default function RoadmapActions() {
           {bookmarked ? <BookmarkIcon /> : <BookmarkBorderIcon />}
         </IconButton>
 
-        <Button
-          startIcon={<CalendarTodayIcon />}
-          variant="outlined"
-          onClick={handleScheduleLearning}
-          sx={{
-            color: "text.secondary",
-            borderColor: "divider",
-            "&:hover": {
-              borderColor: "text.secondary",
-              bgcolor: "action.hover",
-            },
-          }}
-        >
-          Lên lịch học
-        </Button>
+        <DevelopmentTooltip>
+          <Button
+            startIcon={<CalendarTodayIcon />}
+            variant="outlined"
+            sx={{
+              color: "text.secondary",
+              borderColor: "divider",
+              "&:hover": {
+                borderColor: "text.secondary",
+                bgcolor: "action.hover",
+              },
+            }}
+          >
+            Lên lịch học
+          </Button>
+        </DevelopmentTooltip>
 
-        <Button
-          startIcon={<DownloadIcon />}
-          variant="contained"
-          onClick={handleDownload}
-          sx={{
-            bgcolor: "warning.main",
-            color: "text.primary",
-            "&:hover": {
-              bgcolor: "warning.dark",
-            },
-          }}
-        >
-          Tải xuống
-        </Button>
+        <DevelopmentTooltip>
+          <Button
+            startIcon={<DownloadIcon />}
+            variant="contained"
+            sx={{
+              bgcolor: "warning.main",
+              color: "text.primary",
+              "&:hover": {
+                bgcolor: "warning.dark",
+              },
+            }}
+          >
+            Tải xuống
+          </Button>
+        </DevelopmentTooltip>
 
         <Button
           startIcon={<ShareIcon />}
@@ -244,24 +195,34 @@ export default function RoadmapActions() {
           Chia sẻ
         </Button>
 
-        <Menu anchorEl={shareAnchorEl} open={Boolean(shareAnchorEl)} onClose={handleShareClose}>
+        <Menu
+          anchorEl={shareAnchorEl}
+          open={Boolean(shareAnchorEl)}
+          onClose={handleShareClose}
+        >
           <MenuItem onClick={() => handleShare("twitter")}>Twitter</MenuItem>
           <MenuItem onClick={() => handleShare("facebook")}>Facebook</MenuItem>
           <MenuItem onClick={() => handleShare("linkedin")}>LinkedIn</MenuItem>
-          <MenuItem onClick={() => handleShare("copy")}>Sao chép liên kết</MenuItem>
+          <MenuItem onClick={() => handleShare("copy")}>
+            Sao chép liên kết
+          </MenuItem>
         </Menu>
       </Box>
 
-      <Snackbar
+      {/* <Snackbar
         open={snackbar.open}
         autoHideDuration={4000}
         onClose={handleSnackbarClose}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
-        <Alert onClose={handleSnackbarClose} severity={snackbar.severity} sx={{ width: "100%" }}>
+        <Alert
+          onClose={handleSnackbarClose}
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
+        >
           {snackbar.message}
         </Alert>
-      </Snackbar>
+      </Snackbar> */}
     </>
-  )
+  );
 }

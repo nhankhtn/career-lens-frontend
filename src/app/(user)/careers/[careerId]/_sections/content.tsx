@@ -24,6 +24,8 @@ import NotFound from "@/app/not-found";
 import { CareerAnalytics } from "./career-analytics";
 import RowStack from "@/components/row-stack";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import useFunction from "@/hooks/use-function";
+import UsersApi from "@/api/users";
 
 const CareerDetailContent = () => {
   const router = useRouter();
@@ -35,7 +37,9 @@ const CareerDetailContent = () => {
     careerDetail,
     getCareerDetailByIdApi,
   } = useCareerDetailSearch();
-
+  const createTopicProgressApi = useFunction(UsersApi.createTopicProgress, {
+    hideSnackbarError: true,
+  });
   const handleGotoPath = (id: string) => {};
 
   if (!career && getCareersByIdApi.callCount > 0) {
@@ -171,14 +175,17 @@ const CareerDetailContent = () => {
               fontWeight: "bold",
               "&:hover": { backgroundColor: "#4F46E5" },
             }}
-            onClick={() =>
+            onClick={() => {
               router.push(
                 paths.roadmap.detail.replace(
                   ":roadmapId",
                   career?.topic_id as string,
                 ),
-              )
-            }
+              );
+              createTopicProgressApi.call({
+                topicId: career?.topic_id as string,
+              });
+            }}
           >
             Khám phá lộ trình học tập ngay
           </Button>
