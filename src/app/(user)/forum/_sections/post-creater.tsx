@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Avatar,
   Box,
@@ -14,6 +14,8 @@ import {
 import { InsertPhoto, Event, Article } from "@mui/icons-material";
 import { usePostContext } from "@/contexts/forum/post-context";
 import useAppSnackbar from "@/hooks/use-app-snackbar";
+import UsersApi from "@/api/users";
+import type { User } from "@/types/user";
 
 export default function PostCreator() {
   const { createPostApi } = usePostContext();
@@ -21,6 +23,19 @@ export default function PostCreator() {
   const [open, setOpen] = useState(false);
   const [content, setContent] = useState("");
   const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const userData = await UsersApi.me();
+        setUser(userData);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+    fetchUserData();
+  }, []);
 
   const handleSubmit = async () => {
     if (!content.trim()) {
@@ -47,9 +62,9 @@ export default function PostCreator() {
     <Box>
       <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
         <Avatar
-          src="/placeholder.svg?height=40&width=40"
-          alt="User"
-          sx={{ width: 60, height: 60 }}
+          src={user?.photo_url}
+          alt={user?.name || "User"}
+          sx={{ width: 55, height: 55 }}
         />
         <InputBase
           fullWidth

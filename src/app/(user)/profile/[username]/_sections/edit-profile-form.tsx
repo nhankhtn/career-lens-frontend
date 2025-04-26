@@ -5,29 +5,7 @@ import { Box, Button, TextField, Stack, Typography } from "@mui/material";
 import useFunction from "@/hooks/use-function";
 import UsersApi from "@/api/users";
 import useAppSnackbar from "@/hooks/use-app-snackbar";
-
-interface User {
-    id: string;
-    name: string;
-    email: string;
-    phone?: string;
-    photo_url?: string;
-    role: string;
-    year?: number;
-    school?: string;
-    address?: string;
-    bio?: string;
-    quote?: string;
-    social_media?: {
-        facebook?: string;
-        instagram?: string;
-        linkedin?: string;
-    };
-    skills: string[];
-    onboarding_completed: boolean;
-    created_at: Date;
-    updated_at: Date;
-}
+import type { User } from "@/types/user";
 
 interface EditProfileFormProps {
     onClose: () => void;
@@ -72,7 +50,7 @@ const EditProfileForm = ({ onClose, initialProfile, onSubmit }: EditProfileFormP
         return emailRegex.test(email);
     };
 
-    const handleSubmit = async () => {
+    const handleSubmit = () => {
         // Validate required fields
         if (!profile.name?.trim()) {
             showSnackbarError("Tên là bắt buộc");
@@ -91,26 +69,7 @@ const EditProfileForm = ({ onClose, initialProfile, onSubmit }: EditProfileFormP
         const confirmSubmit = window.confirm("Bạn có chắc muốn cập nhật hồ sơ?");
         if (!confirmSubmit) return;
 
-        // Build sanitized payload
-        const sanitizedProfile: Partial<User> = {};
-        if (profile.name) sanitizedProfile.name = profile.name;
-        if (profile.email) sanitizedProfile.email = profile.email;
-        if (profile.phone) sanitizedProfile.phone = profile.phone;
-        if (profile.photo_url) sanitizedProfile.photo_url = profile.photo_url;
-        if (profile.address) sanitizedProfile.address = profile.address;
-        if (profile.year !== undefined && profile.year !== null) sanitizedProfile.year = profile.year;
-        if (profile.school) sanitizedProfile.school = profile.school;
-        if (profile.bio) sanitizedProfile.bio = profile.bio;
-        if (profile.quote) sanitizedProfile.quote = profile.quote;
-        if (profile.social_media) {
-            const socialMedia: User["social_media"] = {};
-            if (profile.social_media.facebook) socialMedia.facebook = profile.social_media.facebook;
-            if (profile.social_media.instagram) socialMedia.instagram = profile.social_media.instagram;
-            if (profile.social_media.linkedin) socialMedia.linkedin = profile.social_media.linkedin;
-            if (Object.keys(socialMedia).length > 0) sanitizedProfile.social_media = socialMedia;
-        }
-
-        await updateProfileApi.call(sanitizedProfile);
+        updateProfileApi.call(profile);
     };
 
     return (
@@ -191,9 +150,9 @@ const EditProfileForm = ({ onClose, initialProfile, onSubmit }: EditProfileFormP
                     fullWidth
                 />
                 <TextField
-                    label="LinkedIn"
-                    value={profile.social_media?.linkedin || ""}
-                    onChange={(e) => handleSocialMediaChange("linkedin", e.target.value)}
+                    label="Other Social Media"
+                    value={profile.social_media?.other || ""}
+                    onChange={(e) => handleSocialMediaChange("other", e.target.value)}
                     fullWidth
                 />
                 <Stack direction="row" spacing={2}>

@@ -44,7 +44,7 @@ export default class UsersApi {
     return await apiPatch("/users/info", payload);
   }
 
-  static async getUserTopics(): Promise<UserTopicStatus[]> {
+  static async getUserTopics(): Promise<UserTopicProgress[]> {
     return await apiGet("/users/topics");
   }
 

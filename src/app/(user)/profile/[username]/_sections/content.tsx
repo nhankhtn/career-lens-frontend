@@ -70,7 +70,15 @@ const ProfileContent = () => {
           UsersApi.getUserTopics(),
         ]);
         setUser(userData);
-        setCourses(topics.filter((topic) => isValidObjectId(topic.topic_id)));
+        setCourses(
+          topics
+            .filter((topic) => isValidObjectId(topic.topic_id))
+            .map((topic) => ({
+              ...topic,
+              started_at: topic.started_at ? new Date(topic.started_at) : undefined,
+              completed_at: topic.completed_at ? new Date(topic.completed_at) : undefined
+            }))
+        );
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -101,14 +109,15 @@ const ProfileContent = () => {
   };
 
   // Handle profile submit
-  const handleProfileSubmit = async (updatedProfile: Partial<User>) => {
-    try {
-      const updatedUser = await UsersApi.updateProfile(updatedProfile);
-      setUser((prev) => (prev ? { ...prev, ...updatedUser } : prev));
-      setIsEditingProfile(false);
-    } catch (error) {
-      console.error("Error updating profile:", error);
-    }
+  const handleProfileSubmit = (profile: Partial<User>) => {
+    UsersApi.updateProfile(profile)
+      .then(updatedUser => {
+        setUser(prev => (prev ? { ...prev, ...updatedUser } : prev));
+        setIsEditingProfile(false);
+      })
+      .catch(error => {
+        console.error("Error updating profile:", error);
+      });
   };
 
   // Handle delete topic progress
