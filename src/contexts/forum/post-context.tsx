@@ -31,11 +31,11 @@ interface PostContextValue {
     { content: string; image_url?: string[] },
     Post
   >;
-  updatePostApi: UseFunctionReturnType<
-    string,
-    { content: string; image_url?: string[] },
-    Post
-  >;
+  // updatePostApi: UseFunctionReturnType<
+  //   string,
+  //   { content: string; image_url?: string[] },
+  //   Post
+  // >;
   removePostApi: UseFunctionReturnType<string, void>;
   likePostApi: UseFunctionReturnType<string, void>;
   unlikePostApi: UseFunctionReturnType<string, void>;
@@ -49,7 +49,7 @@ const PostContext = createContext<PostContextValue>({
   getFollowedPostsApi: DEFAULT_FUNCTION_RETURN,
   getPostByIdApi: DEFAULT_FUNCTION_RETURN,
   createPostApi: DEFAULT_FUNCTION_RETURN,
-  updatePostApi: DEFAULT_FUNCTION_RETURN,
+  // updatePostApi: DEFAULT_FUNCTION_RETURN,
   removePostApi: DEFAULT_FUNCTION_RETURN,
   likePostApi: DEFAULT_FUNCTION_RETURN,
   unlikePostApi: DEFAULT_FUNCTION_RETURN,
@@ -65,7 +65,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
   });
   const getPostByIdApi = useFunction(PostApi.getPostById);
   const createPostApi = useFunction(PostApi.createPost);
-  const updatePostApi = useFunction(PostApi.updatePost);
+  // const updatePostApi = useFunction(PostApi.updatePost);
   const removePostApi = useFunction(PostApi.removePost);
   const likePostApi = useFunction(PostApi.likePost);
   const unlikePostApi = useFunction(PostApi.unlikePost);
@@ -80,7 +80,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
         getFollowedPostsApi,
         getPostByIdApi,
         createPostApi,
-        updatePostApi,
+        // updatePostApi,
         removePostApi,
         likePostApi,
         unlikePostApi,
