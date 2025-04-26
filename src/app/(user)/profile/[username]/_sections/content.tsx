@@ -43,7 +43,7 @@ import EditProfileForm from "@/app/(user)/profile/[username]/_sections/edit-prof
 
 // Import API and types
 import UsersApi from "@/api/users";
-import type { User, UserTopicProgress } from "@/types/user";
+import type { User, UserTopicProgress, TopicWithProgress } from "@/types/user";
 
 const isValidObjectId = (id: string): boolean => {
   return /^[0-9a-fA-F]{24}$/.test(id);
@@ -52,6 +52,7 @@ const isValidObjectId = (id: string): boolean => {
 const ProfileContent = () => {
   const [user, setUser] = useState<User | null>(null);
   const [courses, setCourses] = useState<UserTopicProgress[]>([]);
+  const [topicTitles, setTopicTitles] = useState<Record<string, string>>({});
   const [tabValue, setTabValue] = useState(0);
   const [loading, setLoading] = useState(true);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -70,7 +71,25 @@ const ProfileContent = () => {
           UsersApi.getUserTopics(),
         ]);
         setUser(userData);
-        setCourses(topics.filter((topic) => isValidObjectId(topic.topic_id)));
+        const validTopics = topics.filter((topic) => isValidObjectId(topic.id));
+
+        // Create a mapping of topic IDs to their titles
+        const titleMap: Record<string, string> = {};
+        validTopics.forEach((topic) => {
+          titleMap[topic.id] = topic.title;
+        });
+        setTopicTitles(titleMap);
+
+        const userTopicProgress: UserTopicProgress[] = validTopics.map((topic) => ({
+          user_id: userData.id,
+          topic_id: topic.id,
+          status: topic.progress.status,
+          started_at: topic.progress.started_at ? new Date(topic.progress.started_at) : null,
+          completed_at: topic.progress.completed_at ? new Date(topic.progress.completed_at) : null,
+          notes: topic.progress.notes || null,
+          rating: topic.progress.rating
+        }));
+        setCourses(userTopicProgress);
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -318,6 +337,7 @@ const ProfileContent = () => {
                       onClose={coursesDialog.handleClose}
                       initialCourses={courses}
                       onSubmit={handleCoursesSubmit}
+                      topicTitles={topicTitles}
                     />
                   ) : (
                     <Stack spacing={3}>
@@ -328,7 +348,7 @@ const ProfileContent = () => {
                           <RowStack key={course.topic_id} spacing={2}>
                             <Box sx={{ width: 48, height: 48, bgcolor: "primary.light", borderRadius: 1 }} />
                             <Stack flexGrow={1}>
-                              <Typography fontWeight="bold">{course.title || "Unknown Topic"}</Typography>
+                              <Typography fontWeight="bold">{topicTitles[course.topic_id] || "Unknown Topic"}</Typography>
                               <Typography variant="body2" color="text.secondary">
                                 Status: {course.status}
                               </Typography>

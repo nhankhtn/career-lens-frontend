@@ -12,13 +12,14 @@ interface EditCoursesFormProps {
     onClose: () => void;
     initialCourses: UserTopicProgress[];
     onSubmit: (courses: UserTopicProgress[]) => void;
+    topicTitles: Record<string, string>;
 }
 
 const isValidObjectId = (id: string): boolean => {
     return /^[0-9a-fA-F]{24}$/.test(id);
 };
 
-const EditCoursesForm = ({ onClose, initialCourses, onSubmit }: EditCoursesFormProps) => {
+const EditCoursesForm = ({ onClose, initialCourses, onSubmit, topicTitles }: EditCoursesFormProps) => {
     const { showSnackbarSuccess, showSnackbarError } = useAppSnackbar();
     const [courses, setCourses] = useState<UserTopicProgress[]>(initialCourses);
 
@@ -67,7 +68,7 @@ const EditCoursesForm = ({ onClose, initialCourses, onSubmit }: EditCoursesFormP
                             sx={{ p: 1, border: "1px solid #e0e0e0", borderRadius: 1 }}
                         >
                             <Stack flexGrow={1}>
-                                <Typography fontWeight="bold">{course.title || "Unknown Topic"}</Typography>
+                                <Typography fontWeight="bold">{topicTitles[course.topic_id] || "Unknown Topic"}</Typography>
                                 <Typography variant="body2" color="text.secondary">
                                     Status: {course.status}
                                 </Typography>

@@ -3,6 +3,7 @@ import type {
   UserOnboarding,
   UserTopicProgress,
   UserTopicStatus,
+  TopicWithProgress
 } from "@/types/user";
 import {
   apiDelete,
@@ -44,7 +45,7 @@ export default class UsersApi {
     return await apiPatch("/users/info", payload);
   }
 
-  static async getUserTopics(): Promise<UserTopicStatus[]> {
+  static async getUserTopics(): Promise<TopicWithProgress[]> {
     return await apiGet("/users/topics");
   }
 

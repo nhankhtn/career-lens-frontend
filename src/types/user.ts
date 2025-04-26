@@ -19,8 +19,8 @@ export interface User {
     instagram?: string;
     other?: string;
   };
-  created_at?: string;
-  updated_at?: string;
+  created_at?: Date;
+  updated_at?: Date;
   skills: string[];
   onboarding_completed: boolean;
 }
@@ -52,10 +52,23 @@ export interface UserTopicProgress {
   topic_id: string;
 
   status: UserTopicStatus;
-  started_at?: Date;
-  completed_at?: Date;
-  notes?: string;
-  rating?: number;
+  started_at: Date | null;
+  completed_at: Date | null;
+  notes: string | null;
+  rating: number | null;
+}
+
+export interface TopicWithProgress {
+  id: string;
+  title: string;
+  description: string;
+  progress: {
+    status: UserTopicStatus;
+    started_at: Date | null;
+    completed_at: Date | null;
+    notes: string;
+    rating: number | null;
+  }
 }
 
 export const initialValuesOnboarding: UserOnboarding = {
