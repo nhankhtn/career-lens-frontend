@@ -19,6 +19,7 @@ import LoadingState from "@/components/loading-state";
 import CustomBreadcrumbs from "@/components/custom-breadcrumbs";
 import EmptyState from "@/components/empty-state";
 import NotFound from "@/app/not-found";
+import { CareerAnalytics } from "./career-analytics";
 
 const CareerDetailContent = () => {
   const router = useRouter();
@@ -48,6 +49,8 @@ const CareerDetailContent = () => {
       />
       <Stack spacing={4}>
         <CareerDetailInfo career={career} />
+
+        <CareerAnalytics />
 
         <Typography fontWeight="bold">Lộ trình học tập</Typography>
         <Stack spacing={2}>
