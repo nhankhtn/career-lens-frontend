@@ -44,10 +44,7 @@ const SkillsForm = ({ formik }: SkillsFormProps) => {
   const handleSkillSelect = useCallback(
     (event: any, values: { id: string; name: string }[]) => {
       setSelectedSkills(values);
-      formik.setFieldValue(
-        "skills_have",
-        values.map((skill) => skill.id),
-      );
+      formik.setFieldValue("skills_have", values);
     },
     [formik],
   );

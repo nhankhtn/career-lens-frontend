@@ -19,6 +19,7 @@ import RowStack from "@/components/row-stack";
 import DevelopmentTooltip from "@/components/development-tooltip";
 import { useAuth } from "@/contexts/auth/firebase-context";
 import CustomTooltip from "@/components/custom-tooltip";
+import { formatNumber } from "@/utils/format-number";
 
 const CareerItem = ({ career }: { career: CareerList }) => {
   const router = useRouter();
@@ -52,7 +53,10 @@ const CareerItem = ({ career }: { career: CareerList }) => {
             <Typography fontWeight="bold">{career.name}</Typography>
             {user?.email ? (
               <Chip
-                label={`Mức độ phù hợp: ${career.skill_match_percentage}%`}
+                label={`Mức độ phù hợp: ${formatNumber(
+                  career.skill_match_percentage,
+                  0,
+                )}%`}
               />
             ) : (
               <Tooltip

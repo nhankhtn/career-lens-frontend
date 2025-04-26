@@ -10,8 +10,6 @@ const CareerDetailInfo = ({ career }: { career: Career }) => {
 
       <Typography color="text.secondary">{career.description}</Typography>
 
-      <Divider />
-
       <Typography fontWeight="bold">Kỹ năng cần có:</Typography>
       <Stack direction="row" spacing={1} flexWrap="wrap">
         {career.skills.map((skill, index) => (

@@ -1,5 +1,5 @@
 import { ResponseWithTotal } from "@/types";
-import { Career, CareerList } from "@/types/career";
+import { Career, CareerAnalytics, CareerList } from "@/types/career";
 import { apiGet, removeUndefinedKeys } from "@/utils/api-request";
 
 export type GetCareerRequest = {
@@ -23,5 +23,17 @@ export class CareerApi {
 
   static async getCareerById(id: string): Promise<Career> {
     return await apiGet(`/careers/${id}`);
+  }
+
+  static async getCareerAnalytics(id: string): Promise<CareerAnalytics[]> {
+    return await apiGet(`/careers/${id}/future`);
+  }
+
+  static async getCareerDetailById(id: string): Promise<{
+    guidance: {
+      guidance: string;
+    };
+  }> {
+    return await apiGet(`/careers/${id}/detail`);
   }
 }

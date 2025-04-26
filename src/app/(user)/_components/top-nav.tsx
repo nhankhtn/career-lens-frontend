@@ -178,6 +178,9 @@ const TopNav = ({}: TopNavProps) => {
                           borderRadius: "3px 3px 0 0",
                         }
                       : {},
+                    "&:hover": {
+                      backgroundColor: "rgba(0, 0, 0, 0.05)",
+                    },
                   }}
                 >
                   <Typography

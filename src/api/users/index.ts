@@ -9,6 +9,7 @@ import {
   apiGet,
   apiPatch,
   apiPost,
+  apiPut,
 } from "@/utils/api-request";
 
 type SignInResponse = Promise<{
@@ -41,7 +42,7 @@ export default class UsersApi {
   }
 
   static async updateProfile(payload: Partial<User>): Promise<User> {
-    return await apiPatch("/users/info", payload);
+    return await apiPut("/users/info", payload);
   }
 
   static async getUserTopics(): Promise<UserTopicProgress[]> {
@@ -61,11 +62,11 @@ export default class UsersApi {
     rating,
   }: {
     topicId: string;
-    status: UserTopicStatus;
+    status?: UserTopicStatus;
     notes?: string;
     rating?: number;
   }): Promise<void> {
-    return await apiPatch(`/users/topics/${topicId}/progress`, {
+    return await apiPut(`/users/topics/${topicId}/progress`, {
       status,
       notes,
       rating,
@@ -79,7 +80,7 @@ export default class UsersApi {
   }
 
   static async addOrUpdateSkills(payload: { skills: string[] }): Promise<User> {
-    return await apiPatch("/users/skills", payload);
+    return await apiPut("/users/skills", payload);
   }
 
   static async removeSkills(payload: { skills: string[] }): Promise<User> {
