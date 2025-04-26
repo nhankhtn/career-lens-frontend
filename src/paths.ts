@@ -14,7 +14,10 @@ export const paths = {
     detail: "/careers/:careerId",
   },
   forum: "/forum",
-  roadmap: "/roadmap",
+  roadmap: {
+    index: "/roadmap",
+    detail: "/roadmap/:roadmapId",
+  },
 
   admin: {
     dashboard: "/admin/dashboard",

@@ -6,12 +6,14 @@ import {
   Chip,
   Divider,
   Grid,
+  Paper,
   Stack,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { paths } from "@/paths";
 import useCareerDetailSearch from "./use-career-detail-search";
 import CareerDetailInfo from "./career-detail-info";
@@ -20,19 +22,30 @@ import CustomBreadcrumbs from "@/components/custom-breadcrumbs";
 import EmptyState from "@/components/empty-state";
 import NotFound from "@/app/not-found";
 import { CareerAnalytics } from "./career-analytics";
+import RowStack from "@/components/row-stack";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 
 const CareerDetailContent = () => {
   const router = useRouter();
-  const { getCareersByIdApi, career } = useCareerDetailSearch();
+  const {
+    getCareersByIdApi,
+    career,
+    getCareerAnalyticsApi,
+    careerAnalytics,
+    careerDetail,
+    getCareerDetailByIdApi,
+  } = useCareerDetailSearch();
 
   const handleGotoPath = (id: string) => {};
 
-  if (getCareersByIdApi.loading) {
-    return <LoadingState />;
-  }
-  if (!career) {
+  if (!career && getCareersByIdApi.callCount > 0) {
     return <NotFound />;
   }
+
+  if (getCareersByIdApi.loading || !career) {
+    return <LoadingState />;
+  }
+  console.log("careerDetail", careerDetail);
 
   return (
     <Stack px={4} py={6} gap={3}>
@@ -50,11 +63,56 @@ const CareerDetailContent = () => {
       <Stack spacing={4}>
         <CareerDetailInfo career={career} />
 
-        <CareerAnalytics />
+        <Stack gap={1}>
+          <RowStack gap={1}>
+            <Typography fontWeight="bold">Gợi ý từ AI</Typography>
+            <Tooltip
+              title="Gợi ý được tạo dựa trên kỹ năng của bạn"
+              placement="top"
+            >
+              <InfoOutlinedIcon
+                sx={{
+                  color: "action.active",
+                }}
+              />
+            </Tooltip>
+          </RowStack>
+          {getCareerDetailByIdApi.loading ? (
+            <LoadingState />
+          ) : (
+            <Paper
+              sx={{
+                p: 2,
+              }}
+            >
+              <Typography>
+                {careerDetail?.guidance.guidance ||
+                  "Chưa có thông tin gợi ý từ AI cho nghề này."}
+              </Typography>
+            </Paper>
+          )}
+        </Stack>
 
-        <Typography fontWeight="bold">Lộ trình học tập</Typography>
+        <CareerAnalytics
+          data={careerAnalytics}
+          loading={getCareerAnalyticsApi.loading}
+        />
+
+        <RowStack gap={1}>
+          <Typography fontWeight="bold">Lộ trình học tập</Typography>
+          <Tooltip
+            title="Lộ trình học tập được xây dựng bởi các chuyên gia trong ngành"
+            placement="top"
+          >
+            <InfoOutlinedIcon
+              sx={{
+                color: "action.active",
+              }}
+            />
+          </Tooltip>
+        </RowStack>
         <Stack spacing={2}>
-          {career.topics.map((topic) => (
+          {career.topics.map((topic, index) => (
             <Box
               key={topic.id}
               onClick={() => handleGotoPath(topic.id)}
@@ -75,16 +133,10 @@ const CareerDetailContent = () => {
                 justifyContent="space-between"
                 alignItems="flex-start"
               >
-                <Box>
+                <RowStack gap={1}>
+                  <Typography>Giai đoạn {index + 1}:</Typography>
                   <Typography fontWeight="bold">{topic.title}</Typography>
-                  <ul style={{ margin: 0, paddingLeft: 16 }}>
-                    {/* {topic.items.map((item, index) => (
-                      <li key={index}>
-                        <Typography variant="body2">{item}</Typography>
-                      </li>
-                    ))} */}
-                  </ul>
-                </Box>
+                </RowStack>
                 <Chip
                   label={1}
                   size="small"
@@ -95,52 +147,8 @@ const CareerDetailContent = () => {
           ))}
         </Stack>
 
-        <Typography fontWeight="bold">Cơ hội nghề nghiệp:</Typography>
-        <Grid container spacing={2}>
-          {[
-            {
-              company: "Viettel",
-              title: "Chuyên viên phân tích dữ liệu (Data Analyst)",
-              salary: "15 - 18 triệu",
-            },
-            {
-              company: "VNG",
-              title: "Chuyên viên phân tích dữ liệu (Data Analyst)",
-              salary: "17 - 20 triệu",
-            },
-          ].map((job, index) => (
-            <Grid item xs={12} sm={6} key={index}>
-              <Box
-                border="1px solid #E0E7FF"
-                borderRadius={2}
-                p={2}
-                bgcolor="white"
-                sx={{
-                  transition: "0.2s",
-                  "&:hover": { borderColor: "#6366F1" },
-                }}
-              >
-                <Stack direction="row" justifyContent="space-between">
-                  <Typography fontWeight="bold">{job.company}</Typography>
-                  <Chip
-                    label="Fulltime"
-                    size="small"
-                    sx={{ bgcolor: "#F3E8FF", color: "#9333EA" }}
-                  />
-                </Stack>
-                <Typography variant="body2" mt={1} mb={1}>
-                  {job.title}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  Mức lương: {job.salary}
-                </Typography>
-              </Box>
-            </Grid>
-          ))}
-        </Grid>
-
         <Stack direction="row" justifyContent="space-between" mt={4}>
-          <Button
+          {/* <Button
             startIcon={<FavoriteBorderIcon />}
             variant="outlined"
             sx={{
@@ -151,7 +159,8 @@ const CareerDetailContent = () => {
             }}
           >
             Thêm vào yêu thích
-          </Button>
+          </Button> */}
+          <Box></Box>
 
           <Button
             variant="contained"
@@ -162,8 +171,16 @@ const CareerDetailContent = () => {
               fontWeight: "bold",
               "&:hover": { backgroundColor: "#4F46E5" },
             }}
+            onClick={() =>
+              router.push(
+                paths.roadmap.detail.replace(
+                  ":roadmapId",
+                  career?.topic_id as string,
+                ),
+              )
+            }
           >
-            Bắt đầu học
+            Khám phá lộ trình học tập ngay
           </Button>
         </Stack>
       </Stack>

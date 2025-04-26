@@ -94,10 +94,16 @@ const RequiredOnboardingDialog = ({
           borderBottom: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
         }}
       >
-        <DialogTitle sx={{ p: 0, mb: 1 }}>
-          <Typography variant="h5" fontWeight="bold" color="primary.main">
-            Hoàn thành thiết lập tài khoản
-          </Typography>
+        <DialogTitle
+          sx={{
+            p: 0,
+            mb: 1,
+            fontWeight: "bold",
+            color: "primary.main",
+            fontSize: (theme) => theme.typography.h5.fontSize,
+          }}
+        >
+          Hoàn thành thiết lập tài khoản
         </DialogTitle>
         <Typography variant="body1" color="text.secondary">
           Vui lòng hoàn thành quá trình thiết lập tài khoản để có thể sử dụng
