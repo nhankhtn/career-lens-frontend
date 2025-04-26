@@ -119,8 +119,8 @@ export default function PostItem({ post }: PostItemProps) {
       image_url: [],
     });
 
-    if (response.data) {
-      setComments((prev) => [response.data, ...prev]);
+    if (response.data && typeof response.data === 'object' && 'id' in response.data) {
+      setComments((prev) => [response.data as Comment, ...prev]);
       setCommentCount((prev) => prev + 1);
       setNewComment("");
       showSnackbarSuccess("Đã đăng bình luận!");
