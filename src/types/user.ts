@@ -50,7 +50,7 @@ export enum UserTopicStatus {
 export interface UserTopicProgress {
   user_id: string;
   topic_id: string;
-
+  title?: string;
   status: UserTopicStatus;
   started_at?: Date;
   completed_at?: Date;

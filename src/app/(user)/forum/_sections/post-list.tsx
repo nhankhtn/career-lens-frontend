@@ -1,117 +1,135 @@
-"use client"
-import { Box } from "@mui/material"
-import PostItem from "./post-item"
+"use client";
 
-// Sample post data
-const posts = [
-    {
-        id: 1,
-        author: {
-            name: "Nhân Duy",
-            avatar: "",
-            initial: "N",
-        },
-        date: "Mar 25, 2023",
-        content: `Xin chào cả nhà,
-Mình là Nhân, hiện đang làm việc trong lĩnh vực IT. Mình tham gia diễn đàn với mong muốn được học hỏi, chia sẻ và trao đổi những kỹ năng nghề nghiệp hữu ích cùng mọi người.
-Mình đặc biệt quan tâm đến các chủ đề như: kỹ năng mềm, kỹ năng quản lý, kỹ năng công nghệ, kỹ năng thuyết trình, v.v.
-Rất mong được kết nối với các anh/chị/em để cùng nhau học hỏi và phát triển
-Ai cũng có điều hay để chia sẻ - mong được nghe câu chuyện và kinh nghiệm của các bạn`,
-        likes: 20,
-        comments: 3,
-        shares: 1,
-    },
-    {
-        id: 2,
-        author: {
-            name: "Nguyễn Văn Huy",
-            avatar: "",
-            initial: "H",
-        },
-        date: "Apr 25, 2023",
-        content: `Xin chào cả nhà,
+import { useEffect, useState } from "react";
+import { Box, Button } from "@mui/material";
+import PostItem from "./post-item";
+import { usePostContext } from "@/contexts/forum/post-context";
+import { Post } from "@/types/post";
+import { SocketClient } from "@/api/forum/socket";
+import useAppSnackbar from "@/hooks/use-app-snackbar";
+import { useAuth } from "@/contexts/auth/firebase-context";
+import { Typography } from "@mui/material";
 
-Mình là Nguyễn Văn Huy, 27 tuổi, hiện đang làm nhân viên phân tích dữ liệu tại TP.HCM. Mình tham gia diễn đàn này vì muốn trao đổi thêm các kỹ năng nghề nghiệp, đặc biệt là về kỹ năng giao tiếp, quản lý thời gian và phát triển tư duy phản biện.
-Ngoài công việc, mình rất thích đọc sách và học thêm về kỹ năng mềm.
-Mong được làm quen và học hỏi kinh nghiệm từ anh chị em trong diễn đàn. Ai cũng nghĩ data khó? Thì kết nối giao lưu nhé!`,
-        likes: 20,
-        comments: 3,
-        shares: 1,
-    },
-    {
-        id: 3,
-        author: {
-            name: "Minh Quân",
-            avatar: "",
-            initial: "Q",
-        },
-        date: "May 10, 2023",
-        content: `Mình là Minh Quân, mới đi làm được gần 1 năm. Trong thời gian thực tập, mình từng gửi email cảm ơn khách hàng nhưng... quên thay tên, vẫn để "Kính gửi Anh Nam" dù người nhận là "Chị Hằng" 😳
-Sau lần đó mình đã tạo cho mình một checklist:
-- Kiểm tra kỹ tên và chức danh người nhận
-- Đọc lại ít nhất 1 lần trước khi gửi
-- Viết đầu đề rõ ràng, đúng trọng tâm
-- Mọi người có checklist nào hay hơn không? Và ai từng đính "email fail" thì kể cho vui nhé!`,
-        likes: 20,
-        comments: 3,
-        shares: 1,
-    },
-    {
-        id: 4,
-        author: {
-            name: "Lập Lưu",
-            avatar: "",
-            initial: "L",
-        },
-        date: "Oct 5, 2023",
-        content: `Xin chào cả nhà,
-Mình là Lập, hiện đang làm việc trong lĩnh vực IT. Mình tham gia diễn đàn với mong muốn được học hỏi, chia sẻ và trao đổi những kỹ năng nghề nghiệp hữu ích cùng mọi người.
-Mình đặc biệt quan tâm đến các chủ đề như: kỹ năng mềm, kỹ năng quản lý, kỹ năng công nghệ, kỹ năng thuyết trình, v.v.
-Rất mong được kết nối với các anh/chị/em để cùng nhau học hỏi và phát triển
-Ai cũng có điều hay để chia sẻ - mong được nghe câu chuyện và kinh nghiệm của các bạn`,
-        likes: 20,
-        comments: 3,
-        shares: 1,
-    },
-    {
-        id: 5,
-        author: {
-            name: "Bùi Thị Trà",
-            avatar: "",
-            initial: "T",
-        },
-        date: "Nov 15, 2023",
-        content: `Xin chào cả nhà,
-Mình là Trà, hiện đang làm việc trong lĩnh vực IT. Mình tham gia diễn đàn với mong muốn được học hỏi, chia sẻ và trao đổi những kỹ năng nghề nghiệp hữu ích cùng mọi người.
-Mình đặc biệt quan tâm đến các chủ đề như: kỹ năng mềm, kỹ năng quản lý, kỹ năng công nghệ, kỹ năng thuyết trình, v.v.
-Rất mong được kết nối với các anh/chị/em để cùng nhau học hỏi và phát triển
-Ai cũng có điều hay để chia sẻ - mong được nghe câu chuyện và kinh nghiệm của các bạn`,
-        likes: 20,
-        comments: 3,
-        shares: 1,
-    },
-    {
-        id: 6,
-        author: {
-            name: "Michael",
-            avatar: "",
-            initial: "M",
-        },
-        date: "Dec 20, 2023",
-        content: `"In mollit dolore voluptate laborum excepteur" #hashtag1 #hashtag2`,
-        image: "",
-        likes: 20,
-        comments: 3,
-        shares: 1,
-    },
-]
+interface PostListProps {
+    tab: "default" | "followed" | "my-posts"; // Định nghĩa các tab
+}
 
-export default function PostList() {
+export default function PostList({ tab }: PostListProps) {
+    const { getPostsApi, getFollowedPostsApi } = usePostContext();
+    const { user } = useAuth();
+    const { showSnackbarError } = useAppSnackbar();
+    const [posts, setPosts] = useState<Post[]>([]);
+    const [offset, setOffset] = useState(0);
+    const [hasMore, setHasMore] = useState(true);
+    const limit = 10;
+    // Track loaded post IDs to prevent duplicates
+    const [loadedPostIds, setLoadedPostIds] = useState<Set<string>>(new Set());
+
+    // Helper function to add posts without duplicates
+    const addUniquePosts = (newPosts: Post[]) => {
+        setPosts(prevPosts => {
+            // Create a map of existing posts by ID for quick lookup
+            const existingPostsMap = new Map(prevPosts.map(post => [post.id, post]));
+
+            // Add new posts to the map, overwriting any duplicates
+            newPosts.forEach(post => {
+                if (post && post.id) {
+                    existingPostsMap.set(post.id, post);
+                }
+            });
+
+            // Convert map values back to array
+            return Array.from(existingPostsMap.values());
+        });
+
+        // Update the set of loaded post IDs
+        setLoadedPostIds(prevIds => {
+            const newIds = new Set(prevIds);
+            newPosts.forEach(post => {
+                if (post && post.id) {
+                    newIds.add(post.id);
+                }
+            });
+            return newIds;
+        });
+    };
+
+    const loadPosts = async () => {
+        if (!hasMore) return;
+
+        let response;
+        if (tab === "followed") {
+            // Lấy bài viết của người mà người dùng đang theo dõi
+            response = await getFollowedPostsApi.call({ offset, limit });
+        } else if (tab === "my-posts" && user) {
+            // Lấy bài viết của người dùng hiện tại
+            response = await getPostsApi.call({ offset, limit, user_id: user.id });
+        } else {
+            // Tab "Đề xuất" (mặc định): Lấy tất cả bài viết
+            response = await getPostsApi.call({ offset, limit });
+        }
+
+        if (response.data) {
+            const newPosts = response.data.data || [];
+            addUniquePosts(newPosts);
+            setOffset(offset + limit);
+            setHasMore(newPosts.length === limit);
+        } else {
+            showSnackbarError(`Không thể tải bài viết: ${response.error}`);
+        }
+    };
+
+    useEffect(() => {
+        // Reset state when tab changes
+        setPosts([]);
+        setOffset(0);
+        setHasMore(true);
+        setLoadedPostIds(new Set());
+        loadPosts();
+    }, [tab]);
+
+    useEffect(() => {
+        // Socket event handler for new posts
+        const handleNewPost = (newPost: Post) => {
+            // Only add if we don't already have this post
+            if (!loadedPostIds.has(newPost.id)) {
+                if (tab === "default") {
+                    addUniquePosts([newPost]);
+                } else if (tab === "my-posts" && user && newPost.user_id?.id === user.id) {
+                    addUniquePosts([newPost]);
+                }
+            }
+        };
+
+        // Set up socket listener
+        SocketClient.on("newPost", handleNewPost);
+
+        // Clean up socket connection
+        return () => {
+            // We can't remove individual event listeners with SocketClient
+            // So we'll just disconnect the socket when the component unmounts
+            SocketClient.disconnect();
+        };
+    }, [tab, user, loadedPostIds]);
+
     return (
         <Box>
-            {posts.map((post) => (
-                <PostItem key={post.id} post={post} />
-            ))}
+            {posts.length > 0 ? (
+                <>
+                    {posts.map((post) => (
+                        <PostItem key={post.id} post={post} />
+                    ))}
+                    {hasMore && (
+                        <Button onClick={loadPosts} variant="outlined" sx={{ mt: 2 }}>
+                            Tải thêm
+                        </Button>
+                    )}
+                </>
+            ) : (
+                <Typography variant="body1" color="text.secondary" sx={{ mt: 2 }}>
+                    Chưa có bài viết nào.
+                </Typography>
+            )}
         </Box>
-    )
+    );
 }

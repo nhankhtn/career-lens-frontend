@@ -1,13 +1,13 @@
 "use client"
 
-import type React from "react"
-import { useState, useEffect } from "react"
-import { ToggleButtonGroup, ToggleButton, Box, useMediaQuery, useTheme } from "@mui/material"
+import { useState, useEffect, useRef } from "react"
+import { Box, Tooltip, IconButton, Snackbar, Alert } from "@mui/material"
 import CheckCircleIcon from "@mui/icons-material/CheckCircle"
 import AccessTimeIcon from "@mui/icons-material/AccessTime"
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked"
-
-type ProgressStatus = "not-started" | "in-progress" | "completed"
+import { useUserContext } from "@/contexts/user/user-context"
+import { UserTopicStatus } from "@/types/user"
+import { useParams } from "next/navigation"
 
 interface ResourceProgressProps {
   resourceId: string
@@ -15,86 +15,211 @@ interface ResourceProgressProps {
 }
 
 export default function ResourceProgress({ resourceId, topicId }: ResourceProgressProps) {
-  const [progress, setProgress] = useState<ProgressStatus>("not-started")
-  const theme = useTheme()
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
+  const params = useParams()
+  const roadmapId = params.roadmapId as string
 
+  const { getTopicProgress, updateTopicProgress, user, isAuthenticated } = useUserContext()
+  const [progress, setProgress] = useState<UserTopicStatus>(UserTopicStatus.NOT_STARTED)
+  const [isLoading, setIsLoading] = useState(false)
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success" as "success" | "error" | "info" | "warning",
+  })
+
+  // Use a ref to track if we've already loaded from localStorage
+  const loadedFromLocalStorage = useRef(false)
+
+  // Load progress from API or localStorage as fallback
   useEffect(() => {
-    const savedProgress = localStorage.getItem(`progress-${topicId}-${resourceId}`)
-    if (savedProgress) {
-      setProgress(savedProgress as ProgressStatus)
+    // Get progress from API if available
+    const topicProgress = getTopicProgress(topicId)
+
+    if (topicProgress) {
+      setProgress(topicProgress.status)
     }
-  }, [resourceId, topicId])
+    // Only load from localStorage once to prevent infinite loops
+    else if (!loadedFromLocalStorage.current) {
+      loadedFromLocalStorage.current = true
+      // Fallback to localStorage if API data is not available yet
+      const savedProgress = localStorage.getItem(`progress-${topicId}-${resourceId}`)
+      if (savedProgress && Object.values(UserTopicStatus).includes(savedProgress as UserTopicStatus)) {
+        setProgress(savedProgress as UserTopicStatus)
+      }
+    }
+  }, [topicId, resourceId, getTopicProgress])
 
-  useEffect(() => {
-    localStorage.setItem(`progress-${topicId}-${resourceId}`, progress)
-  }, [progress, resourceId, topicId])
+  // Handle progress change
+  const handleProgressChange = async (newStatus: UserTopicStatus) => {
+    if (isLoading) return
 
-  const handleProgressChange = (event: React.MouseEvent<HTMLElement>, newStatus: ProgressStatus | null) => {
-    if (newStatus !== null) {
+    setIsLoading(true)
+    try {
+      // Update local state immediately for better UX
       setProgress(newStatus)
+
+      // Save to localStorage as fallback
+      localStorage.setItem(`progress-${topicId}-${resourceId}`, newStatus)
+
+      // If user is logged in, update on the server
+      if (isAuthenticated) {
+        // First, check if the parent roadmap is bookmarked
+        const parentProgress = getTopicProgress(roadmapId)
+
+        // If parent is not bookmarked, bookmark it first
+        if (!parentProgress) {
+          await updateTopicProgress(roadmapId, UserTopicStatus.NOT_STARTED)
+
+          // Show notification that parent was bookmarked
+          setSnackbar({
+            open: true,
+            message: "Roadmap has been automatically bookmarked",
+            severity: "info",
+          })
+
+          // Also update localStorage for the roadmap bookmark
+          const bookmarks = JSON.parse(localStorage.getItem("roadmap-bookmarks") || "[]")
+          if (!bookmarks.includes(roadmapId)) {
+            bookmarks.push(roadmapId)
+            localStorage.setItem("roadmap-bookmarks", JSON.stringify(bookmarks))
+          }
+        }
+
+        // Then update the current topic progress
+        await updateTopicProgress(topicId, newStatus)
+
+        // Show success notification
+        setSnackbar({
+          open: true,
+          message: `Tiến độ được cập nhật thành ${getStatusLabel(newStatus)}`,
+          severity: "success",
+        })
+      } else {
+        // Show success notification even for non-authenticated users
+        setSnackbar({
+          open: true,
+          message: `Tiến độ được cập nhật thành ${getStatusLabel(newStatus)} (saved locally)`,
+          severity: "success",
+        })
+      }
+    } catch (error) {
+      console.error("Lỗi cập nhật tiến độ:", error)
+      // Revert to previous state on error
+      const topicProgress = getTopicProgress(topicId)
+      if (topicProgress) {
+        setProgress(topicProgress.status)
+      }
+
+      // Show error notification
+      setSnackbar({
+        open: true,
+        message: "Cập nhật tiến độ không thành công",
+        severity: "error",
+      })
+    } finally {
+      setIsLoading(false)
     }
   }
 
+  // Helper function to get status label
+  const getStatusLabel = (status: UserTopicStatus): string => {
+    switch (status) {
+      case UserTopicStatus.NOT_STARTED:
+        return "Chưa học"
+      case UserTopicStatus.IN_PROGRESS:
+        return "Đang học"
+      case UserTopicStatus.COMPLETED:
+        return "Hoàn thành"
+      default:
+        return "Unknown"
+    }
+  }
+
+  // Handle snackbar close
+  const handleSnackbarClose = () => {
+    setSnackbar({
+      ...snackbar,
+      open: false,
+    })
+  }
+
+  // Define the status configurations
+  const statusConfig = {
+    [UserTopicStatus.NOT_STARTED]: {
+      icon: <RadioButtonUncheckedIcon fontSize="small" />,
+      label: "Chưa học",
+      color: "text.secondary",
+      bgColor: "transparent",
+      borderColor: "divider",
+    },
+    [UserTopicStatus.IN_PROGRESS]: {
+      icon: <AccessTimeIcon fontSize="small" />,
+      label: "Đang học",
+      color: "warning.main",
+      bgColor: "warning.light",
+      borderColor: "warning.main",
+    },
+    [UserTopicStatus.COMPLETED]: {
+      icon: <CheckCircleIcon fontSize="small" />,
+      label: "Hoàn thành",
+      color: "success.main",
+      bgColor: "success.light",
+      borderColor: "success.main",
+    },
+  }
+
+  const currentStatus = statusConfig[progress]
+
   return (
-    <Box sx={{ width: "100%", overflowX: "auto" }}>
-      <ToggleButtonGroup
-        value={progress}
-        exclusive
-        onChange={handleProgressChange}
-        size="small"
-        sx={{
-          height: 32,
-          flexWrap: { xs: "wrap", sm: "nowrap" },
-          "& .MuiToggleButton-root": {
-            flexGrow: { xs: 1, sm: 0 },
-            whiteSpace: "nowrap",
+    <>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+        {Object.entries(statusConfig).map(([status, config]) => (
+          <Tooltip key={status} title={config.label}>
+            <IconButton
+              size="small"
+              onClick={() => handleProgressChange(status as UserTopicStatus)}
+              disabled={isLoading}
+              sx={{
+                color: status === progress ? config.color : "text.disabled",
+                bgcolor: status === progress ? config.bgColor : "transparent",
+                border: "1px solid",
+                borderColor: status === progress ? config.borderColor : "transparent",
+                p: 0.5,
+                "&:hover": {
+                  bgcolor: config.bgColor,
+                  opacity: 0.8,
+                },
+              }}
+            >
+              {config.icon}
+            </IconButton>
+          </Tooltip>
+        ))}
+
+        <Box
+          component="span"
+          sx={{
             fontSize: "0.75rem",
-          },
-        }}
+            fontWeight: 500,
+            color: currentStatus.color,
+            ml: 0.5,
+          }}
+        >
+          {currentStatus.label}
+        </Box>
+      </Box>
+
+      {/* Notification Snackbar */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
-        <ToggleButton
-          value="not-started"
-          sx={{
-            px: 1,
-            py: 0.5,
-            "&.Mui-selected": { bgcolor: "primary.light", color: "primary.dark" },
-          }}
-        >
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <RadioButtonUncheckedIcon fontSize="small" />
-            {!isMobile && <Box ml={0.5}>Không trạng thái</Box>}
-          </Box>
-        </ToggleButton>
-
-        <ToggleButton
-          value="in-progress"
-          sx={{
-            px: 1,
-            py: 0.5,
-            "&.Mui-selected": { bgcolor: "primary.light", color: "primary.dark" },
-          }}
-        >
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <AccessTimeIcon fontSize="small" />
-            {!isMobile && <Box ml={0.5}>Đang tiến hành</Box>}
-          </Box>
-        </ToggleButton>
-
-        <ToggleButton
-          value="completed"
-          sx={{
-            px: 1,
-            py: 0.5,
-            "&.Mui-selected": { bgcolor: "primary.light", color: "primary.dark" },
-          }}
-        >
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <CheckCircleIcon fontSize="small" />
-            {!isMobile && <Box ml={0.5}>Hoàn thành</Box>}
-          </Box>
-        </ToggleButton>
-      </ToggleButtonGroup>
-    </Box>
+        <Alert onClose={handleSnackbarClose} severity={snackbar.severity} sx={{ width: "100%" }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+    </>
   )
 }

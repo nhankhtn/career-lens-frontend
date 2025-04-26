@@ -98,7 +98,6 @@ export default function DashboardContent() {
               p: { xs: 2, sm: 3 },
               flex: 1,
               boxShadow: `0 1px 3px ${neutral[300]}`,
-              width: "100%",
             }}
           >
             <TopPositions
@@ -113,7 +112,6 @@ export default function DashboardContent() {
               p: { xs: 2, sm: 3 },
               flex: 1,
               boxShadow: `0 1px 3px ${neutral[300]}`,
-              width: "100%",
             }}
           >
             <TopCompanies data={topCompaniesByJobPostings} />

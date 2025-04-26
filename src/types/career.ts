@@ -9,7 +9,7 @@ export interface Career {
   growth_rate: number;
   topic_id: Topic | null;
   skills: Skill[];
-  roadmap: Topic[];
+  topics: Topic[];
 }
 
 export interface CareerList extends Career {
