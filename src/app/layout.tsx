@@ -43,11 +43,11 @@ export default function RootLayout({
           <CssBaseline />
           <SnackbarProvider>
             <ThemeProvider theme={theme}>
-              <AuthProvider>
-                <MainProvider>
-                  <Layout>{children}</Layout>
-                </MainProvider>
-              </AuthProvider>
+              <Layout>
+                <AuthProvider>
+                  <MainProvider>{children}</MainProvider>
+                </AuthProvider>
+              </Layout>
             </ThemeProvider>
           </SnackbarProvider>
         </AppRouterCacheProvider>

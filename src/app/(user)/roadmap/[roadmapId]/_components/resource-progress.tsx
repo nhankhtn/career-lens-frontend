@@ -29,12 +29,6 @@ export default function ResourceProgress({
     UserTopicStatus.NOT_STARTED,
   );
   const [isLoading, setIsLoading] = useState(false);
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    severity: "success" as "success" | "error" | "info" | "warning",
-  });
-
   const loadedFromLocalStorage = useRef(false);
 
   useEffect(() => {
@@ -89,13 +83,7 @@ export default function ResourceProgress({
 
         await updateTopicProgress(topicId, newStatus);
 
-        showSnackbarSuccess(
-          `Tiến độ được cập nhật thành ${getStatusLabel(newStatus)}`,
-        );
-      } else {
-        showSnackbarSuccess(
-          `Tiến độ được cập nhật thành ${getStatusLabel(newStatus)}`,
-        );
+        showSnackbarSuccess(`Tiến độ được cập nhật thành công`);
       }
     } catch (error) {
       console.error("Lỗi cập nhật tiến độ:", error);
@@ -121,13 +109,6 @@ export default function ResourceProgress({
       default:
         return "Unknown";
     }
-  };
-
-  const handleSnackbarClose = () => {
-    setSnackbar({
-      ...snackbar,
-      open: false,
-    });
   };
 
   const statusConfig = {
@@ -160,11 +141,23 @@ export default function ResourceProgress({
     <>
       <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
         {Object.entries(statusConfig).map(([status, config]) => (
-          <Tooltip key={status} title={config.label}>
+          <Tooltip
+            key={status}
+            title={
+              user?.email
+                ? config.label
+                : "Vui lòng đăng nhập để cập nhật tiến độ"
+            }
+            placement="top"
+          >
             <IconButton
               size="small"
-              onClick={() => handleProgressChange(status as UserTopicStatus)}
-              disabled={isLoading}
+              onClick={
+                user?.email
+                  ? () => handleProgressChange(status as UserTopicStatus)
+                  : undefined
+              }
+              disabled={isLoading && status === progress}
               sx={{
                 color: status === progress ? config.color : "text.disabled",
                 bgcolor: status === progress ? config.bgColor : "transparent",
@@ -195,21 +188,6 @@ export default function ResourceProgress({
           {currentStatus.label}
         </Box>
       </Box>
-
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={4000}
-        onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
-        <Alert
-          onClose={handleSnackbarClose}
-          severity={snackbar.severity}
-          sx={{ width: "100%" }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
     </>
   );
 }

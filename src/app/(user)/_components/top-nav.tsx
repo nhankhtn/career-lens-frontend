@@ -303,8 +303,14 @@ const TopNav = ({}: TopNavProps) => {
         open={isMenuOpen}
         onClose={handleMenuClose}
       >
-        <MenuItem onClick={handleMenuClose}>Hồ sơ</MenuItem>
-        <MenuItem onClick={handleMenuClose}>Tài khoản</MenuItem>
+        <MenuItem
+          onClick={() => {
+            router.push(paths.profile.detail);
+            handleMenuClose();
+          }}
+        >
+          Hồ sơ
+        </MenuItem>
         <MenuItem
           onClick={() => {
             handleMenuClose();
@@ -437,7 +443,7 @@ const TopNav = ({}: TopNavProps) => {
           <List>
             <ListItemButton
               component="button"
-              onClick={() => router.push("/profile")}
+              onClick={() => router.push(paths.profile.detail)}
             >
               <ListItemIcon>
                 <AccountCircleIcon />
@@ -445,7 +451,7 @@ const TopNav = ({}: TopNavProps) => {
               <ListItemText primary="Hồ sơ" />
             </ListItemButton>
 
-            <ListItemButton
+            {/* <ListItemButton
               component="button"
               onClick={() => router.push("/settings")}
             >
@@ -453,12 +459,9 @@ const TopNav = ({}: TopNavProps) => {
                 <SettingsIcon />
               </ListItemIcon>
               <ListItemText primary="Cài đặt" />
-            </ListItemButton>
+            </ListItemButton> */}
 
-            <ListItemButton
-              component="button"
-              onClick={() => console.log("Logout")}
-            >
+            <ListItemButton component="button" onClick={signOut}>
               <ListItemIcon>
                 <LogoutIcon />
               </ListItemIcon>
