@@ -1,3 +1,4 @@
+"use client";
 import ContentLoading from "@/components/content-loading";
 import dynamic from "next/dynamic";
 
