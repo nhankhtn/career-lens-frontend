@@ -191,7 +191,7 @@ const AuthRegisterContent = () => {
                     : ""
                 }
                 label={"Họ và tên"}
-                placeholder={"example@gmail.com"}
+                // placeholder={"example@gmail.com"}
                 type={"email"}
                 fullWidth
                 variant="outlined"

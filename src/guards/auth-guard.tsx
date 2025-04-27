@@ -21,12 +21,8 @@ const AuthGuard = ({ children }: { children: React.ReactNode }) => {
       check();
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [],
   );
-
-  if (!user?.id) {
-    return <Stack>Unauthorize</Stack>;
-  }
 
   return <>{children}</>;
 };

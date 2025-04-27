@@ -92,7 +92,7 @@ const SkillsForm = ({ formik }: SkillsFormProps) => {
           />
         </Grid>
 
-        <Grid item xs={12}>
+        {/* <Grid item xs={12}>
           <Typography variant="subtitle2" gutterBottom>
             Thêm kỹ năng mới
           </Typography>
@@ -114,7 +114,7 @@ const SkillsForm = ({ formik }: SkillsFormProps) => {
               Thêm
             </Button>
           </Box>
-        </Grid>
+        </Grid> */}
 
         <Grid item xs={12}>
           <Paper variant="outlined" sx={{ p: { xs: 1, sm: 2 }, mt: 2 }}>
