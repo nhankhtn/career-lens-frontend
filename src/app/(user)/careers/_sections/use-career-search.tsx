@@ -66,19 +66,19 @@ const useCareerSearch = () => {
     initialRowsPerPage: 4,
   });
 
-  useEffect(() => {
-    getCareersApi.call({
-      salary_min: filter.salary[0],
-      salary_max: filter.salary[1],
-      experience_min: filter.experience[0],
-      experience_max: filter.experience[1],
-      skills: filter.skills.length > 0 ? filter.skills : undefined,
-      major: filter.major,
-      offset: pagination.page * pagination.rowsPerPage,
-      limit: pagination.rowsPerPage,
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pagination.page, pagination.rowsPerPage]);
+  // useEffect(() => {
+  //   getCareersApi.call({
+  //     salary_min: filter.salary[0],
+  //     salary_max: filter.salary[1],
+  //     experience_min: filter.experience[0],
+  //     experience_max: filter.experience[1],
+  //     skills: filter.skills.length > 0 ? filter.skills : undefined,
+  //     major: filter.major,
+  //     offset: pagination.page * pagination.rowsPerPage,
+  //     limit: pagination.rowsPerPage,
+  //   });
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [pagination.page, pagination.rowsPerPage]);
 
   return {
     getCareersApi,

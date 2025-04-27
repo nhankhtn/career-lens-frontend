@@ -20,8 +20,10 @@ import CareerItem from "../_components/career-item";
 import CustomPagination from "@/components/custom-pagination";
 import DevelopmentTooltip from "@/components/development-tooltip";
 import CustomSearchInput from "@/components/custom-search-input";
+import useAppSnackbar from "@/hooks/use-app-snackbar";
 
 const CareerContent = () => {
+  const { showSnackbarError } = useAppSnackbar();
   const {
     getCareersApi,
     filterConfig,
@@ -32,6 +34,17 @@ const CareerContent = () => {
   } = useCareerSearch();
 
   const handleAnalyze = useCallback(() => {
+    if (
+      !filter.salary[0] &&
+      !filter.salary[1] &&
+      !filter.experience[0] &&
+      !filter.experience[1] &&
+      !filter.skills.length &&
+      !filter.major
+    ) {
+      showSnackbarError("Vui lòng chọn tiêu chí để tìm kiếm nghề nghiệp.");
+      return;
+    }
     getCareersApi.call({
       salary_min: filter.salary[0],
       salary_max: filter.salary[1],
@@ -50,17 +63,22 @@ const CareerContent = () => {
       ...filter,
       key: value,
     });
-    getCareersApi.call({
-      salary_min: filter.salary[0],
-      salary_max: filter.salary[1],
-      experience_min: filter.experience[0],
-      experience_max: filter.experience[1],
-      skills: filter.skills.length > 0 ? filter.skills : undefined,
-      major: filter.major,
-      offset: pagination.page * pagination.rowsPerPage,
-      limit: pagination.rowsPerPage,
-      key: value,
-    });
+
+    if (value) {
+      getCareersApi.call({
+        salary_min: filter.salary[0],
+        salary_max: filter.salary[1],
+        experience_min: filter.experience[0],
+        experience_max: filter.experience[1],
+        skills: filter.skills.length > 0 ? filter.skills : undefined,
+        major: filter.major,
+        offset: pagination.page * pagination.rowsPerPage,
+        limit: pagination.rowsPerPage,
+        key: value,
+      });
+    } else {
+      showSnackbarError("Vui lòng nhập từ khóa để tìm kiếm nghề nghiệp.");
+    }
   }, []);
 
   return (
