@@ -7,7 +7,7 @@ export const paths = {
   onboarding: "/onboarding",
   dashboard: "/dashboard",
   profile: {
-    detail: "/profile/:username",
+    detail: "/profile",
   },
   career: {
     index: "/careers",
